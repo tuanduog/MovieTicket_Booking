@@ -2,15 +2,15 @@ package utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public enum InvoiceStatus {
+public enum TicketStatus {
     @JsonProperty("pending")
     PENDING,
     @JsonProperty("cancelled")
     CANCELLED,
-    @JsonProperty("shipping")
-    SHIPPING,
-    @JsonProperty("delivered")
-    DELIVERED,
+    @JsonProperty("waiting")
+    WAITING,
+    @JsonProperty("done")
+    DONE,
     @JsonProperty("refunded")
     REFUNDED;
 
