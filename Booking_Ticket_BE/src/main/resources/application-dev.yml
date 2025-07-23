@@ -3,7 +3,7 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/pc_store?useSSL=false&serverTimezone=UTC}
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/booking_ticket?useSSL=false&serverTimezone=UTC}
     username: ${MYSQL_USER:Unknown}
     password: ${MYSQL_PASSWORD:Drsunknown}
   jpa:
@@ -27,6 +27,6 @@ openapi:
     title: API Document
     version: 1.0.0
 server:
-  port: 8036
+  port: 8099
 jwt:
   signerKey : "jimCkrbwN6xbegs1wNqLlyqsAk2vsGqSJ2d9oOCvXIE57Qa34TlgM3Xe48Q8IxPp"
