@@ -4,16 +4,6 @@
 
 }
 
-.topblack {
-    height: 40px;
-    width: 100%;
-    background-color: black;
-}
-/* .banner img {
-    max-height: 400px;
-    object-fit: cover;
-} */
-
 .tab-wrapper {
     display: flex;
     justify-content: center;
@@ -32,7 +22,7 @@
 }
 
 .tab.active {
-    color: #0d6efd !important;
+    color: blue;
 }
 
 .tab.active::after {
@@ -42,7 +32,7 @@
     left: 0;
     height: 3px;
     width: 100%;
-    background-color: #0d6efd;
+    background-color: blue;
     transition: all 0.3s ease-out;
 }
 
@@ -55,3 +45,4 @@
   color: #0d6efd;    
   text-decoration: underline;
 }
+

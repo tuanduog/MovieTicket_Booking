@@ -1,13 +1,27 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Homepage from "./Home/Home";
+import Header from "./Header/Header";
+import Footer from './Footer/Footer';
+import Movies from './Movies/Movies';
+import Ranking from "./Ranking/Ranking";
+import Theater from "./Theater/Theater";
+import Member from "./Member/Member";
+import Movie_detail from "./Movies/Movie_detail";
 
 function App() {
   return (  
     <BrowserRouter>
+      <Header/>
       <Routes>
         <Route path="/" element={<Homepage/>}></Route>
+        <Route path="/Movies" element={<Movies/>}></Route>
+        <Route path="/Ranking" element={<Ranking/>}></Route>
+        <Route path="/Theater" element={<Theater/>}></Route>
+        <Route path="/Member" element={<Member/>}></Route>
+        <Route path="/Movie_detail" element={<Movie_detail/>}></Route>
       </Routes>
+      <Footer/>
     </BrowserRouter>
   );
 }
