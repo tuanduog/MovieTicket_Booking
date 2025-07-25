@@ -1,15 +1,13 @@
 package com.booking.booking_ticket.controller.payment;
 
 
-import com.CyberSecCourse.FinalProject.dto.request.InvoiceRequest;
-import com.CyberSecCourse.FinalProject.service.impl.CheckoutServiceImpl;
-import com.CyberSecCourse.FinalProject.type.CreatePaymentLinkRequestBody;
-import com.CyberSecCourse.FinalProject.utils.InvoiceStatus;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import type.CreatePaymentLinkRequestBody;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
@@ -27,7 +25,6 @@ import java.util.Map;
 public class OrderController {
 
     private final PayOS payOS;
-    private final CheckoutServiceImpl checkoutService;
 
     @PostMapping(path = "/create")
     public ObjectNode createPaymentLink(@RequestBody CreatePaymentLinkRequestBody RequestBody) {
@@ -52,15 +49,15 @@ public class OrderController {
             CheckoutResponseData data = payOS.createPaymentLink(paymentData);
 
             //lưu pending status invoice vào db
-            InvoiceRequest invoiceRequest = RequestBody.getInvoiceRequest();
-            invoiceRequest.setInvoice_status(InvoiceStatus.PENDING);
-            invoiceRequest.setOrder_code(orderCode);
-            invoiceRequest.setPayment_method("QR_CODE");
-            invoiceRequest.setExpired_at(new Date(paymentData.getExpiredAt()).toInstant());
-
-            log.info(invoiceRequest.toString());
-
-            checkoutService.checkOut1(invoiceRequest);
+//            InvoiceRequest invoiceRequest = RequestBody.getInvoiceRequest();
+//            invoiceRequest.setInvoice_status(InvoiceStatus.PENDING);
+//            invoiceRequest.setOrder_code(orderCode);
+//            invoiceRequest.setPayment_method("QR_CODE");
+//            invoiceRequest.setExpired_at(new Date(paymentData.getExpiredAt()).toInstant());
+//
+//            log.info(invoiceRequest.toString());
+//
+//            checkoutService.checkOut1(invoiceRequest);
 
             response.put("error", 0);
             response.put("message", "success");

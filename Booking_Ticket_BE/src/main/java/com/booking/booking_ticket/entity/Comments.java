@@ -16,14 +16,13 @@ import java.time.Instant;
 public class Comments {
 
     @Id
-    @Column(name = "comment_id", nullable = false)
+    @Column(name = "commentid")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer commentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
     private Movies movie;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

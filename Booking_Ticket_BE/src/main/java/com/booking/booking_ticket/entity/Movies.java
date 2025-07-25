@@ -28,7 +28,7 @@ public class Movies {
     private String movieDescription;
     @Column(name = "director", nullable = false)
     private String director;
-    @Column(name = "case", nullable = false)
+    @Column(name = "cast", nullable = false)
     private String cast;
     @Column(name = "genre", nullable = false)
     private String genre;

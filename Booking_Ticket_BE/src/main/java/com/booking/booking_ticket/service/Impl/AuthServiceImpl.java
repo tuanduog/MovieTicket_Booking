@@ -79,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .claim("scope",role)
                 .subject(account.getUsername())
-                .issuer("36Cinema.com")
+                .issuer("BetaCineplex.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .build();
@@ -135,6 +135,10 @@ public class AuthServiceImpl implements AuthService {
         Users a = Users.builder()
                 .username(registerRequestDTO.getUsername())
                 .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
+                .email(registerRequestDTO.getEmail())
+                .phone(registerRequestDTO.getPhone())
+                .membership("no membership")
+                .userRole(UserRole.CUSTOMER)
                 .build();
 
         Users customer = usersRepository.save(a);

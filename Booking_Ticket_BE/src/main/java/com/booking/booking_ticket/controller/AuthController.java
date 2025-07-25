@@ -41,7 +41,7 @@ public class AuthController {
                         .path("/")
                         .maxAge(Duration.ofHours(1))
                         .build();
-
+                System.out.println(cookie.toString());
                 response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
                 return new ResponseData<>(HttpStatus.OK.value(),"User authenticated",result);
