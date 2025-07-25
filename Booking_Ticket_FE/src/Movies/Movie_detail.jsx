@@ -1,12 +1,98 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 import poster from '../assets/phim1.png';
 import '../Movies/Movie_detail.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function Movie_detail() {
+    const [showModal, setShowModal] = useState(false);
+    const [confirmPopup, setConfirmPopup] = useState(false);
+    const navigate = useNavigate();
+    const handleCloseModal = () => {
+        setShowModal(false);
+    }
+    const handleOpenModal = () => {
+        setShowModal(true);
+    }
+    const handleCloseConfirm = () => {
+        setConfirmPopup(false);
+    }
+
+    const handleOpenConfirm = () => {
+        setConfirmPopup(true);
+    }
+    const handleBooking = () => {
+        navigate('/Booking');
+    }
     return (
         <div className="container mt-5">
+            {showModal && (
+                <div className="modal-overlay" onClick={handleCloseModal}>
+                    <div className="modal-box" onClick={e => e.stopPropagation()}>
+                        <span className="close-btn" onClick={handleCloseModal}>&times;</span>
+                        <h3>LỊCH CHIẾU - CON NÍT QUỶ</h3>
+                        <h4 className='d-flex justify-content-center mt-4 mb-4'>Rạp Beta Thanh Xuân</h4>
+                        <div className="date-list" style={{fontSize: '18px'}}>
+                            {["24", "25", "26", "27", "28", "29", "30", "31"].map((d, i) => (
+                                <div key={i} className={i === 0 ? 'active' : ''}>{d}/07</div>
+                            ))}
+                        </div>
+                        <h6>2D PHỤ ĐỀ</h6>
+                        <div className="showtimes">
+                            <div className="showtime" onClick={handleOpenConfirm}>
+                            <div className="time">18:30</div>
+                            <div className="seats">132 ghế trống</div>
+                            </div>
+                            <div className="showtime">
+                                <div className="time">18:30</div>
+                                <div className="seats">132 ghế trống</div>
+                            </div>
+                            <div className="showtime">
+                                <div className="time">18:30</div>
+                                <div className="seats">132 ghế trống</div>
+                            </div>
+                            <div className="showtime">
+                                <div className="time">18:30</div>
+                                <div className="seats">132 ghế trống</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {confirmPopup && (
+            <div className="modal-overlay" onClick={handleCloseConfirm}>
+                <div className="modal-box" onClick={e => e.stopPropagation()}>
+                <span className="close-btn" onClick={handleCloseConfirm}>&times;</span>
+                <h4 className='text-center mt-3'>BẠN ĐANG ĐẶT VÉ XEM PHIM</h4>
+                <h3 className='text-center text-primary mb-4'>Tên phim</h3>
+
+                <table className="table text-center">
+                    <thead>
+                    <tr>
+                        <th>Rạp chiếu</th>
+                        <th>Ngày chiếu</th>
+                        <th>Giờ chiếu</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><strong>Beta Thái Nguyên</strong></td>
+                        <td><strong>24/07/2025</strong></td>
+                        <td><strong>22:10</strong></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div className="text-center mt-4 mb-2">
+                    <button className="btn btn-primary px-4" onClick={handleBooking}>
+                    ĐỒNG Ý
+                    </button>
+                </div>
+                </div>
+            </div>
+            )}
+
             <div className="row">
                 <div className="col-md-3">
                     <img src={poster} alt="Poster phim" className="img-fluid rounded shadow" />
@@ -25,7 +111,7 @@ function Movie_detail() {
                     </p>
 
                     <div className="mt-4 d-flex gap-3">
-                        <button className="btn btn-primary">
+                        <button className="btn btn-primary" onClick={handleOpenModal}>
                             Đặt vé ngay
                         </button>
                         <a href="https://www.youtube.com/watch?v=example" target="_blank" rel="noopener noreferrer" className="btn btn-outline-danger">
