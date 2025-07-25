@@ -25,9 +25,9 @@ function Header() {
         <div>
             <div className="topblack">
                 <div className="d-flex justify-content-end align-items-center text-white pe-4" style={{ height: '40px', fontSize: '14px' }}>
-                    <p className="mb-0 me-2">Đăng nhập</p>
+                    <p className="mb-0 me-2" style={{cursor: 'pointer'}}>Đăng nhập</p>
                     <p className="mb-0">|</p>
-                    <p className="mb-0 ms-2">Đăng ký</p>
+                    <p className="mb-0 ms-2" style={{cursor: 'pointer'}}>Đăng ký</p>
                 </div>
             </div>
 
@@ -55,7 +55,7 @@ function Header() {
                             <a className="nav-link active" href="" onClick={handleTheater}>Rạp</a>
                             <a className="nav-link active" href="" onClick={handleRanking}>Xếp hạng phim</a>
                             <a className="nav-link active" href="" onClick={handleMember}>Thành viên</a>
-                            <a className="nav-link active" href="">Liên hệ</a>
+                            <a className="nav-link active" href="">Đăng ký thành viên</a>
                         </div>
                     </div>
                     

@@ -9,10 +9,10 @@
     width: 100%;
     background-color: black;
 }
-/* .banner img {
-    max-height: 400px;
+.banner img {
+    max-height: 700px;
     object-fit: cover;
-} */
+}
 
 .tab-wrapper {
     display: flex;

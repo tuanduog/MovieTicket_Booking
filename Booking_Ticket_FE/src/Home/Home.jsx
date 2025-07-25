@@ -3,6 +3,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './Home.module.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Slider from 'react-slick';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import banner1 from '../assets/banner1.png';
+import banner2 from '../assets/banner2.png';
+import banner3 from '../assets/banner3.png';
+import banner4 from '../assets/banner4.png';
+import banner5 from '../assets/banner5.png';
 
 function Homepage() {
     const [nowShowing, setNowShowing] = useState(true);
@@ -10,10 +18,54 @@ function Homepage() {
     const handleMovieDetails = () => {
         navigate("/Movie_detail");
     }
+
+    const banners = [
+    {
+      id: 1,
+      url: banner1,
+    },
+    {
+      id: 2,
+      url: banner2,
+    },
+    {
+      id: 3,
+      url: banner3,
+    },
+    {
+        id: 4,
+        url: banner4,
+    }
+    ,{
+        id: 5,
+        url: banner5,
+    }
+    ];
+
+    const settings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        autoplay: true,
+        autoplaySpeed: 4000,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        arrows: false,
+    }
     return (
         <div>
             <div className={styles.banner}>
-                <img src="https://dummyimage.com/1200x400/000/fff&text=Banner+Beta+Cineplex" alt="Banner" className="img-fluid w-100" />
+            <Slider {...settings}>
+                {banners.map((item) => (
+                <div key={item.id}>
+                    <img
+                    src={item.url}
+                    alt={`Banner ${item.id}`}
+                    className="img-fluid w-100"
+                    />
+                </div>
+                ))}
+            </Slider>
             </div>
 
             <div className="container mt-5">
