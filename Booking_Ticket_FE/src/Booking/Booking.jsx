@@ -2,9 +2,16 @@ import React from "react";
 import '../Booking/Booking.css';
 import pic from '../assets/phim1.png';
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function Booking () {
     const navigate = useNavigate();
+    const [movieInfo, setMovieInfo] = useState({});
+
+    useEffect(() => {
+        const data = JSON.parse(localStorage.getItem('movieInfo'));
+        if (data) setMovieInfo(data);
+    }, []);
     const seatTypes = {
         vip: ['D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'E6', 'E7', 'E8', 'E9']
     };
@@ -82,14 +89,14 @@ function Booking () {
 
                 {/* Khu vực thông tin phim */}
                 <div className="ticket-summary">
-                    <img src={pic} className="img-fluid mb-3 rounded" alt="Poster" width={220} />
-                    <h5 className="fw-bold text-primary">Con Nít Quỷ</h5>
+                    <img src={movieInfo.image} className="img-fluid mb-3 rounded" alt="Poster" width={220} />
+                    <h5 className="fw-bold text-primary">{movieInfo.movieName}</h5>
                     <p>2D Phụ đề</p>
                     <ul className="list-unstyled">
-                        <li><strong>Thể loại:</strong> Kinh dị</li>
-                        <li><strong>Thời lượng:</strong> 105 phút</li>
+                        <li><strong>Thể loại:</strong> {movieInfo.genre}</li>
+                        <li><strong>Thời lượng:</strong> {movieInfo.duration}</li>
                         <li><strong>Rạp chiếu:</strong> Beta Thái Nguyên</li>
-                        <li><strong>Ngày chiếu:</strong> 24/07/2025</li>
+                        <li><strong>Ngày chiếu:</strong> {movieInfo.releaseDate}</li>
                         <li><strong>Giờ chiếu:</strong> 20:45</li>
                         <li><strong>Phòng chiếu:</strong> P2</li>
                         <li><strong>Ghế ngồi:</strong> C7, C8</li>
