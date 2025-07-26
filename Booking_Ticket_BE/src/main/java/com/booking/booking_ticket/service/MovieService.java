@@ -1,0 +1,18 @@
+package com.booking.booking_ticket.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import com.booking.booking_ticket.repository.MovieRepository;
+import org.springframework.stereotype.Service;
+import com.booking.booking_ticket.entity.Movies;
+
+@Service
+public class MovieService {
+    @Autowired
+    private MovieRepository movieRepository;
+
+    public List<Movies> getAllMovies(){
+        return movieRepository.findAll();
+    }
+}

@@ -11,10 +11,15 @@ import banner2 from '../assets/banner2.png';
 import banner3 from '../assets/banner3.png';
 import banner4 from '../assets/banner4.png';
 import banner5 from '../assets/banner5.png';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 function Homepage() {
     const [nowShowing, setNowShowing] = useState(true);
     const navigate = useNavigate();
+
+    const [showingNow, setShowingNow] = useState([]);
+    const [commingSoon, setCommingSoon] = useState([]);
     const handleMovieDetails = () => {
         navigate("/Movie_detail");
     }
@@ -52,6 +57,23 @@ function Homepage() {
         slidesToScroll: 1,
         arrows: false,
     }
+    const fetchMovies = async () => {
+        try {
+            const res = await axios.get("http://localhost:8080/auth/getAll-movies");
+        
+            const s1 = res.data.filter(movie => movie.showing === "Đang chiếu");
+            const c1 = res.data.filter(movie => movie.showing === "Sắp chiếu");
+
+            setShowingNow(s1);
+            setCommingSoon(c1);
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách phim", error);
+        }
+    }
+    useEffect(() => {
+        fetchMovies();
+    })
+
     return (
         <div>
             <div className={styles.banner}>
@@ -86,13 +108,14 @@ function Homepage() {
 
                 {nowShowing ? (
                     <div className="row">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div className="col-md-3 mb-4" key={i}>
+                    {showingNow.map((movie) => (
+                        <div className="col-md-3 mb-4" key={movie.movieId}>
                             <div className="card h-100">
-                                <img src={`https://dummyimage.com/300x350/ccc/000&text=Phim+${i}`} className="card-img-top" alt={`Phim ${i}`} />
+                                <img src={`https://dummyimage.com/300x350/ccc/000&text=Phim`} className="card-img-top"/>
                                 <div className="card-body">
-                                    <h5 className={`card-title ${styles.cardTitleCustom}`} onClick={handleMovieDetails}>Phim {i}</h5>
-                                    <p className="card-text">Mô tả ngắn của phim.</p>
+                                    <h5 className={`card-title ${styles.cardTitleCustom}`}>{movie.movieName}</h5>
+                                    <p style={{margin: '0px', padding: '0px'}}>Thể loại: {movie.genre}</p>
+                                    <p>Thời lượng: {movie.duration}</p>
                                     <a href="#" className="btn btn-primary w-100">Đặt vé</a>
                                 </div>
                             </div>
@@ -101,13 +124,14 @@ function Homepage() {
                     </div>
                 ): (
                     <div className="row">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div className="col-md-3 mb-4" key={i}>
+                    {commingSoon.map((movie) => (
+                        <div className="col-md-3 mb-4" key={movie.movieId}>
                             <div className="card h-100">
-                                <img src={`https://dummyimage.com/300x350/ccc/000&text=Phim+${i}`} className="card-img-top" alt={`Phim ${i}`} />
+                                <img src={`https://dummyimage.com/300x350/ccc/000&text=Phim`} className="card-img-top" />
                                 <div className="card-body">
-                                    <h5 className={`card-title ${styles.cardTitleCustom}`}>Phimzz {i}</h5>
-                                    <p className="card-text">Mô tả ngắn của phim.</p>
+                                    <h5 className={`card-title ${styles.cardTitleCustom}`}>{movie.movieName}</h5>
+                                    <p style={{margin: '0px', padding: '0px'}}>Thể loại: {movie.genre}</p>
+                                    <p>Thời lượng: {movie.duration}</p>
                                     <a href="#" className="btn btn-primary w-100">Đặt vé</a>
                                 </div>
                             </div>
