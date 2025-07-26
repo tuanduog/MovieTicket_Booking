@@ -3,6 +3,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Header.css';
 import logo from '../assets/vite-vite-logo.png';
 import { useNavigate } from 'react-router-dom';
+import { useState,useEffect } from 'react';
+import axios from 'axios';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function Header() {
     const navigate = useNavigate();
@@ -11,6 +16,13 @@ function Header() {
     }
     const handleHome = () => {
         navigate("/");
+    }
+    const handleLogin = () => {
+        navigate("/Login");
+    }
+    const handleRegister = () => {
+        navigate("/Login");
+        document.querySelector('.right-panel-active').classList.toggle('right-panel-active');
     }
     const handleRanking = () => {
         navigate("/Ranking");
@@ -21,13 +33,65 @@ function Header() {
     const handleMember = () => {
         navigate("/Member");
     }
+
+    const [user, setUser] = useState(null);
+    const handleLogout = () => {
+        setUser(null);
+
+        axios.post('http://localhost:8099/auth/logout', {}, {
+            withCredentials: true
+        }).then(res => {
+            console.log("Logout successful");
+            navigate('/');
+        }).catch(err => {
+            console.error("Logout failed", err);
+        }
+        );
+    };
+    const handleAuth = async () => {
+    try {
+        const res = await axios.get('http://localhost:8099/auth/introspect', {
+            withCredentials: true
+        });
+        console.log(res.status);
+        if (res.data.status === 200) {
+            setUser(res.data);
+            console.log("User authenticated:", res.data);
+        } else {
+            setUser(null);
+            console.log(res.data);
+        }
+    } catch (err) {
+        setUser(null);
+        console.error(err);
+    }
+};
+
+ useEffect(() => {
+        handleAuth();
+    }, [location.pathname]); // Chạy khi đường dẫn thay đổi
     return (
         <div>
-            <div className="topblack">
+             <div className="topblack">
                 <div className="d-flex justify-content-end align-items-center text-white pe-4" style={{ height: '40px', fontSize: '14px' }}>
-                    <p className="mb-0 me-2" style={{cursor: 'pointer'}}>Đăng nhập</p>
-                    <p className="mb-0">|</p>
-                    <p className="mb-0 ms-2" style={{cursor: 'pointer'}}>Đăng ký</p>
+                    {!user ? (
+                        <>
+                            <p className="mb-0 me-2" style={{cursor: 'pointer'}} onClick={handleLogin}>Đăng nhập</p>
+                            <p className="mb-0">|</p>
+                            <p className="mb-0 ms-2" style={{cursor: 'pointer'}} onClick={handleRegister}>Đăng ký</p>
+                        </>
+                    ) : (
+                        <div className="dropdown">
+                            <span className="mb-0 me-2 fs-6" style={{cursor: 'pointer'}} data-bs-toggle="dropdown">
+                            Xin chào {user && user.data && user.data.username ? user.data.username : 'Tài khoản'}! <i className="bi bi-caret-down-fill"></i>
+
+                            </span>
+                            <ul className="dropdown-menu dropdown-menu-end">
+                                <li><button className="dropdown-item" onClick={() => navigate('/profile')}>Thông tin cá nhân</button></li>
+                                <li><button className="dropdown-item" onClick={handleLogout}>Đăng xuất</button></li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </div>
 

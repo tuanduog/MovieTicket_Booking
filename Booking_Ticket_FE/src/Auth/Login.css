@@ -99,7 +99,7 @@ input {
 	overflow: hidden;
 	width: 768px;
 	max-width: 100%;
-	min-height: 480px;
+	min-height: 500px;
 }
 
 .form-container {
@@ -228,6 +228,6 @@ input {
 }
 
 .form-container form {
-  max-height: 450px;
+  max-height: 600px;
   overflow-y: auto;
 }

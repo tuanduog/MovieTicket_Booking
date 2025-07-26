@@ -27,9 +27,13 @@ const [registerData, setRegisterData] = useState({
     try {
 const res = await axios.post('http://localhost:8099/auth/login', loginData, {
   withCredentials: true
-});        if (res.status === 200) {
+});        if (res.data.status === 200) {
               navigate('/');
               console.log("Login successful"); 
+              alert("Đăng nhập thành công");
+            } else {
+              alert("Đăng nhập không thành công, vui lòng kiểm tra lại tài khoản hoặc mật khẩu.");
+
         }
       console.log(res.data);
     } catch (err) {
@@ -65,12 +69,7 @@ const handleRegisterSubmit = async e => {
       <div className="form-container sign-up-container">
         <form action="#" onSubmit={handleRegisterSubmit}>
           <h1>Tạo tài khoản</h1>
-          <div className="social-container">
-            <a href="#" className="social"><i className="fab fa-facebook-f"></i></a>
-            <a href="#" className="social"><i className="fab fa-google-plus-g"></i></a>
-            <a href="#" className="social"><i className="fab fa-linkedin-in"></i></a>
-          </div>
-          <span>or use your Email for registration</span>
+          
           <input type="text" name="username" placeholder="Username" value={registerData.username} onChange={handleRegisterChange} />
   <input type="email" name="email" placeholder="Email" value={registerData.email} onChange={handleRegisterChange} />
   <input type="password" name="password" placeholder="Password" value={registerData.password} onChange={handleRegisterChange} />
