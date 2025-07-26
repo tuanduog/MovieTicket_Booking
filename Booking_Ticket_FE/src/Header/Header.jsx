@@ -13,10 +13,16 @@ function Header() {
 
     const [user, setUser] = useState(null);
 
+    const [name, setName] = useState('');
+
     const handleLogin = (type) => {
         navigate("/Login", { state: { type } });
     };
 
+    const handleFilter = (e) => {
+        e.preventDefault();
+        navigate("/Filter", { state: { name } });
+    };
     const handleLogout = () => {
         setUser(null);
         axios.post('http://localhost:8099/auth/logout', {}, {
@@ -108,8 +114,9 @@ function Header() {
                         </div>
                     </div>
 
-                    <form className="d-flex justify-content-end" role="search" onSubmit={e => e.preventDefault()}>
-                        <input className="form-control me-2" type="search" placeholder="Tìm phim..." aria-label="Search" />
+                    <form className="d-flex justify-content-end" role="search" onSubmit={handleFilter}>
+                        <input className="form-control me-2" type="search" placeholder="Tìm phim..." aria-label="Search"  value={name}
+    onChange={(e) => setName(e.target.value)} />
                         <button className="btn btn-primary" type="submit">Tìm</button>
                     </form>
                 </div>
