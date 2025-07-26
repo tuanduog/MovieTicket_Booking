@@ -13,10 +13,10 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
+                registry.addMapping("/**") // Cho phép tất cả endpoint
+                        .allowedOrigins("http://localhost:5173") // Cho phép frontend
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowedMethods("*")
-                        .allowedOrigins("http://localhost:5500")
                         .allowCredentials(true);
 
 

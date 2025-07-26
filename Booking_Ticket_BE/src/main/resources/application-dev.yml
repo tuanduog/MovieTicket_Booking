@@ -27,6 +27,6 @@ openapi:
     title: API Document
     version: 1.0.0
 server:
-  port: 8080
+  port: 8099
 jwt:
   signerKey : "jimCkrbwN6xbegs1wNqLlyqsAk2vsGqSJ2d9oOCvXIE57Qa34TlgM3Xe48Q8IxPp"

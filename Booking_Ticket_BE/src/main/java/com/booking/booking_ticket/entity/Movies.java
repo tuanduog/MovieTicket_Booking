@@ -22,15 +22,13 @@ public class Movies {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer movieId;
 
-    @Column(name = "image", nullable = false)
-    private String image;
     @Column(name = "movie_name", nullable = false)
     private String movieName;
     @Column(name = "description", nullable = false)
     private String movieDescription;
     @Column(name = "director", nullable = false)
     private String director;
-    @Column(name = "case", nullable = false)
+    @Column(name = "cast", nullable = false)
     private String cast;
     @Column(name = "genre", nullable = false)
     private String genre;
@@ -63,5 +61,14 @@ public class Movies {
     @OneToMany(mappedBy = "movie")
     @ToString.Exclude
     private Set<Booking> setBooking = new HashSet();
+
+
+
+
+
+
+
+
+
 
 }

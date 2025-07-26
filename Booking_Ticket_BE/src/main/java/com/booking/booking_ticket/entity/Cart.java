@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "movies")
+@Table(name = "cart")
 @Getter
 @Setter
 @Builder
@@ -14,7 +14,7 @@ import lombok.*;
 public class Cart {
 
     @Id
-    @Column(name = "cart_id", nullable = false)
+    @Column(name = "cartid")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer cartId;
 

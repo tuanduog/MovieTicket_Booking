@@ -10,6 +10,7 @@ import Member from "./Member/Member";
 import Movie_detail from "./Movies/Movie_detail";
 import Booking from "./Booking/Booking";
 import PaymentInfo from "./Payment/Payment_info";
+import Login from "./Auth/Login";
 
 function App() {
   return (  
@@ -24,6 +25,7 @@ function App() {
         <Route path="/Movie_detail" element={<Movie_detail/>}></Route>
         <Route path="/Booking" element={<Booking/>}></Route>
         <Route path="/Payment_info" element={<PaymentInfo/>}></Route>
+        <Route path="/Login" element={<Login/>}></Route>
       </Routes>
       <Footer/>
     </BrowserRouter>

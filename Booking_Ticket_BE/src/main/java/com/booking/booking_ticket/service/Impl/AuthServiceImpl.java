@@ -79,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .claim("scope",role)
                 .subject(account.getUsername())
-                .issuer("36Cinema.com")
+                .issuer("BetaCineplex.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .build();
@@ -105,6 +105,7 @@ public class AuthServiceImpl implements AuthService {
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
+
         if(token == null)
             return IntrospectiveResponse.builder().isValid(false).build();
         boolean checkInvalid = (invalidTokenRepsitory.findById(token) == null) ? false : true;
@@ -126,6 +127,7 @@ public class AuthServiceImpl implements AuthService {
 
         return IntrospectiveResponse.builder()
                 .isValid(verifired && exprirationTime.after(new Date()) && !checkInvalid)
+                .username(jwt.getJWTClaimsSet().getSubject())
                 .build();
     }
 
@@ -135,6 +137,10 @@ public class AuthServiceImpl implements AuthService {
         Users a = Users.builder()
                 .username(registerRequestDTO.getUsername())
                 .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
+                .email(registerRequestDTO.getEmail())
+                .phone(registerRequestDTO.getPhone())
+                .membership("no membership")
+                .userRole(UserRole.CUSTOMER)
                 .build();
 
         Users customer = usersRepository.save(a);

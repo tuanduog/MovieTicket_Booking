@@ -1,5 +1,6 @@
 package com.booking.booking_ticket.dto.request;
 
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.io.Serializable;
@@ -18,6 +19,7 @@ public class RegisterRequestDTO implements Serializable {
 
     private String lastName;
 
+    @Email
     private String email;
 
     private Boolean gender;
