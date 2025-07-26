@@ -105,6 +105,7 @@ public class AuthServiceImpl implements AuthService {
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
+
         if(token == null)
             return IntrospectiveResponse.builder().isValid(false).build();
         boolean checkInvalid = (invalidTokenRepsitory.findById(token) == null) ? false : true;
@@ -126,6 +127,7 @@ public class AuthServiceImpl implements AuthService {
 
         return IntrospectiveResponse.builder()
                 .isValid(verifired && exprirationTime.after(new Date()) && !checkInvalid)
+                .username(jwt.getJWTClaimsSet().getSubject())
                 .build();
     }
 

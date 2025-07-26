@@ -8,4 +8,6 @@ import lombok.Getter;
 public class IntrospectiveResponse {
 
     private Boolean isValid;
+
+    private String username;
 }

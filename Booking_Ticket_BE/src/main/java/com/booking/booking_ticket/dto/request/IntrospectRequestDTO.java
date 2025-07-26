@@ -13,5 +13,4 @@ public class IntrospectRequestDTO  implements Serializable {
 
     String token;
 
-
 }
