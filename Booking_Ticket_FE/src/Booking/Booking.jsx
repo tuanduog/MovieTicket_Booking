@@ -91,7 +91,7 @@ function Booking () {
                 <div className="ticket-summary">
                     <img src={movieInfo.image} className="img-fluid mb-3 rounded" alt="Poster" width={220} />
                     <h5 className="fw-bold text-primary">{movieInfo.movieName}</h5>
-                    <p>2D Phụ đề</p>
+                    <p><strong>2D Phụ đề</strong></p>
                     <ul className="list-unstyled">
                         <li><strong>Thể loại:</strong> {movieInfo.genre}</li>
                         <li><strong>Thời lượng:</strong> {movieInfo.duration}</li>

@@ -11,8 +11,11 @@ function Movie_detail() {
     const [showModal, setShowModal] = useState(false);
     const [confirmPopup, setConfirmPopup] = useState(false);
     const [movieInfo, setMovieInfo] = useState([]);
+    const [showTrailer, setShowTrailer] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const trailerUrl = "https://www.youtube.com/watch?v=BGS4l3xEc-0";
+    const embedUrl = trailerUrl.replace("watch?v=", "embed/");
     const handleCloseModal = () => {
         setShowModal(false);
     }
@@ -24,6 +27,9 @@ function Movie_detail() {
     }
     const handleOpenConfirm = () => {
         setConfirmPopup(true);
+    }
+    const handleCloseTrailer = () => {
+        setShowTrailer(false);
     }
     const handleBooking = (movieInfo) => {
         localStorage.setItem('movieInfo', JSON.stringify(movieInfo));
@@ -45,6 +51,28 @@ function Movie_detail() {
     
     return (
         <div className="container mt-5">
+            {showTrailer && (
+            <div className="modal-overlay" onClick={handleCloseTrailer}>
+                <div
+                className="modal-box p-3 rounded shadow"
+                style={{ maxWidth: '800px', width: '90%' }}
+                onClick={(e) => e.stopPropagation()}
+                >
+                <span className="close-btn fs-3" onClick={handleCloseTrailer}>&times;</span>
+                <div className="ratio ratio-16x9">
+                    <iframe
+                    width="100%"
+                    height="400"
+                    src={embedUrl}
+                    title="YouTube Trailer"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    ></iframe>
+                </div>
+                </div>
+            </div>
+            )}
             {showModal && (
                 <div className="modal-overlay" onClick={handleCloseModal}>
                     <div className="modal-box p-4 rounded shadow" onClick={(e) => e.stopPropagation()}>
@@ -148,7 +176,7 @@ function Movie_detail() {
                         <button className="btn btn-primary" onClick={handleOpenModal}>
                             Đặt vé ngay
                         </button>
-                        <a href="https://www.youtube.com/watch?v=example" target="_blank" rel="noopener noreferrer" className="btn btn-outline-danger">
+                        <a className="btn btn-outline-danger" onClick={() => setShowTrailer(true)}>
                             🎬 Xem trailer
                         </a>
                     </div>
