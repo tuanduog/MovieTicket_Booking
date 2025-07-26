@@ -59,11 +59,10 @@ function Homepage() {
     }
     const fetchMovies = async () => {
         try {
-            const res = await axios.get("http://localhost:8080/auth/getAll-movies");
-        
+            const res = await axios.get("http://localhost:8099/auth/getAll-movies");
             const s1 = res.data.filter(movie => movie.showing === "Đang chiếu");
             const c1 = res.data.filter(movie => movie.showing === "Sắp chiếu");
-
+            console.log(res.data);
             setShowingNow(s1);
             setCommingSoon(c1);
         } catch (error) {
@@ -72,7 +71,7 @@ function Homepage() {
     }
     useEffect(() => {
         fetchMovies();
-    })
+    },[]);
 
     return (
         <div>
@@ -107,32 +106,80 @@ function Homepage() {
                 </div>
 
                 {nowShowing ? (
-                    <div className="row">
+                    <div className="row d-flex justify-content-center" style={{ maxWidth: '1400px', gap: '24px'}}>
                     {showingNow.map((movie) => (
-                        <div className="col-md-3 mb-4" key={movie.movieId}>
-                            <div className="card h-100">
-                                <img src={`https://dummyimage.com/300x350/ccc/000&text=Phim`} className="card-img-top"/>
-                                <div className="card-body">
-                                    <h5 className={`card-title ${styles.cardTitleCustom}`}>{movie.movieName}</h5>
-                                    <p style={{margin: '0px', padding: '0px'}}>Thể loại: {movie.genre}</p>
-                                    <p>Thời lượng: {movie.duration}</p>
-                                    <a href="#" className="btn btn-primary w-100">Đặt vé</a>
+                        <div className="col-md-2 mb-4" key={movie.movieId}>
+                            <div
+                                className="card h-100 shadow-sm border-0"
+                                style={{
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                                transition: 'transform 0.3s ease',
+                                }}
+                            >
+                                <img
+                                src={movie.image}
+                                className="card-img-top"
+                                alt={movie.movieName}
+                                style={{
+                                    height: '320px',
+                                    objectFit: 'cover',
+                                    borderRadius: '12px',
+                                }}
+                                />
+                                <div className="card-body px-3 py-2">
+                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                    {movie.movieName}
+                                </h6>
+                                <p className="mb-1" style={{ fontSize: '14px' }}>
+                                    <strong>Thể loại:</strong> {movie.genre}
+                                </p>
+                                <p className="mb-2" style={{ fontSize: '14px' }}>
+                                    <strong>Thời lượng:</strong> {movie.duration}
+                                </p>
+                                <a href="#" className="btn btn-primary btn-sm w-100 rounded">
+                                    Đặt vé
+                                </a>
                                 </div>
                             </div>
                         </div>
                     ))}
                     </div>
                 ): (
-                    <div className="row">
+                    <div className="row d-flex justify-content-center" style={{ maxWidth: '1400px', gap: '24px' }}>
                     {commingSoon.map((movie) => (
-                        <div className="col-md-3 mb-4" key={movie.movieId}>
-                            <div className="card h-100">
-                                <img src={`https://dummyimage.com/300x350/ccc/000&text=Phim`} className="card-img-top" />
-                                <div className="card-body">
-                                    <h5 className={`card-title ${styles.cardTitleCustom}`}>{movie.movieName}</h5>
-                                    <p style={{margin: '0px', padding: '0px'}}>Thể loại: {movie.genre}</p>
-                                    <p>Thời lượng: {movie.duration}</p>
-                                    <a href="#" className="btn btn-primary w-100">Đặt vé</a>
+                        <div className="col-md-2 mb-4" key={movie.movieId}>
+                            <div
+                                className="card h-100 shadow-sm border-0"
+                                style={{
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                                transition: 'transform 0.3s ease',
+                                }}
+                            >
+                                <img
+                                src={movie.image}
+                                className="card-img-top"
+                                alt={movie.movieName}
+                                style={{
+                                    height: '300px',
+                                    objectFit: 'cover',
+                                    borderRadius: '12px',
+                                }}
+                                />
+                                <div className="card-body px-3 py-2" style={{ minWidth: 0 }}>
+                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                    {movie.movieName}
+                                </h6>
+                                <p className="mb-1" style={{ fontSize: '14px' }}>
+                                    <strong>Thể loại:</strong> {movie.genre}
+                                </p>
+                                <p className="mb-2" style={{ fontSize: '14px' }}>
+                                    <strong>Thời lượng:</strong> {movie.duration}
+                                </p>
+                                <a href="#" className="btn btn-primary btn-sm w-100 rounded">
+                                    Đặt vé
+                                </a>
                                 </div>
                             </div>
                         </div>

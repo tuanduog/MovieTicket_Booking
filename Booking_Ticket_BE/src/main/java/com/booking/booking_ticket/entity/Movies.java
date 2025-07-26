@@ -22,6 +22,8 @@ public class Movies {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer movieId;
 
+    @Column(name = "image", nullable = false)
+    private String image;
     @Column(name = "movie_name", nullable = false)
     private String movieName;
     @Column(name = "description", nullable = false)
@@ -36,6 +38,8 @@ public class Movies {
     private String duration;
     @Column(name = "release_date", nullable = false)
     private LocalDate releaseDate;
+    @Column(name = "showing", nullable = false)
+    private String showing;
 
 
     @OneToMany(mappedBy = "movie")
