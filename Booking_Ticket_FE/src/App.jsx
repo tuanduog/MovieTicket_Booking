@@ -8,6 +8,10 @@ import Ranking from "./Ranking/Ranking";
 import Theater from "./Theater/Theater";
 import Member from "./Member/Member";
 import Movie_detail from "./Movies/Movie_detail";
+import Booking from "./Booking/Booking";
+import PaymentInfo from "./Payment/Payment_info";
+import Login from "./Auth/Login";
+import Up from "./up";
 
 function App() {
   return (  
@@ -20,6 +24,10 @@ function App() {
         <Route path="/Theater" element={<Theater/>}></Route>
         <Route path="/Member" element={<Member/>}></Route>
         <Route path="/Movie_detail" element={<Movie_detail/>}></Route>
+        <Route path="/Booking" element={<Booking/>}></Route>
+        <Route path="/Payment_info" element={<PaymentInfo/>}></Route>
+        <Route path="/Login" element={<Login/>}></Route>
+        <Route path="/up" element={<Up/>}></Route>
       </Routes>
       <Footer/>
     </BrowserRouter>
