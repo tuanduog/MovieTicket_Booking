@@ -1,6 +1,7 @@
 package com.booking.booking_ticket.entity;
 
 
+import com.booking.booking_ticket.utils.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,10 @@ public class Booking {
 
     @Column(name = "combo", nullable = false)
     private String commbo;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private TicketStatus ticketStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theater_id")
