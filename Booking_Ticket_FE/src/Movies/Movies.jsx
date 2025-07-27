@@ -12,8 +12,8 @@ function Movies () {
 
     const [showingNow, setShowingNow] = useState([]);
     const [commingSoon, setCommingSoon] = useState([]);
-    const handleMovieDetails = () => {
-        navigate("/Movie_detail");
+    const handleMovieDetails = (id) => {
+        navigate("/Movie_detail", { state: { id }});
     }
     const fetchMovies = async () => {
         try {
@@ -71,7 +71,7 @@ function Movies () {
                                 }}
                                 />
                                 <div className="card-body px-3 py-2">
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
                                     {movie.movieName}
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '14px' }}>
@@ -111,7 +111,7 @@ function Movies () {
                                 }}
                                 />
                                 <div className="card-body px-3 py-2">
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
                                     {movie.movieName}
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '14px' }}>

@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import poster from '../assets/phim1.png';
 import '../Movies/Movie_detail.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import axios from 'axios';
 
 function Movie_detail() {
     const [showModal, setShowModal] = useState(false);
     const [confirmPopup, setConfirmPopup] = useState(false);
+    const [movieInfo, setMovieInfo] = useState([]);
+    const [showTrailer, setShowTrailer] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+    const trailerUrl = "https://www.youtube.com/watch?v=BGS4l3xEc-0";
+    const embedUrl = trailerUrl.replace("watch?v=", "embed/");
     const handleCloseModal = () => {
         setShowModal(false);
     }
@@ -18,103 +25,158 @@ function Movie_detail() {
     const handleCloseConfirm = () => {
         setConfirmPopup(false);
     }
-
     const handleOpenConfirm = () => {
         setConfirmPopup(true);
     }
-    const handleBooking = () => {
+    const handleCloseTrailer = () => {
+        setShowTrailer(false);
+    }
+    const handleBooking = (movieInfo) => {
+        localStorage.setItem('movieInfo', JSON.stringify(movieInfo));
         navigate('/Booking');
     }
+    const fetchMovie = async () => {
+        try {
+            const id = location.state?.id;
+
+            const res = await axios.get(`http://localhost:8099/auth/get-movie/${id}`);
+            setMovieInfo(res.data);
+        } catch (error){
+            console.error("Lỗi khi lấy thông tin phim:", error);
+        }
+    }
+    useEffect(() => {
+        fetchMovie();
+    },[]);
+    
     return (
         <div className="container mt-5">
+            {showTrailer && (
+            <div className="modal-overlay" onClick={handleCloseTrailer}>
+                <div
+                className="modal-box p-3 rounded shadow"
+                style={{ maxWidth: '800px', width: '90%' }}
+                onClick={(e) => e.stopPropagation()}
+                >
+                <span className="close-btn fs-3" onClick={handleCloseTrailer}>&times;</span>
+                <div className="ratio ratio-16x9">
+                    <iframe
+                    width="100%"
+                    height="400"
+                    src={embedUrl}
+                    title="YouTube Trailer"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    ></iframe>
+                </div>
+                </div>
+            </div>
+            )}
             {showModal && (
                 <div className="modal-overlay" onClick={handleCloseModal}>
-                    <div className="modal-box" onClick={e => e.stopPropagation()}>
-                        <span className="close-btn" onClick={handleCloseModal}>&times;</span>
-                        <h3>LỊCH CHIẾU - CON NÍT QUỶ</h3>
-                        <h4 className='d-flex justify-content-center mt-4 mb-4'>Rạp Beta Thanh Xuân</h4>
-                        <div className="date-list" style={{fontSize: '18px'}}>
-                            {["24", "25", "26", "27", "28", "29", "30", "31"].map((d, i) => (
-                                <div key={i} className={i === 0 ? 'active' : ''}>{d}/07</div>
-                            ))}
+                    <div className="modal-box p-4 rounded shadow" onClick={(e) => e.stopPropagation()}>
+                        <span className="close-btn fs-3" onClick={handleCloseModal}>&times;</span>
+
+                        <h3 className="text-uppercase text-center fw-bold mb-3" style={{ color: '#0d6efd' }}>
+                        LỊCH CHIẾU - {movieInfo.movieName}
+                        </h3>
+
+                        <h5 className="text-center mb-4 text-secondary">RẠP BETA THANH XUÂN</h5>
+
+                        <div className="date-list d-flex justify-content-center gap-2 flex-wrap mb-4">
+                        {["24", "25", "26", "27", "28", "29", "30", "31"].map((d, i) => (
+                            <div
+                            key={i}
+                            className={`date-item px-3 py-2 rounded ${i === 0 ? 'bg-primary text-white' : 'bg-light text-dark'}`}
+                            style={{ cursor: 'pointer', minWidth: '60px', textAlign: 'center' }}
+                            >
+                            {d}/07
+                            </div>
+                        ))}
                         </div>
-                        <h6>2D PHỤ ĐỀ</h6>
-                        <div className="showtimes">
-                            <div className="showtime" onClick={handleOpenConfirm}>
-                            <div className="time">18:30</div>
-                            <div className="seats">132 ghế trống</div>
+
+                        <h6 className="text-uppercase fw-bold mb-3 text-muted text-center">2D Phụ Đề</h6>
+
+                        <div className="showtimes d-flex flex-wrap gap-3 justify-content-center">
+                        {[...Array(4)].map((_, i) => (
+                            <div
+                            key={i}
+                            className="showtime border rounded px-4 py-3 text-center"
+                            style={{ minWidth: '120px', cursor: 'pointer', backgroundColor: '#f8f9fa' }}
+                            onClick={handleOpenConfirm}
+                            >
+                            <div className="time fw-bold fs-5 mb-1">18:30</div>
+                            <div className="seats text-muted">132 ghế trống</div>
                             </div>
-                            <div className="showtime">
-                                <div className="time">18:30</div>
-                                <div className="seats">132 ghế trống</div>
-                            </div>
-                            <div className="showtime">
-                                <div className="time">18:30</div>
-                                <div className="seats">132 ghế trống</div>
-                            </div>
-                            <div className="showtime">
-                                <div className="time">18:30</div>
-                                <div className="seats">132 ghế trống</div>
-                            </div>
+                        ))}
                         </div>
                     </div>
                 </div>
             )}
             {confirmPopup && (
             <div className="modal-overlay" onClick={handleCloseConfirm}>
-                <div className="modal-box" onClick={e => e.stopPropagation()}>
-                <span className="close-btn" onClick={handleCloseConfirm}>&times;</span>
-                <h4 className='text-center mt-3'>BẠN ĐANG ĐẶT VÉ XEM PHIM</h4>
-                <h3 className='text-center text-primary mb-4'>Tên phim</h3>
+                <div className="modal-box p-4 rounded shadow" onClick={(e) => e.stopPropagation()}>
+                    <span className="close-btn fs-3" onClick={handleCloseConfirm}>&times;</span>
 
-                <table className="table text-center">
-                    <thead>
-                    <tr>
+                    <h5 className="text-center text-uppercase mt-3 mb-2 text-muted">
+                    Bạn đang đặt vé xem phim
+                    </h5>
+                    <h3 className="text-center text-primary fw-bold mb-4">
+                    {movieInfo.movieName || "Tên phim"}
+                    </h3>
+
+                    <table className="table table-bordered text-center align-middle shadow-sm mb-4">
+                    <thead className="table-light">
+                        <tr>
                         <th>Rạp chiếu</th>
                         <th>Ngày chiếu</th>
                         <th>Giờ chiếu</th>
-                    </tr>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr>
+                        <tr>
                         <td><strong>Beta Thái Nguyên</strong></td>
                         <td><strong>24/07/2025</strong></td>
                         <td><strong>22:10</strong></td>
-                    </tr>
+                        </tr>
                     </tbody>
-                </table>
+                    </table>
 
-                <div className="text-center mt-4 mb-2">
-                    <button className="btn btn-primary px-4" onClick={handleBooking}>
-                    ĐỒNG Ý
+                    <div className="text-center">
+                    <button
+                        className="btn btn-success px-5 py-2 fw-bold"
+                        onClick={() => handleBooking(movieInfo)}
+                    >
+                        ĐỒNG Ý
                     </button>
-                </div>
+                    </div>
                 </div>
             </div>
             )}
 
             <div className="row">
                 <div className="col-md-3">
-                    <img src={poster} alt="Poster phim" className="img-fluid rounded shadow" />
+                    <img src={movieInfo.image} alt="Poster phim" className="img-fluid rounded shadow" />
                 </div>
 
                 <div className="col-md-9">
-                    <h2 className="mb-3">Tên phim: Người Bất Tử</h2>
-                    <p><strong>Thể loại:</strong> Hành động, Kinh dị</p>
-                    <p><strong>Thời lượng:</strong> 120 phút</p>
-                    <p><strong>Khởi chiếu:</strong> 22/07/2025</p>
-                    <p><strong>Đạo diễn:</strong> Victor Vũ</p>
+                    <h2 className="mb-3">Tên phim: {movieInfo.movieName}</h2>
+                    <p><strong>Thể loại:</strong> {movieInfo.genre}</p>
+                    <p><strong>Thời lượng:</strong> {movieInfo.duration}</p>
+                    <p><strong>Khởi chiếu:</strong> {movieInfo.releaseDate}</p>
+                    <p><strong>Đạo diễn:</strong> {movieInfo.director}</p>
 
-                    <p className="mt-4">
+                    <p>
                         <strong>Nội dung:</strong><br />
-                        Bộ phim kể về hành trình bất tử kéo dài hàng trăm năm của một người đàn ông bí ẩn. Trong suốt cuộc đời, anh ta đã trải qua nhiều sự kiện và biến cố để tìm lại nhân tính.
+                        <p style={{fontSize: '15px', paddingTop: '4px'}}>{movieInfo.movieDescription}</p>
                     </p>
 
                     <div className="mt-4 d-flex gap-3">
                         <button className="btn btn-primary" onClick={handleOpenModal}>
                             Đặt vé ngay
                         </button>
-                        <a href="https://www.youtube.com/watch?v=example" target="_blank" rel="noopener noreferrer" className="btn btn-outline-danger">
+                        <a className="btn btn-outline-danger" onClick={() => setShowTrailer(true)}>
                             🎬 Xem trailer
                         </a>
                     </div>
