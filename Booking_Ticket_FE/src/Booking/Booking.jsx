@@ -1,6 +1,5 @@
 import React from "react";
 import '../Booking/Booking.css';
-import pic from '../assets/phim1.png';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 

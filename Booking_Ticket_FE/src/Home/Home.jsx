@@ -127,8 +127,13 @@ function Homepage() {
                                     borderRadius: '12px',
                                 }}
                                 />
+<<<<<<< HEAD
                                 <div className="card-body px-3 py-2 ps-0 pe-0">
                                 <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
+=======
+                                <div className="card-body px-3 py-2">
+                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
+>>>>>>> 82091f1bd45bace2d179e7cdd4a7634b25ca928e
                                     {movie.movieName}
                                 </h6>
                                 <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
@@ -167,8 +172,13 @@ function Homepage() {
                                     borderRadius: '12px',
                                 }}
                                 />
+<<<<<<< HEAD
                                 <div className="card-body px-3 py-2 pe-0 ps-0" style={{ minWidth: 0 }}>
                                 <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
+=======
+                                <div className="card-body px-3 py-2" style={{ minWidth: 0 }}>
+                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
+>>>>>>> 82091f1bd45bace2d179e7cdd4a7634b25ca928e
                                     {movie.movieName}
                                 </h6>
                                 <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
