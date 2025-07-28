@@ -38,6 +38,7 @@ public class Movies {
     private String duration;
     @Column(name = "release_date", nullable = false)
     private LocalDate releaseDate;
+
     @Column(name = "showing", nullable = false)
     private String showing;
 

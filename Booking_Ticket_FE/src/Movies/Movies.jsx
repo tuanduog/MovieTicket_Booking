@@ -12,8 +12,8 @@ function Movies () {
 
     const [showingNow, setShowingNow] = useState([]);
     const [commingSoon, setCommingSoon] = useState([]);
-    const handleMovieDetails = () => {
-        navigate("/Movie_detail");
+    const handleMovieDetails = (id) => {
+        navigate("/Movie_detail", { state: { id }});
     }
     const fetchMovies = async () => {
         try {
@@ -71,16 +71,17 @@ function Movies () {
                                 }}
                                 />
                                 <div className="card-body px-3 py-2">
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
+                               
                                     {movie.movieName}
                                 </h6>
-                                <p className="mb-1" style={{ fontSize: '14px' }}>
-                                    <strong>Thể loại:</strong> {movie.genre}
-                                </p>
+                            <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
+    <strong>Thể loại:</strong> {movie.genre}
+</p>
                                 <p className="mb-2" style={{ fontSize: '14px' }}>
                                     <strong>Thời lượng:</strong> {movie.duration}
                                 </p>
-                                <a href="#" className="btn btn-primary btn-sm w-100 rounded">
+                                <a href="#" className="btn btn-primary btn-sm w-100 rounded" >
                                     Đặt vé
                                 </a>
                                 </div>
@@ -92,7 +93,7 @@ function Movies () {
                     <div className="row d-flex justify-content-center" style={{ maxWidth: '1400px', gap: '24px' }}>
                     {commingSoon.map((movie) => (
                         <div className="col-md-2 mb-4" key={movie.movieId}>
-                            <div
+                           <div
                                 className="card h-100 shadow-sm border-0"
                                 style={{
                                 borderRadius: '12px',
@@ -111,16 +112,17 @@ function Movies () {
                                 }}
                                 />
                                 <div className="card-body px-3 py-2">
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
+                               
                                     {movie.movieName}
                                 </h6>
-                                <p className="mb-1" style={{ fontSize: '14px' }}>
-                                    <strong>Thể loại:</strong> {movie.genre}
-                                </p>
+                            <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
+    <strong>Thể loại:</strong> {movie.genre}
+</p>
                                 <p className="mb-2" style={{ fontSize: '14px' }}>
                                     <strong>Thời lượng:</strong> {movie.duration}
                                 </p>
-                                <a href="#" className="btn btn-primary btn-sm w-100 rounded">
+                                <a href="#" className="btn btn-primary btn-sm w-100 rounded" >
                                     Đặt vé
                                 </a>
                                 </div>

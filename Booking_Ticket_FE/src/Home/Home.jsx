@@ -20,8 +20,8 @@ function Homepage() {
 
     const [showingNow, setShowingNow] = useState([]);
     const [commingSoon, setCommingSoon] = useState([]);
-    const handleMovieDetails = () => {
-        navigate("/Movie_detail");
+    const handleMovieDetails = (id) => {
+        navigate("/Movie_detail", { state : { id }});
     }
 
     const banners = [
@@ -127,14 +127,14 @@ function Homepage() {
                                     borderRadius: '12px',
                                 }}
                                 />
-                                <div className="card-body px-3 py-2">
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                <div className="card-body px-3 py-2 ps-0 pe-0">
+                                <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
                                     {movie.movieName}
                                 </h6>
-                                <p className="mb-1" style={{ fontSize: '14px' }}>
+                                <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
                                     <strong>Thể loại:</strong> {movie.genre}
                                 </p>
-                                <p className="mb-2" style={{ fontSize: '14px' }}>
+                                <p className={`mb-2 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
                                     <strong>Thời lượng:</strong> {movie.duration}
                                 </p>
                                 <a href="#" className="btn btn-primary btn-sm w-100 rounded">
@@ -167,14 +167,14 @@ function Homepage() {
                                     borderRadius: '12px',
                                 }}
                                 />
-                                <div className="card-body px-3 py-2" style={{ minWidth: 0 }}>
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd'}}>
+                                <div className="card-body px-3 py-2 pe-0 ps-0" style={{ minWidth: 0 }}>
+                                <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
                                     {movie.movieName}
                                 </h6>
-                                <p className="mb-1" style={{ fontSize: '14px' }}>
+                                <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
                                     <strong>Thể loại:</strong> {movie.genre}
                                 </p>
-                                <p className="mb-2" style={{ fontSize: '14px' }}>
+                                <p className={`mb-2 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
                                     <strong>Thời lượng:</strong> {movie.duration}
                                 </p>
                                 <a href="#" className="btn btn-primary btn-sm w-100 rounded">

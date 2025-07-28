@@ -2,17 +2,18 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from '../Auth/Login.module.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import style from './Filter.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+
+
 function Filter() {
        const [nowShowing, setNowShowing] = useState(true);
     const [movies, setMovies] = useState([]);
     const [genres, setGenres] = useState([]);
     const [selectedGenre, setSelectedGenre] = useState('');
     const navigate = useNavigate();
-        const handleMovieDetails = () => {
-        navigate("/Movie_detail");
-    }
+
     const location = useLocation();
 // ...existing code...
 const [searchName, setSearchName] = useState('');
@@ -46,6 +47,10 @@ useEffect(() => {
         })
         .catch(() => setGenres([]));
 }, []);
+
+    const handleMovieDetails = (id) => {
+        navigate("/Movie_detail", { state: { id }});
+    }
 
 // Xử lý lọc phim khi thay đổi form
 useEffect(() => {
@@ -123,30 +128,42 @@ return (
 <div className="row">
   {movies && movies.length > 0 ? (
     movies.map((movie, i) => (
-      <div className="col-md-3 mb-4" key={movie.id || i}>
-        <div className="card h-100">
-          <img
-            src={movie.image || `https://dummyimage.com/300x350/ccc/000&text=${movie.name || 'Phim'}`}
-            className="card-img-top"
-            alt={movie.movieName || `Phim ${i + 1}`}
-          />
-          <div className="card-body" onClick={handleMovieDetails}>
-            <h5 className={`card-title ${styles.cardTitleCustom}`}>
-              {movie.movieName || `Phim ${i + 1}`}
-            </h5>
-            <p className="card-text">
-              Thể loại: {movie.genre || 'Không xác định'}
-            </p>
-              <p className="card-text">
-              Thời lượng: {movie.duration || 'Không xác định'}
-            </p>
-            <p className="card-text">
-              Mô tả: {movie.movieDescription || 'Không xác định'}
-            </p>
-            <a href="#" className="btn btn-primary w-100">Đặt vé</a>
-          </div>
-        </div>
-      </div>
+      <div className="col-md-2 mb-4" key={movie.movieId}    >
+                                <div
+                                     className="card h-100 shadow-sm border-0"
+                                     style={{
+                                     borderRadius: '12px',
+                                     overflow: 'hidden',
+                                     transition: 'transform 0.3s ease',
+                                     }}
+                                >
+                                     <img
+                                     src={movie.image}
+                                     className="card-img-top"
+                                     alt={movie.movieName}
+                                     style={{
+                                         height: '300px',
+                                         objectFit: 'cover',
+                                         borderRadius: '12px',
+                                     }}
+                                     />
+                                     <div className="card-body px-3 py-2 ps-0 pe-0">
+
+                                     <h6 className={`card-title pb-2 fw-bold ${style.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
+                                    {movie.movieName}
+                                </h6>
+                                 <p className={`mb-1 ${style.ellipsis}`} style={{ fontSize: '14px' }}>
+         <strong>Thể loại:</strong> {movie.genre}
+     </p>
+                                     <p className="mb-2" style={{ fontSize: '14px' }}>
+                                         <strong>Thời lượng:</strong> {movie.duration}
+                                     </p>
+                                     <a href="#" className="btn btn-primary btn-sm w-100 rounded" >
+                                         Đặt vé
+                                     </a>
+                                     </div>
+                                 </div>
+                             </div>
     ))
   ) : (
     <div className="col-12 text-center">
