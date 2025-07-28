@@ -26,7 +26,7 @@ function Up() {
       if (data.secure_url) {
         setImageUrl(data.secure_url);
       } else {
-        alert("Không nhận được URL từ Cloudinary. Xem console để biết chi tiết.");
+        alert("Không nhận được URL từ Cloudinary");
       }
 
       setUploading(false);
