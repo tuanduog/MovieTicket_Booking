@@ -32,22 +32,27 @@ public class SecurityConfig {
     protected String SECRET_KEY;
 
     public static final  String[] PUBLIC_ENDPOINTS = {"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**"
-            ,"/auth/token", "/auth/login", "/auth/introspect", "/auth/register",  "/auth/logout", "/product/get-product", "/discount/get-discount", "/movies/**","auth/getAll-movies","/theaters/**","auth/get-movie/**"};
-
+            ,"/auth/token", "/auth/login", "/auth/introspect", "/auth/register",  "/auth/logout", "/product/get-product", "/discount/get-discount", 
+            "/movies/**","/auth/getAll-movies", "/wsocket", "/wsocket/**", "/topic/**", "/app/**", "/theaters/**", "auth/get-movie/**", "/auth/get-showtime/**"};
 
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws  Exception{
         httpSecurity
-                .authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-//                        .requestMatchers(HttpMethod.GET,"user/**")
-//                        .hasAuthority("SCOPE_ADMIN")
-                                .anyRequest().authenticated()
-                );
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
-        httpSecurity.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->
-                httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
-        );
+            // .cors()
+            // .and()
+            .authorizeHttpRequests(request -> request
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                .anyRequest().authenticated()
+            )
+            .csrf(AbstractHttpConfigurer::disable)
+            .oauth2ResourceServer(config -> config
+                .jwt(jwtConfigurer -> jwtConfigurer
+                    .decoder(jwtDecoder())
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+            );
+
         return httpSecurity.build();
 
     }

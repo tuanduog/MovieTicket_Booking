@@ -42,19 +42,19 @@
   color: #fff;
 }
 
-.seat.held {
-  background-color: #00bfff;
+.seat.normal.selected {
+  background-color: #0d6efd;
   color: #fff;
+}
+
+.seat.selecting {
+    background-color: lightgreen;
+    border: 2px dashed green;
 }
 
 .seat.sold {
-  background-color: #ff4d4f;
+  background-color: #dd1a1d;
   color: #fff;
-}
-
-.seat.booked {
-  background-color: #ffc107;
-  color: #000;
 }
 
 .legend {

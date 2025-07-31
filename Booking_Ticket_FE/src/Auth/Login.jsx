@@ -34,6 +34,7 @@ function Login() {
               navigate('/');
               console.log("Login successful"); 
               alert("Đăng nhập thành công");
+              localStorage.setItem('state', 'Login successful')
             } else {
               alert("Đăng nhập không thành công, vui lòng kiểm tra lại tài khoản hoặc mật khẩu.");
 

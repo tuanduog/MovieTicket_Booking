@@ -55,3 +55,25 @@
   color: #0d6efd;    
   text-decoration: underline;
 }
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
+}
+
+.showtime {
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  min-width: 120px;
+  text-align: center;
+  padding: 12px 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.showtime:hover {
+  background-color: #0d6efd;
+}
