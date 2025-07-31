@@ -68,20 +68,18 @@ function Movies () {
                                     height: '300px',
                                     objectFit: 'cover',
                                     borderRadius: '12px',
+                                    cursor: 'pointer'
                                 }}
+                                onClick={() => handleMovieDetails(movie.movieId)}
                                 />
-                                <div className="card-body px-3 py-2">
-<<<<<<< HEAD
+                                <div className="card-body px-3 py-2 ps-0 pe-0">
                                 <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
                                
-=======
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
->>>>>>> 82091f1bd45bace2d179e7cdd4a7634b25ca928e
                                     {movie.movieName}
                                 </h6>
                             <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
-    <strong>Thể loại:</strong> {movie.genre}
-</p>
+                                <strong>Thể loại:</strong> {movie.genre}
+                            </p>
                                 <p className="mb-2" style={{ fontSize: '14px' }}>
                                     <strong>Thời lượng:</strong> {movie.duration}
                                 </p>
@@ -113,20 +111,18 @@ function Movies () {
                                     height: '300px',
                                     objectFit: 'cover',
                                     borderRadius: '12px',
+                                    cursor: 'pointer'
                                 }}
+                                onClick={() => handleMovieDetails(movie.movieId)}
                                 />
-                                <div className="card-body px-3 py-2">
-<<<<<<< HEAD
+                                <div className="card-body px-3 py-2 ps-0 pe-0">
                                 <h6 className={`card-title pb-2 fw-bold ${styles.ellipsis} `} style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
                                
-=======
-                                <h6 className="card-title pb-2 fw-bold" style={{color: '#0d6efd', cursor: 'pointer'}} onClick={() => handleMovieDetails(movie.movieId)}>
->>>>>>> 82091f1bd45bace2d179e7cdd4a7634b25ca928e
                                     {movie.movieName}
                                 </h6>
                             <p className={`mb-1 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
-    <strong>Thể loại:</strong> {movie.genre}
-</p>
+                                <strong>Thể loại:</strong> {movie.genre}
+                            </p>
                                 <p className="mb-2" style={{ fontSize: '14px' }}>
                                     <strong>Thời lượng:</strong> {movie.duration}
                                 </p>

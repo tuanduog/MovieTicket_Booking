@@ -24,19 +24,7 @@ public class Theaters {
     @Column(name = "theater_name", nullable = false)
     private String theaterName;
 
-    @Column(name = "room", nullable = false)
-    private String theaterRoom;
-
     @Column(name = "location", nullable = false)
     private String theaterLocation;
-
-
-    @OneToMany(mappedBy = "theater")
-    @ToString.Exclude
-    private Set<Booking> bookings;
-
-
-
-
 
 }

@@ -12,8 +12,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Booking {
-
-
     @Id
     @Column(name = "booking_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,18 +26,12 @@ public class Booking {
     @Column(name = "combo", nullable = false)
     private String commbo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "theater_id")
-    private Theaters theater;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie_id")
-    private Movies movie;
-
-
-
+    @JoinColumn(name = "showtime_id")
+    private Show_time showTime;
 }

@@ -14,12 +14,23 @@ function Movie_detail() {
     const [showTrailer, setShowTrailer] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const trailerUrl = "https://www.youtube.com/watch?v=BGS4l3xEc-0";
-    const embedUrl = trailerUrl.replace("watch?v=", "embed/");
+    const [showDates, setShowDates] = useState([]);
+    const [showTime, setShowTime] = useState([]);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedTime, setSelectedTime] = useState([]);
+    const savedTheater = JSON.parse(localStorage.getItem('theater'));
+    // const trailerUrl = "https://www.youtube.com/watch?v=BGS4l3xEc-0";
+    // const embedUrl = trailerUrl.replace("watch?v=", "embed/"); // đổei sang link nhúng
     const handleCloseModal = () => {
         setShowModal(false);
     }
     const handleOpenModal = () => {
+        const select = generateAvailableShowDates(movieInfo.releaseDate, movieInfo.dateShow);
+        setShowDates(select);
+        setSelectedIndex(0);
+        setSelectedDate(select[0]);
+        fetchShowTime(movieInfo.movieId);
         setShowModal(true);
     }
     const handleCloseConfirm = () => {
@@ -31,9 +42,45 @@ function Movie_detail() {
     const handleCloseTrailer = () => {
         setShowTrailer(false);
     }
-    const handleBooking = (movieInfo) => {
-        localStorage.setItem('movieInfo', JSON.stringify(movieInfo));
+    const handleBooking = (movieInfo, date, time) => {
+        console.log('Booking:', { movieInfo, date, time });
+        const bookingInfo = {
+            movieInfo, date, time
+        };
+        localStorage.setItem('bookingInfo', JSON.stringify(bookingInfo));
         navigate('/Booking');
+    }
+    const generateAvailableShowDates = (releasedDateStr, numberOfDays) => {
+        const today = new Date();
+        const releasedDate = new Date(releasedDateStr);
+        const showDates = [];
+
+        const endDate = new Date(releasedDate);
+        endDate.setDate(endDate.getDate() + numberOfDays - 1);
+
+        let current = new Date(Math.max(today, releasedDate));
+
+        let count = 0;
+        while (current <= endDate && count < 7) {
+            const formatted = `${current.getDate().toString().padStart(2, '0')}/${(current.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}`;
+            showDates.push(formatted);
+            current.setDate(current.getDate() + 1);
+            count++;
+        }
+
+        return showDates;
+    };
+    const fetchShowTime = async (movieId) => {
+            try {
+                const res = await axios.get(`http://localhost:8099/auth/get-showtime/${movieId}`);
+    
+                console.log(res.data);
+                setShowTime(res.data);
+            } catch (error){
+                console.error("Lỗi khi lấy phim", error);
+            }
     }
     const fetchMovie = async () => {
         try {
@@ -41,11 +88,13 @@ function Movie_detail() {
 
             const res = await axios.get(`http://localhost:8099/auth/get-movie/${id}`);
             setMovieInfo(res.data);
+            console.log(res.data.trailerUrl);
         } catch (error){
             console.error("Lỗi khi lấy thông tin phim:", error);
         }
     }
     useEffect(() => {
+        window.scrollTo(0, 0);
         fetchMovie();
     },[]);
     
@@ -53,17 +102,18 @@ function Movie_detail() {
         <div className="container mt-5">
             {showTrailer && (
             <div className="modal-overlay" onClick={handleCloseTrailer}>
+                {/* <span className="close-btn fs-3" onClick={handleCloseTrailer}>&times;</span> */}
                 <div
                 className="modal-box p-3 rounded shadow"
                 style={{ maxWidth: '800px', width: '90%' }}
                 onClick={(e) => e.stopPropagation()}
                 >
-                <span className="close-btn fs-3" onClick={handleCloseTrailer}>&times;</span>
                 <div className="ratio ratio-16x9">
-                    <iframe
+                    <iframe // nhúng youtube
                     width="100%"
                     height="400"
-                    src={embedUrl}
+                    // src={embedUrl}
+                    src={movieInfo.trailerUrl}
                     title="YouTube Trailer"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -82,40 +132,53 @@ function Movie_detail() {
                         LỊCH CHIẾU - {movieInfo.movieName}
                         </h3>
 
-                        <h5 className="text-center mb-4 text-secondary">RẠP BETA THANH XUÂN</h5>
+                        <h5 className="text-center mb-4 text-secondary">{savedTheater.theaterName}</h5>
 
                         <div className="date-list d-flex justify-content-center gap-2 flex-wrap mb-4">
-                        {["24", "25", "26", "27", "28", "29", "30", "31"].map((d, i) => (
+                        {showDates.map((dateStr, i) => (
                             <div
                             key={i}
-                            className={`date-item px-3 py-2 rounded ${i === 0 ? 'bg-primary text-white' : 'bg-light text-dark'}`}
+                            onClick={() => {
+                                setSelectedIndex(i);
+                                setSelectedDate(dateStr);
+                            }}
+                            className={`date-item px-3 py-2 rounded ${i === selectedIndex ? 'bg-primary text-white' : 'bg-light text-dark'}`}
                             style={{ cursor: 'pointer', minWidth: '60px', textAlign: 'center' }}
                             >
-                            {d}/07
+                            {dateStr}
                             </div>
                         ))}
                         </div>
 
+
                         <h6 className="text-uppercase fw-bold mb-3 text-muted text-center">2D Phụ Đề</h6>
 
                         <div className="showtimes d-flex flex-wrap gap-3 justify-content-center">
-                        {[...Array(4)].map((_, i) => (
-                            <div
-                            key={i}
-                            className="showtime border rounded px-4 py-3 text-center"
-                            style={{ minWidth: '120px', cursor: 'pointer', backgroundColor: '#f8f9fa' }}
-                            onClick={handleOpenConfirm}
-                            >
-                            <div className="time fw-bold fs-5 mb-1">18:30</div>
-                            <div className="seats text-muted">132 ghế trống</div>
-                            </div>
-                        ))}
+                            {showTime.length === 0 ? (
+                                <div>Không có lịch chiếu</div>
+                            ) : (
+                                showTime.map((time, index) => (
+                                    <div
+                                        key={index}
+                                        className="showtime"
+                                        onClick={() => {
+                                            handleOpenConfirm();
+                                            setSelectedTime(time);
+                                        }}
+                                    >
+                                        <div className="time fw-bold fs-5 mb-1">
+                                            {time.startTime.slice(0, 5)} {/* Format HH:mm */}
+                                        </div>
+                                        <div className="seats text-muted" style={{fontSize: '13px'}}>91 ghế trống</div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
             )}
             {confirmPopup && (
-            <div className="modal-overlay" onClick={handleCloseConfirm}>
+                <div className="modal-overlay" onClick={handleCloseConfirm}>
                 <div className="modal-box p-4 rounded shadow" onClick={(e) => e.stopPropagation()}>
                     <span className="close-btn fs-3" onClick={handleCloseConfirm}>&times;</span>
 
@@ -136,9 +199,9 @@ function Movie_detail() {
                     </thead>
                     <tbody>
                         <tr>
-                        <td><strong>Beta Thái Nguyên</strong></td>
-                        <td><strong>24/07/2025</strong></td>
-                        <td><strong>22:10</strong></td>
+                        <td><strong>{savedTheater.theaterName}</strong></td>
+                        <td><strong>{selectedDate}/2025</strong></td>
+                        <td><strong>{selectedTime.startTime.slice(0, 5)}</strong></td>
                         </tr>
                     </tbody>
                     </table>
@@ -146,7 +209,7 @@ function Movie_detail() {
                     <div className="text-center">
                     <button
                         className="btn btn-success px-5 py-2 fw-bold"
-                        onClick={() => handleBooking(movieInfo)}
+                        onClick={() => handleBooking(movieInfo, selectedDate, selectedTime)}
                     >
                         ĐỒNG Ý
                     </button>

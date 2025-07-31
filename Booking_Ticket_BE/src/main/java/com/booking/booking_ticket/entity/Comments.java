@@ -43,10 +43,4 @@ public class Comments {
     @Column(name = "updated_at", nullable = false)
     private Instant updated_at;
 
-
-
-
-
-
-
 }

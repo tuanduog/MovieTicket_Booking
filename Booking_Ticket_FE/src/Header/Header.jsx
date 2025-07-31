@@ -34,6 +34,7 @@ function Header() {
             });
             if (res.data.status === 200) {
                 setTheater(res.data.data);
+                // thông tin rạp
             } else {
                 setTheater([]);
             }
@@ -50,6 +51,8 @@ function Header() {
             });
             if (res.data.status === 200) {
                 setLocation(Array.isArray(res.data.data) ? res.data.data : []);
+                // địa điểm rạp
+                console.log(res.data.data);
             } else {
                 setLocation([]);
             }
@@ -89,7 +92,7 @@ function Header() {
         }
     };
 const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
-const [selectedTheater, setselectedTheater] = useState(""); // địa điểm đã chọn
+const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
 
     useEffect(() => {
         handleAuth();
@@ -164,7 +167,20 @@ const [selectedTheater, setselectedTheater] = useState(""); // địa điểm đ
         className="form-select"
         style={{ width: '180px', height: '38px', border: '1px solid black' }}
         value={selectedTheater}
-        onChange={e => setselectedTheater(e.target.value)}
+        onChange={e => {
+            const selectedValue = e.target.value;
+            setselectedTheater(selectedValue);
+
+            const selectedObj = theater.find(t => t.theaterId.toString() === selectedValue);
+            if(selectedObj){
+                localStorage.setItem('theater', JSON.stringify({
+                    theaterId: selectedObj.theaterId,
+                    theaterName: selectedObj.theaterName,
+                    theaterLocation: selectedObj.theaterLocation
+                }))
+            }
+            }
+        }
       >
         <option value="">Chọn rạp</option>
         {Array.isArray(theater) &&
@@ -177,9 +193,6 @@ const [selectedTheater, setselectedTheater] = useState(""); // địa điểm đ
     </div>
   )}
 </div>
-
-
-
                     <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
                         <div className="navbar-nav">
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/')}>Trang chủ</span>

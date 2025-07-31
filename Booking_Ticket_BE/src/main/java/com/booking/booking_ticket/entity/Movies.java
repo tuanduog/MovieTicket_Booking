@@ -24,6 +24,8 @@ public class Movies {
 
     @Column(name = "image", nullable = false)
     private String image;
+    @Column(name = "trailer_url", nullable = false)
+    private String trailerUrl;
     @Column(name = "movie_name", nullable = false)
     private String movieName;
     @Column(name = "description", nullable = false)
@@ -42,6 +44,8 @@ public class Movies {
     @Column(name = "showing", nullable = false)
     private String showing;
 
+    @Column(name = "date_show", nullable = false)
+    private int dateShow;
 
     @OneToMany(mappedBy = "movie")
     @ToString.Exclude
@@ -61,19 +65,5 @@ public class Movies {
     @OneToMany(mappedBy = "movie")
     @ToString.Exclude
     private Set<Comments> setComments = new HashSet();
-
-
-    @OneToMany(mappedBy = "movie")
-    @ToString.Exclude
-    private Set<Booking> setBooking = new HashSet();
-
-
-
-
-
-
-
-
-
 
 }
