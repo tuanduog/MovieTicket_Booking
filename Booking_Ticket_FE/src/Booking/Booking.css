@@ -47,6 +47,11 @@
   color: #fff;
 }
 
+.seat.selecting {
+    background-color: lightgreen;
+    border: 2px dashed green;
+}
+
 .seat.sold {
   background-color: #dd1a1d;
   color: #fff;

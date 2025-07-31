@@ -43,12 +43,17 @@ function Movie_detail() {
         setShowTrailer(false);
     }
     const handleBooking = (movieInfo, date, time) => {
-        console.log('Booking:', { movieInfo, date, time });
+        // console.log('Booking:', { movieInfo, date, time });
+        const user = localStorage.getItem('state');
         const bookingInfo = {
             movieInfo, date, time
         };
         localStorage.setItem('bookingInfo', JSON.stringify(bookingInfo));
-        navigate('/Booking');
+        if(!user){
+            navigate("/Login");
+        } else {
+            navigate('/Booking');
+        }
     }
     const generateAvailableShowDates = (releasedDateStr, numberOfDays) => {
         const today = new Date();
@@ -76,7 +81,7 @@ function Movie_detail() {
             try {
                 const res = await axios.get(`http://localhost:8099/auth/get-showtime/${movieId}`);
     
-                console.log(res.data);
+                console.log('showtime:',res.data);
                 setShowTime(res.data);
             } catch (error){
                 console.error("Lỗi khi lấy phim", error);

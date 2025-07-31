@@ -68,6 +68,7 @@ function Header() {
             withCredentials: true
         }).then(() => {
             console.log("Logout successful");
+            localStorage.removeItem('state');
             navigate('/');
         }).catch(err => {
             console.error("Logout failed", err);

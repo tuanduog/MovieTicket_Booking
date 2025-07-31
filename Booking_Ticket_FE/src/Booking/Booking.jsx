@@ -2,6 +2,10 @@ import React from "react";
 import '../Booking/Booking.css';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
+import { useRef } from "react";
+import axios from "axios";
 
 function Booking () {
     const navigate = useNavigate();
@@ -9,48 +13,120 @@ function Booking () {
     const [time, setTime] = useState({});
     const [date, setDate] = useState("");
     const [selectedSeat, setSelectedSeat] = useState([]);
-    const savedTheater = JSON.parse(localStorage.getItem('theater'));
+    const [othersSelecting, setOthersSelecting] = useState([]);
+    const stompClient = useRef(null); // Dùng useRef để giữ stompClient ổn định
+    const savedTheater = JSON.parse(localStorage.getItem("theater"));
+    const [user, setUser] = useState("");
+    const [price, setPrice] = useState("");
+
     useEffect(() => {
-        window.scrollTo(0, 0);
-        const data = JSON.parse(localStorage.getItem('bookingInfo'));
-        console.log('Data from localStorage:', data);
-        if (data) {
-            setMovieInfo(data.movieInfo);
-            setTime(data.time);
-            setDate(data.date);
+    window.scrollTo(0, 0);
+    const data = JSON.parse(localStorage.getItem("bookingInfo"));
+    if (data) {
+        setMovieInfo(data.movieInfo);
+        setTime(data.time);
+        setDate(data.date);
+    }
+
+    const fetchAuthAndConnect = async () => {
+        try {
+            const res = await axios.get('http://localhost:8099/auth/introspect', {
+                withCredentials: true,
+            });
+            console.log("cc:", res.data.data?.username)
+            if (res.data.status === 200 && res.data.data?.username) {
+                console.log('kk',res.data.data)
+                setUser(res.data.data);
+                const socket = new SockJS("http://localhost:8099/wsocket");
+                const client = new Client({
+                    webSocketFactory: () => socket,
+                    reconnectDelay: 5000,
+                    debug: str => console.log("WebSocket Debug:", str),
+                });
+
+                client.onConnect = () => {
+                    console.log("WebSocket connected");
+                    client.subscribe(`/topic/seats/${data.time.showTimeId}`, (message) => {
+                        const payload = JSON.parse(message.body);
+                        if (payload.seat) {
+                            setOthersSelecting((prev) => {
+                                if (!prev.includes(payload.seat)) {
+                                    return [...prev, payload.seat];
+                                }
+                                return prev;
+                            });
+                        }
+                    });
+                };
+
+                client.activate();
+                stompClient.current = client;
+            } else {
+                setUser(null);
+            }
+        } catch (err) {
+            console.error("Auth failed:", err);
+            setUser(null);
         }
+    };
+
+    fetchAuthAndConnect();
+
+    return () => {
+        console.log("Cleanup: WebSocket disconnecting...");
+        stompClient.current?.deactivate();
+    };
     }, []);
+
+
     const seatTypes = {
-        vip: ['D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'E6', 'E7', 'E8', 'E9']
+        vip: ['C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'D6', 'D7', 'D8', 'D9']
     };
 
     const getSeatType = (seat) => {
         const row = seat.charAt(0);
-        if (seatTypes.vip.includes(seat)) return 'vip';
-        if (row === 'G') return 'couple';
-        return 'normal';
+        if (seatTypes.vip.includes(seat)) return "vip";
+        if (row === "G") return "couple";
+        return "normal";
     };
+
     const handleSeatSelection = (seatNumber) => {
         setSelectedSeat((prev) => {
             const isSelected = prev.includes(seatNumber);
+            let newSeats;
 
             if (isSelected) {
-                return prev.filter(seat => seat !== seatNumber);
+                newSeats = prev.filter(seat => seat !== seatNumber);
             } else {
                 if (prev.length >= 8) {
                     alert("Bạn chỉ được chọn tối đa 8 ghế.");
                     return prev;
                 }
+                newSeats = [...prev, seatNumber];
+            }
+            if (
+                stompClient.current &&
+                stompClient.current.connected &&
+                time?.showTimeId &&
+                user?.userName
+            ) {
+                stompClient.current.publish({
+                    destination: `/app/selectSeat/${time.showTimeId}`,
+                    body: JSON.stringify({
+                        seatCode: seatNumber,
+                        showTimeId: time.showTimeId,
+                        userName: user.userName,
+                    }),
+                });
+            }
 
-                return [...prev, seatNumber];
-            }
-            }
-        );
-    }
+            return newSeats;
+        });
+    };
+
     const handlePaymentInfo = () => {
         navigate("/Payment_info");
-    }
-
+    };
     return (
         <div className="container mt-4">
             <div className="d-flex flex-wrap p-4 ticket-booking-container gap-5 justify-content-center">
@@ -72,7 +148,12 @@ function Booking () {
                                     return (
                                         <div
                                             key={seatNumber}
-                                            className={`seat ${type} ${selectedSeat.includes(seatNumber) ? 'selected' : ''}`}
+                                            className={`seat ${type} ${
+                                                selectedSeat.includes(seatNumber) 
+                                                ? 'selected'
+                                                : othersSelecting.includes(seatNumber)
+                                                ? 'selecting'
+                                                : ''}`}
                                             onClick={() => handleSeatSelection(seatNumber)}
                                             style={{ cursor: 'pointer', ...(type === 'couple' ? { width: '80px' } : {}) }}
                                         >
@@ -93,11 +174,11 @@ function Booking () {
                             </div>
                             <div>
                                 <span className="seat vip me-2"></span> 
-                                Ghế VIP <span className="text-muted">( 90.000 VNĐ )</span>
+                                Ghế VIP <span className="text-muted">( 100.000 VNĐ )</span>
                             </div>
                             <div>
                                 <span className="seat couple me-2"></span> 
-                                Ghế đôi <span className="text-muted">( 150.000 VNĐ )</span>
+                                Ghế đôi <span className="text-muted">( 130.000 VNĐ )</span>
                             </div>
                         </div>
                     </div>
@@ -113,7 +194,7 @@ function Booking () {
                     <div className="d-flex justify-content-between mt-4 px-2">
                         <div>
                             <p className="fw-bold mb-1">Tổng tiền</p>
-                            <h5 className="text-primary">0 VNĐ</h5>
+                            <h5 className="text-primary">{selectedSeat} VNĐ</h5>
                         </div>
                         <div>
                             <p className="fw-bold mb-1">Thời gian còn lại</p>

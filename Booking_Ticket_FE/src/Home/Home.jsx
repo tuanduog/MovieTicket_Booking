@@ -50,13 +50,19 @@ function Homepage() {
     const handleMovieDetails = (id) => {
         navigate("/Movie_detail", { state : { id }});
     }
+
     const handleBooking = (movieInfo, date, time) => {
+        const user = localStorage.getItem('state');
         console.log('Booking:', { movieInfo, date, time });
         const bookingInfo = {
             movieInfo, date, time
         };
         localStorage.setItem('bookingInfo', JSON.stringify(bookingInfo));
-        navigate('/Booking');
+        if(!user){
+            navigate('/Login');
+        } else {
+            navigate('/Booking');
+        }
     }
 
     const generateAvailableShowDates = (releasedDateStr, numberOfDays) => {

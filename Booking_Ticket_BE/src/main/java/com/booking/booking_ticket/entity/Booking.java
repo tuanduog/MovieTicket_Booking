@@ -26,7 +26,6 @@ public class Booking {
     @Column(name = "combo", nullable = false)
     private String commbo;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
