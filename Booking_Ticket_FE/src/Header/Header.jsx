@@ -201,8 +201,8 @@ function Header() {
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Movies')}>Phim</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Theater')}>Rạp</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Ranking')}>Xếp hạng phim</span>
-                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Member')}>Thành viên</span>
-                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={() => handleLogin('register')}>Đăng ký thành viên</span>
+                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Member')}>Hội viên</span>
+                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Booking_history')}>Lịch sử đặt vé</span>
                         </div>
                     </div>
 
