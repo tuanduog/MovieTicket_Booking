@@ -84,6 +84,7 @@ function Header() {
 
             if (res.data.status === 200) {
                 setUser(res.data); // Dữ liệu user nằm ngay trong res.data
+                localStorage.setItem('user', JSON.stringify(res.data.data));
             } else {
                 setUser(null);
             }
@@ -92,8 +93,8 @@ function Header() {
             console.error("Auth failed:", err);
         }
     };
-const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
-const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
+    const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
+    const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
 
     useEffect(() => {
         handleAuth();

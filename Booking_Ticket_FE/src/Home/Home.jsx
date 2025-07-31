@@ -62,6 +62,7 @@ function Homepage() {
             navigate('/Login');
         } else {
             navigate('/Booking');
+            window.scrollTo(0, 0);
         }
     }
 
