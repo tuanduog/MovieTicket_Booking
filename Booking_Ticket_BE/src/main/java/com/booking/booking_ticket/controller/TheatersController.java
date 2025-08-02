@@ -59,5 +59,23 @@ public class TheatersController {
 
 
     }
+    @GetMapping("/getTheaters")
+    public ResponseData<?> getTheaters()
+    {
+        try{
+            List<Theaters> result = theatersService.getAllTheater();
+            if(!result.isEmpty())
+                return new ResponseData<>(HttpStatus.OK.value(),"Có theater",result);
+            else
+                return new ResponseError(HttpStatus.BAD_REQUEST.value(), "theater null");
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error of introspect: {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+
+
+    }
 
 }

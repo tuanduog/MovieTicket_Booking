@@ -33,14 +33,14 @@ public class SecurityConfig {
 
     public static final  String[] PUBLIC_ENDPOINTS = {"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**"
             ,"/auth/token", "/auth/login", "/auth/introspect", "/auth/register",  "/auth/logout", "/product/get-product", "/discount/get-discount", 
-            "/movies/**","/auth/getAll-movies", "/wsocket", "/wsocket/**", "/topic/**", "/app/**", "/theaters/**", "auth/get-movie/**", "/auth/get-showtime/**"};
+            "/movies/**","/auth/getAll-movies", "/wsocket", "/wsocket/**", "/topic/**", "/app/**", "/theaters/**", "auth/get-movie/**", "/auth/get-showtime/**", "/api/files/upload/image" ,"/booking/**" };
 
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws  Exception{
         httpSecurity
-            // .cors()
-            // .and()
+//             .cors()
+//             .and()
             .authorizeHttpRequests(request -> request
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyRequest().authenticated()
@@ -59,8 +59,7 @@ public class SecurityConfig {
     @Bean
     JwtDecoder jwtDecoder()
     {
-        SecretKeySpec spec = new SecretKeySpec(SECRET_KEY.getBytes(),"HS512")
-                ;
+        SecretKeySpec spec = new SecretKeySpec(SECRET_KEY.getBytes(),"HS512");
         return  NimbusJwtDecoder.withSecretKey(spec)
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();

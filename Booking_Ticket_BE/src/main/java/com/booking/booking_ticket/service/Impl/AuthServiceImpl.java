@@ -156,7 +156,7 @@ public class AuthServiceImpl implements AuthService {
                     .map(Cookie::getValue)
                     .findFirst()
                     .orElse(null);
-
+            System.out.println(token);
             SignedJWT jwt = SignedJWT.parse(token);
             System.out.println(token);
 //            var signToken = verifyToken(request.getToken(), true);

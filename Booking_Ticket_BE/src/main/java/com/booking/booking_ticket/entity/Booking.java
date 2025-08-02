@@ -5,6 +5,9 @@ import com.booking.booking_ticket.utils.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "bookings")
 @Getter
@@ -26,6 +29,10 @@ public class Booking {
 
     @Column(name = "combo", nullable = false)
     private String commbo;
+
+    @Column(name = "created_at")
+    private LocalDateTime created_at;
+
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

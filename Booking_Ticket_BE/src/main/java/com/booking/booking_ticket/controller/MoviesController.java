@@ -1,6 +1,7 @@
 package com.booking.booking_ticket.controller;
 
 
+import com.booking.booking_ticket.dto.request.MovieRequestDTO;
 import com.booking.booking_ticket.dto.response.IntrospectiveResponse;
 import com.booking.booking_ticket.dto.response.ResponseData;
 import com.booking.booking_ticket.dto.response.ResponseError;
@@ -12,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -81,4 +79,39 @@ public class MoviesController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         }
     }
+
+    @PostMapping("/add-Movies")
+    public ResponseData<?> addMovies( @RequestBody MovieRequestDTO movies) {
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"Movies add!",moviesService.addMovie(movies));
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+    @PostMapping("/edit-Movies")
+    public ResponseData<?> editMovies(@RequestParam int id, @RequestBody MovieRequestDTO movies) {
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"Movies edit!",moviesService.editMovie(id,movies));
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+    @DeleteMapping("/delete-Movies")
+    public ResponseData<?> deleteMovies(@RequestParam int id) {
+        try{
+            return new ResponseData<>(HttpStatus.NO_CONTENT.value(),"Movies delete!",moviesService.deleteMovie(id));
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+
 }
