@@ -7,7 +7,7 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "booking")
+@Table(name = "comment_likes")
 @Getter
 @Setter
 @Builder
@@ -16,7 +16,7 @@ import java.time.Instant;
 public class Comment_likes {
 
     @Id
-    @Column(name = "comment_likes", nullable = false)
+    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 

@@ -78,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .claim("scope",role)
+                .claim("user_id", account.getUserId())     
                 .claim("email", account.getEmail())           
                 .claim("phone_number", account.getPhone()) 
                 .subject(account.getUsername())
@@ -129,6 +130,7 @@ public class AuthServiceImpl implements AuthService {
 
         return IntrospectiveResponse.builder()
                 .isValid(verifired && exprirationTime.after(new Date()) && !checkInvalid)
+                .userId(((Number) jwt.getJWTClaimsSet().getClaim("user_id")).intValue())
                 .username(jwt.getJWTClaimsSet().getSubject())
                 .email((String) jwt.getJWTClaimsSet().getClaim("email"))
                 .phoneNumber((String) jwt.getJWTClaimsSet().getClaim("phone_number"))

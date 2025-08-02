@@ -1,6 +1,5 @@
 package com.booking.booking_ticket.config;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +15,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,25 +37,27 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws  Exception{
-        httpSecurity
-            // .cors()
-            // .and()
-            .authorizeHttpRequests(request -> request
-                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                .anyRequest().authenticated()
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtCookieFilter jwtCookieFilter) throws Exception {
+    httpSecurity
+        .cors()
+        .and()
+        .authorizeHttpRequests(request -> request
+            .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+            .anyRequest().authenticated()
+        )
+        .csrf(AbstractHttpConfigurer::disable)
+        .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class)
+        .oauth2ResourceServer(config -> config
+            .jwt(jwtConfigurer -> jwtConfigurer
+                .decoder(jwtDecoder())
+                .jwtAuthenticationConverter(jwtAuthenticationConverter())
             )
-            .csrf(AbstractHttpConfigurer::disable)
-            .oauth2ResourceServer(config -> config
-                .jwt(jwtConfigurer -> jwtConfigurer
-                    .decoder(jwtDecoder())
-                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
-            );
+    );
 
-        return httpSecurity.build();
+    return httpSecurity.build();
+}
 
-    }
+
     @Bean
     JwtDecoder jwtDecoder()
     {

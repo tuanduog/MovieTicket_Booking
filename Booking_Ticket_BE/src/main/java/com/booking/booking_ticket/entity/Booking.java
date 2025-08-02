@@ -1,8 +1,10 @@
 package com.booking.booking_ticket.entity;
 
+import java.time.LocalDate;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 
 @Entity
 @Table(name = "bookings")
@@ -24,7 +26,10 @@ public class Booking {
     private Double totalPrice;
 
     @Column(name = "combo", nullable = false)
-    private String commbo;
+    private String combo;
+
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

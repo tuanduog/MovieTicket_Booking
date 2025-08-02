@@ -61,6 +61,8 @@ function Homepage() {
         if(!user){
             navigate('/Login');
         } else {
+            localStorage.removeItem('timeLeft');
+            localStorage.removeItem('paymentId');
             navigate('/Booking');
             window.scrollTo(0, 0);
         }

@@ -2,16 +2,19 @@ import React, { useEffect, useState } from "react";
 import styles from '../Payment/Payment_info.module.css';
 import { FaPlus, FaMinus, FaUser } from "react-icons/fa";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import vnpay_logo from '../assets/vnpay_logo.png';
-import momo_logo from '../assets/MoMo_Logo.png';
+// import vnpay_logo from '../assets/vnpay_logo.png';
+// import momo_logo from '../assets/MoMo_Logo.png';
 import { useLocation } from "react-router-dom";
 import pic1 from '../assets/familycombo.png';
 import pic2 from '../assets/sweetcombo.png';
 import pic3 from '../assets/betacombo.png';
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function PaymentInfo() {
   const userInfo = JSON.parse(localStorage.getItem('user'));
   const location = useLocation();
+  const navigate = useNavigate();
   const { total, selectedSeats, seatTypes } = location.state;
   const [totalPrice, setTotalPrice] = useState(total);
   const [voucher, setVoucher] = useState("");
@@ -19,6 +22,10 @@ function PaymentInfo() {
   const [text, setText] = useState("");
   const [textOk, setTextOk] = useState("");
   const [discount, setDiscount] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(() => {
+          const storedTime = localStorage.getItem('timeLeft');
+          return storedTime ? parseInt(storedTime, 10) : 600;
+      });
   const seatsWithType = selectedSeats.map((seat, index) => ({
     seat,
     type: seatTypes[index]
@@ -77,11 +84,82 @@ const handleVoucher = () => {
     setDiscount(false);
   }
 }
+  const generatePaymentId = () => {
+      return 'xxxxxxxx-xxxx-xxxx'.replace(/[x]/g, () =>
+        Math.floor(Math.random() * 16).toString(16)
+      );
+    }
+    const [paymentId, setPaymentId] = useState(() => {
+      const storedId = localStorage.getItem('paymentId');
+      if(storedId) return storedId;
+      const newId = generatePaymentId();
+      localStorage.setItem('paymentId', newId);
+      return newId;
+    })
+  const handlePayment = async () => {
+    const finalPrice = discount ? totalPrice * 0.85 : totalPrice;
+    localStorage.setItem('price', finalPrice);
+    try {
+      const res = await axios.post("http://localhost:8099/Order/create", {
+        productName: 'Đơn hàng: ' + paymentId,
+        description: 'Thanh toán đơn hàng',
+        price: 2000, // đảm bảo gửi số nguyên
+        returnUrl: "http://localhost:5173/Booking_history",
+        cancelUrl: "http://localhost:5173",
+      }, { withCredentials: true });
+      console.log("res.data:", res.data);
+      const payUrl = res.data?.data?.checkoutUrl;
+      if (payUrl) {
+        window.location.href = payUrl;
+      } else {
+        alert("Không lấy được link thanh toán!");
+      }
+    } catch (error) {
+      console.error("Tạo đơn thanh toán thất bại:", error);
+      alert("Tạo đơn thanh toán thất bại!");
+    }
+  };
+  useEffect(() => {
+  const selectedCombos = [];
+
+  if (comboCounts.family > 0) {
+    selectedCombos.push(`Family Combo x${comboCounts.family}`);
+  }
+  if (comboCounts.sweet > 0) {
+    selectedCombos.push(`Sweet Combo x${comboCounts.sweet}`);
+  }
+  if (comboCounts.beta > 0) {
+    selectedCombos.push(`Beta Combo x${comboCounts.beta}`);
+  }
+
+  const comboString = selectedCombos.join(', ');
+  localStorage.setItem('selectedCombos', comboString); 
+}, [comboCounts]);
+
   useEffect(() => {
     if(totalPrice < 200000){
       setDiscount(false);
     }
-  })
+  });
+  const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    };
+  useEffect(() => {
+          if (timeLeft <= 0) {
+              localStorage.removeItem("timeLeft");
+              navigate("/");
+          } else {
+              localStorage.setItem('timeLeft', timeLeft);
+          }
+  
+          const interval = setInterval(() => {
+              setTimeLeft(prev => prev - 1);
+          }, 1000);
+  
+          return () => clearInterval(interval); 
+      }, [timeLeft]);
 
   return (
     <div className={styles.container}>
@@ -204,7 +282,7 @@ const handleVoucher = () => {
           <button className={styles.voucherButton} onClick={handleVoucher}>ÁP DỤNG</button>
         </div>
         {showAlert && (
-          <p style={{color: 'red', fontSize: '14px', marginTop: '-9px', fontStyle: 'italic'}}>
+          <p style={{color: textOk ? 'green' : 'red', fontSize: '14px', marginTop: '-9px', fontStyle: 'italic'}}>
             {textOk || text}
           </p>
         )}
@@ -227,22 +305,37 @@ const handleVoucher = () => {
           </tbody>
         </table>
       </div>
-      <div className={styles.box}>
-        <strong style={{ display: 'block', marginBottom: '10px' }}>
-          Tổng tiền: <span style={{ color: 'red' }}>{totalPrice.toLocaleString('vi-VN')} VNĐ</span>
-        </strong>
+      <div className={styles.box} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  {/* Bên trái: Thông tin thanh toán */}
+  <div>
+    <strong style={{ display: 'block', marginBottom: '10px' }}>
+      Tổng tiền: <span style={{ color: 'red' }}>{totalPrice.toLocaleString('vi-VN')} VNĐ</span>
+    </strong>
 
-        <strong style={{ display: 'block', marginBottom: '10px' }}>
-          Số tiền được giảm: <span style={{ color: 'red' }}>{discount ? (totalPrice * 0.15).toLocaleString('vi-VN') : 0} VNĐ</span>
-        </strong>
+    <strong style={{ display: 'block', marginBottom: '10px' }}>
+      Số tiền được giảm:  
+      <span style={{ color: 'red' }}>
+        {discount ? (totalPrice * 0.15).toLocaleString('vi-VN') : ' 0'} VNĐ
+      </span>
+    </strong>
 
-        <strong style={{ display: 'block' }}>
-          Số tiền cần thanh toán: <span style={{ color: 'red' }}>{discount ? (totalPrice * 0.85) : totalPrice.toLocaleString('vi-VN')} VNĐ</span>
-        </strong>
-      </div>
+    <strong style={{ display: 'block' }}>
+      Số tiền cần thanh toán: <span style={{ color: 'red' }}>
+         {(discount ? (totalPrice * 0.85) : totalPrice).toLocaleString('vi-VN')} VNĐ
+      </span>
+    </strong>
+  </div>
+
+  {/* Bên phải: Thời gian còn lại */}
+  <div style={{ textAlign: 'right' }}>
+    <p className="fw-bold mb-1">⏳ Thời gian còn lại</p>
+    <h5 className="text-success mb-0">{formatTime(timeLeft)}</h5>
+  </div>
+  </div>
+
 
         {/* phương thức thanh toán */}
-        <div className={styles.box}>
+        {/* <div className={styles.box}>
         <h5 className={styles.title}>
             <FaUser className={styles.icon} /> PHƯƠNG THỨC THANH TOÁN
         </h5>
@@ -250,8 +343,8 @@ const handleVoucher = () => {
         <div className={styles.paymentMethods}>
             <label className={styles.paymentOption}>
             <input type="radio" name="payment" />
-            <img src={momo_logo} alt="Momo" />
-            <span>Thanh toán qua MoMo</span>
+            <img src={payos_logo} alt="PayOS" />
+            <span>Thanh toán qua PayOS</span>
             </label>
 
             <label className={styles.paymentOption}>
@@ -260,10 +353,10 @@ const handleVoucher = () => {
             <span>Thanh toán qua VNPay</span>
             </label>
         </div>
-        </div>
+        </div> */}
 
         <div className="d-flex justify-content-center">
-            <button className="btn btn-primary w-75 mt-2">TIẾP TỤC</button>
+            <button className="btn btn-primary w-75 mt-2" onClick={handlePayment}>TIẾP TỤC</button>
         </div>
     </div>
   );

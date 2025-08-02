@@ -9,6 +9,8 @@ public class IntrospectiveResponse {
 
     private Boolean isValid;
 
+    private Integer userId;
+
     private String username;
 
     private String email;
