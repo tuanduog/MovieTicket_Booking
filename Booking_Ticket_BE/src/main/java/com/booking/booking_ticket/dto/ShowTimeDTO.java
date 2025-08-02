@@ -1,6 +1,7 @@
 package com.booking.booking_ticket.dto;
 
-import java.sql.Time;
+import java.time.LocalTime;
+
 import lombok.*;
 
 @Getter
@@ -10,6 +11,6 @@ import lombok.*;
 @Builder
 public class ShowTimeDTO {
     private Integer showTimeId;
-    private Time startTime;
+    private LocalTime startTime;
     private RoomDTO roomName;
 }

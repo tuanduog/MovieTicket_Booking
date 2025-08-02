@@ -17,7 +17,11 @@ function Booking () {
     const stompClient = useRef(null); // Dùng useRef để giữ stompClient ổn định
     const savedTheater = JSON.parse(localStorage.getItem("theater"));
     const [user, setUser] = useState("");
-    const [timeLeft, setTimeLeft] = useState(600);
+    const [timeLeft, setTimeLeft] = useState(() => {
+        const storedTime = localStorage.getItem('timeLeft');
+        return storedTime ? parseInt(storedTime, 10) : 600;
+    });
+    
 
     const seatPrices = {
         normal: 70000,
@@ -37,7 +41,11 @@ function Booking () {
         return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
     };
 
-
+    useEffect(() => {
+        const chairString = selectedSeat.join(', ');
+        localStorage.setItem('chairString', chairString);
+    }, [selectedSeat]);
+    
     useEffect(() => {
     window.scrollTo(0, 0);
     const data = JSON.parse(localStorage.getItem("bookingInfo"));
@@ -98,7 +106,10 @@ function Booking () {
     }, []);
     useEffect(() => {
         if (timeLeft <= 0) {
+            localStorage.removeItem("timeLeft");
             navigate("/");
+        } else {
+            localStorage.setItem('timeLeft', timeLeft);
         }
 
         const interval = setInterval(() => {
@@ -241,7 +252,7 @@ function Booking () {
                             <h5 className="text-primary">{calculateTotal().toLocaleString('vi-VN')} VNĐ</h5>
                         </div>
                         <div>
-                            <p className="fw-bold mb-1">Thời gian còn lại</p>
+                            <p className="fw-bold mb-1">⏳ Thời gian còn lại</p>
                             <h5 className="text-success">{formatTime(timeLeft)}</h5>
                         </div>
                     </div>

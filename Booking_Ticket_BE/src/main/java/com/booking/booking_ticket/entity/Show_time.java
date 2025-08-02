@@ -1,6 +1,7 @@
 package com.booking.booking_ticket.entity;
 
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ public class Show_time {
     private Integer showTimeId;
 
     @Column(name = "start_time", nullable = false)
-    private Time startTime;
+    private LocalTime startTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")

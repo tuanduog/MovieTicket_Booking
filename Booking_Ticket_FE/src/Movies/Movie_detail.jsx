@@ -52,7 +52,9 @@ function Movie_detail() {
         if(!user){
             navigate("/Login");
         } else {
+            localStorage.removeItem('timeLeft');
             navigate('/Booking');
+            window.scrollTo(0, 0);
         }
     }
     const generateAvailableShowDates = (releasedDateStr, numberOfDays) => {

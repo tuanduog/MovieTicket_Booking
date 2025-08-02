@@ -1,11 +1,11 @@
 package com.booking.booking_ticket.entity;
 
+import java.time.LocalDate;
 
 import com.booking.booking_ticket.utils.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,7 +28,10 @@ public class Booking {
     private Double totalPrice;
 
     @Column(name = "combo", nullable = false)
-    private String commbo;
+    private String combo;
+
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
 
     @Column(name = "created_at")
     private LocalDateTime created_at;

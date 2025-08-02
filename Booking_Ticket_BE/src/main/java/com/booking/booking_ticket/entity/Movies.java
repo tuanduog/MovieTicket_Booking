@@ -28,7 +28,8 @@ public class Movies {
     private String trailerUrl;
     @Column(name = "movie_name", nullable = false)
     private String movieName;
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    // nhớ thêm columndefinition vì spring.jpa.hibernate.ddl-auto=update cố chạy gán varchar(255)
     private String movieDescription;
     @Column(name = "director", nullable = false)
     private String director;
