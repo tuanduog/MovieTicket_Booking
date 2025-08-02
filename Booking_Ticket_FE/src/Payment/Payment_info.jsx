@@ -1,26 +1,87 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from '../Payment/Payment_info.module.css';
-import pic from '../assets/vite-vite-logo.png';
 import { FaPlus, FaMinus, FaUser } from "react-icons/fa";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import vnpay_logo from '../assets/vnpay_logo.png';
 import momo_logo from '../assets/MoMo_Logo.png';
+import { useLocation } from "react-router-dom";
+import pic1 from '../assets/familycombo.png';
+import pic2 from '../assets/sweetcombo.png';
+import pic3 from '../assets/betacombo.png';
 
 function PaymentInfo() {
+  const userInfo = JSON.parse(localStorage.getItem('user'));
+  const location = useLocation();
+  const { total, selectedSeats, seatTypes } = location.state;
+  const [totalPrice, setTotalPrice] = useState(total);
+  const [voucher, setVoucher] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [text, setText] = useState("");
+  const [textOk, setTextOk] = useState("");
+  const [discount, setDiscount] = useState(false);
+  const seatsWithType = selectedSeats.map((seat, index) => ({
+    seat,
+    type: seatTypes[index]
+  }));
+
+  const vipSeats = seatsWithType.filter(item => item.type === "vip");
+  const normalSeats = seatsWithType.filter(item => item.type === "normal");
+  const coupleSeats = seatsWithType.filter(item => item.type === "couple");
   const [comboCounts, setComboCounts] = useState({
-    beta: 0,
+    family: 0,
     sweet: 0,
+    beta: 0
   });
 
   const handleIncrement = (key) => {
-    setComboCounts({ ...comboCounts, [key]: comboCounts[key] + 1 });
-  };
+  setComboCounts(prev => {
+    const updated = { ...prev, [key]: prev[key] + 1 };
+    const newTotal = total + 
+      updated.family * 113000 + 
+      updated.sweet * 80000 + 
+      updated.beta * 60000;
+    setTotalPrice(newTotal);
+    return updated;
+  });
+};
 
-  const handleDecrement = (key) => {
-    if (comboCounts[key] > 0) {
-      setComboCounts({ ...comboCounts, [key]: comboCounts[key] - 1 });
+const handleDecrement = (key) => {
+  setComboCounts(prev => {
+    const updated = {
+      ...prev,
+      [key]: Math.max(0, prev[key] - 1)
+    };
+    const newTotal = total + 
+      updated.family * 113000 + 
+      updated.sweet * 80000 + 
+      updated.beta * 60000;
+    setTotalPrice(newTotal);
+    return updated;
+  });
+};
+const handleVoucher = () => {
+  setShowAlert(true);
+  if(voucher === 'DHDT01'){
+    if(totalPrice < 200000){
+      setText("Voucher không áp dụng được với đơn hàng của bạn!!");
+      setTextOk("");
+      setDiscount(false);
+    } else {
+      setTextOk("Áp dụng voucher thành công!!");
+      setText("");
+      setDiscount(true);
     }
-  };
+  } else {
+    setText("Nhập sai voucher!!");
+    setTextOk("");
+    setDiscount(false);
+  }
+}
+  useEffect(() => {
+    if(totalPrice < 200000){
+      setDiscount(false);
+    }
+  })
 
   return (
     <div className={styles.container}>
@@ -30,13 +91,29 @@ function PaymentInfo() {
           <FaUser className={styles.icon} /> THÔNG TIN THANH TOÁN
         </h5>
         <div className={styles.infoRow}>
-          <div><strong>Họ Tên:</strong> tuan duog</div>
-          <div><strong>Số điện thoại:</strong> 0774303567</div>
-          <div><strong>Email:</strong> tuancutks@gmail.com</div>
+          <div><strong>Họ Tên:</strong> {userInfo.username}</div>
+          <div><strong>Số điện thoại:</strong> {userInfo.phoneNumber}</div>
+          <div><strong>Email:</strong> {userInfo.email}</div>
         </div>
         <hr />
-        <h6 className={styles.sectionLabel}>GHẾ THƯỜNG</h6>
-        <p className={styles.priceRow}>1 x 45.000 = <strong>45.000 VNĐ</strong></p>
+        {vipSeats.length > 0 && (
+          <div className={styles.infoRow}>
+            <h6><strong>GHẾ VIP</strong></h6>
+            <p className={styles.priceRow}>{vipSeats.length} x 100000 = {vipSeats.length * 100000} VNĐ</p>
+          </div>
+        )}
+        {normalSeats.length > 0 && (
+          <div className={styles.infoRow}>
+            <h6><strong>GHẾ THƯỜNG</strong></h6>
+            <p className={styles.priceRow}>{normalSeats.length} x 70000 = {normalSeats.length * 70000} VNĐ</p>
+          </div>
+        )}
+        {coupleSeats.length > 0 && (
+          <div className={styles.infoRow}>
+            <h6><strong>GHẾ COUPLE</strong></h6>
+            <p className={styles.priceRow}>{coupleSeats.length} x 130000 = {coupleSeats.length * 130000} VNĐ</p>
+          </div>
+        )}
       </div>
 
       {/* Combo ưu đãi */}
@@ -62,8 +139,45 @@ function PaymentInfo() {
             {/* Combo 1 */}
             <tr>
               <td className={styles.comboInfo}>
-                <img src={pic} alt="Beta Combo" className={styles.comboImg} />
-                <span>Beta Combo 69oz</span>
+                <img src={pic1} alt="Combo" className={styles.comboImg} />
+                <span>Family Combo 113K</span>
+              </td>
+              <td>
+                <span className={styles.discount}>TIẾT KIỆM 65K!!!</span><br />
+                Gồm: 2 Bắp (69oz) + 4 Nước có gaz (22oz) + 2 Snack Oishi (80g) (22oz)
+              </td>
+              <td>
+                <div className={styles.quantityControl}>
+                  <button onClick={() => handleDecrement("family")}> <FaMinus /> </button>
+                  <span>{comboCounts.family}</span>
+                  <button onClick={() => handleIncrement("family")}> <FaPlus /> </button>
+                </div>
+              </td>
+            </tr>
+
+            {/* Combo 2 */}
+            <tr>
+              <td className={styles.comboInfo}>
+                <img src={pic2} alt="Sweet Combo" className={styles.comboImg} />
+                <span>Sweet Combo 80K</span>
+              </td>
+              <td>
+                <span className={styles.discount}>TIẾT KIỆM 42K!!!</span><br />
+                Gồm: 1 Bắp (69oz) + 2 Nước có gaz (22oz)
+              </td>
+              <td>
+                <div className={styles.quantityControl}>
+                  <button onClick={() => handleDecrement("sweet")}> <FaMinus /> </button>
+                  <span>{comboCounts.sweet}</span>
+                  <button onClick={() => handleIncrement("sweet")}> <FaPlus /> </button>
+                </div>
+              </td>
+            </tr>
+            {/* Combo 3 */}
+            <tr>
+              <td className={styles.comboInfo}>
+                <img src={pic3} alt="Beta Combo" className={styles.comboImg} />
+                <span>Beta Combo 60K</span>
               </td>
               <td>
                 <span className={styles.discount}>TIẾT KIỆM 28K!!!</span><br />
@@ -77,25 +191,6 @@ function PaymentInfo() {
                 </div>
               </td>
             </tr>
-
-            {/* Combo 2 */}
-            <tr>
-              <td className={styles.comboInfo}>
-                <img src={pic} alt="Sweet Combo" className={styles.comboImg} />
-                <span>Sweet Combo 69oz</span>
-              </td>
-              <td>
-                <span className={styles.discount}>TIẾT KIỆM 46K!!!</span><br />
-                Gồm: 1 Bắp (69oz) + 2 Nước có gaz (22oz)
-              </td>
-              <td>
-                <div className={styles.quantityControl}>
-                  <button onClick={() => handleDecrement("sweet")}> <FaMinus /> </button>
-                  <span>{comboCounts.sweet}</span>
-                  <button onClick={() => handleIncrement("sweet")}> <FaPlus /> </button>
-                </div>
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -105,11 +200,14 @@ function PaymentInfo() {
           <FaUser className={styles.icon} /> MÃ GIẢM GIÁ
         </h5>
         <div className={styles.voucherInputRow}>
-          <input type="text" placeholder="Mã Voucher" className={styles.voucherInput} />
-          <input type="text" placeholder="Mã PIN" className={styles.voucherInput} />
-          <button className={styles.voucherButton}>ÁP DỤNG</button>
+          <input type="text" placeholder="Mã Voucher" className={styles.voucherInput} value={voucher} onChange={(e) => setVoucher(e.target.value)}/>
+          <button className={styles.voucherButton} onClick={handleVoucher}>ÁP DỤNG</button>
         </div>
-
+        {showAlert && (
+          <p style={{color: 'red', fontSize: '14px', marginTop: '-9px', fontStyle: 'italic'}}>
+            {textOk || text}
+          </p>
+        )}
         <h6 className={styles.sectionLabel}>VOUCHER CỦA BẠN</h6>
 
         <table className={styles.voucherTable}>
@@ -122,18 +220,27 @@ function PaymentInfo() {
           </thead>
           <tbody>
             <tr>
-              <td>ABC123</td>
-              <td>Giảm 50K cho hóa đơn trên 200K</td>
+              <td>DHDT01</td>
+              <td>Giảm giá 10% cho đơn hàng trên 200K</td>
               <td>31/12/2025</td>
             </tr>
           </tbody>
         </table>
       </div>
       <div className={styles.box}>
-            <p>Tổng tiền: </p>
-            <p>Số tiền được giảm: </p>
-            <p>Số tiền cần thanh toán: </p>
+        <strong style={{ display: 'block', marginBottom: '10px' }}>
+          Tổng tiền: <span style={{ color: 'red' }}>{totalPrice.toLocaleString('vi-VN')} VNĐ</span>
+        </strong>
+
+        <strong style={{ display: 'block', marginBottom: '10px' }}>
+          Số tiền được giảm: <span style={{ color: 'red' }}>{discount ? (totalPrice * 0.15).toLocaleString('vi-VN') : 0} VNĐ</span>
+        </strong>
+
+        <strong style={{ display: 'block' }}>
+          Số tiền cần thanh toán: <span style={{ color: 'red' }}>{discount ? (totalPrice * 0.85) : totalPrice.toLocaleString('vi-VN')} VNĐ</span>
+        </strong>
       </div>
+
         {/* phương thức thanh toán */}
         <div className={styles.box}>
         <h5 className={styles.title}>

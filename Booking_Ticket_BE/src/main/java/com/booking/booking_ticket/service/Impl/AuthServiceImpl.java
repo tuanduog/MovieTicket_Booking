@@ -78,6 +78,8 @@ public class AuthServiceImpl implements AuthService {
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .claim("scope",role)
+                .claim("email", account.getEmail())           
+                .claim("phone_number", account.getPhone()) 
                 .subject(account.getUsername())
                 .issuer("BetaCineplex.com")
                 .issueTime(new Date())
@@ -128,8 +130,10 @@ public class AuthServiceImpl implements AuthService {
         return IntrospectiveResponse.builder()
                 .isValid(verifired && exprirationTime.after(new Date()) && !checkInvalid)
                 .username(jwt.getJWTClaimsSet().getSubject())
+                .email((String) jwt.getJWTClaimsSet().getClaim("email"))
+                .phoneNumber((String) jwt.getJWTClaimsSet().getClaim("phone_number"))
                 .build();
-    }
+        }
 
     @Override
     public long registerCustomer(RegisterRequestDTO registerRequestDTO) {

@@ -17,7 +17,26 @@ function Booking () {
     const stompClient = useRef(null); // Dùng useRef để giữ stompClient ổn định
     const savedTheater = JSON.parse(localStorage.getItem("theater"));
     const [user, setUser] = useState("");
-    const [price, setPrice] = useState("");
+    const [timeLeft, setTimeLeft] = useState(600);
+
+    const seatPrices = {
+        normal: 70000,
+        vip: 100000,
+        couple: 130000
+    };
+
+    const calculateTotal = () => {
+        return selectedSeat.reduce((total, seat) => {
+            const type = getSeatType(seat);
+            return total + (seatPrices[type] || 0);
+        }, 0);
+    };
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    };
+
 
     useEffect(() => {
     window.scrollTo(0, 0);
@@ -27,7 +46,7 @@ function Booking () {
         setTime(data.time);
         setDate(data.date);
     }
-
+    
     const fetchAuthAndConnect = async () => {
         try {
             const res = await axios.get('http://localhost:8099/auth/introspect', {
@@ -77,7 +96,17 @@ function Booking () {
         stompClient.current?.deactivate();
     };
     }, []);
+    useEffect(() => {
+        if (timeLeft <= 0) {
+            navigate("/");
+        }
 
+        const interval = setInterval(() => {
+            setTimeLeft(prev => prev - 1);
+        }, 1000);
+
+        return () => clearInterval(interval); 
+    }, [timeLeft]);
 
     const seatTypes = {
         vip: ['C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'D6', 'D7', 'D8', 'D9']
@@ -99,7 +128,9 @@ function Booking () {
                 newSeats = prev.filter(seat => seat !== seatNumber);
             } else {
                 if (prev.length >= 8) {
-                    alert("Bạn chỉ được chọn tối đa 8 ghế.");
+                    setTimeout(() => {
+                        alert("Bạn chỉ được chọn tối đa 8 ghế.");
+                    }, 0);
                     return prev;
                 }
                 newSeats = [...prev, seatNumber];
@@ -125,7 +156,20 @@ function Booking () {
     };
 
     const handlePaymentInfo = () => {
-        navigate("/Payment_info");
+        if(selectedSeat.length > 0){
+            const seatTypeList = selectedSeat.map(seat => getSeatType(seat));
+            navigate("/Payment_info", {
+            state: {
+                total: calculateTotal(),
+                // formattedTotal: calculateTotal().toLocaleString('vi-VN'),
+                selectedSeats: selectedSeat,
+                seatTypes: seatTypeList
+            }
+        });
+        window.scrollTo(0, 0);
+        } else {
+            alert("Vui lòng chọn ít nhất 1 ghế");
+        }
     };
     return (
         <div className="container mt-4">
@@ -194,11 +238,11 @@ function Booking () {
                     <div className="d-flex justify-content-between mt-4 px-2">
                         <div>
                             <p className="fw-bold mb-1">Tổng tiền</p>
-                            <h5 className="text-primary">{selectedSeat} VNĐ</h5>
+                            <h5 className="text-primary">{calculateTotal().toLocaleString('vi-VN')} VNĐ</h5>
                         </div>
                         <div>
                             <p className="fw-bold mb-1">Thời gian còn lại</p>
-                            <h5 className="text-success">6:03</h5>
+                            <h5 className="text-success">{formatTime(timeLeft)}</h5>
                         </div>
                     </div>
                 </div>

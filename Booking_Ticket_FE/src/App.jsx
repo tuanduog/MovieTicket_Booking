@@ -13,6 +13,7 @@ import PaymentInfo from "./Payment/Payment_info";
 import Login from "./Auth/Login";
 import Up from "./up";
 import Filter from "./Search/Filter";
+import History from "./History/History";
 function App() {
   return (  
     <BrowserRouter>
@@ -29,6 +30,7 @@ function App() {
         <Route path="/Login" element={<Login/>}></Route>
         <Route path="/up" element={<Up/>}></Route>
         <Route path="/Filter" element={<Filter/>}></Route>
+        <Route path="/Booking_history" element={<History/>}></Route>
       </Routes>
       <Footer/>
     </BrowserRouter>

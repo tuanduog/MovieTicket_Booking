@@ -10,4 +10,8 @@ public class IntrospectiveResponse {
     private Boolean isValid;
 
     private String username;
+
+    private String email;
+
+    private String phoneNumber;
 }
