@@ -14,6 +14,7 @@ function Header() {
     const [user, setUser] = useState(null);
 
     const [name, setName] = useState('');
+    const [justLoggedOut, setJustLoggedOut] = useState(false);
 
     const handleLogin = (type) => {
         navigate("/Login", { state: { type } });
@@ -62,20 +63,6 @@ function Header() {
         }
     };
 
-    const handleLogout = () => {
-        setUser(null);
-        axios.post('http://localhost:8099/auth/logout', {}, {
-            withCredentials: true
-        }).then(() => {
-            console.log("Logout successful");
-            localStorage.removeItem('state');
-            localStorage.removeItem('user');
-            navigate('/');
-        }).catch(err => {
-            console.error("Logout failed", err);
-        });
-    };
-
     const handleAuth = async () => {
         try {
             const res = await axios.get('http://localhost:8099/auth/introspect', {
@@ -94,11 +81,37 @@ function Header() {
             console.error("Auth failed:", err);
         }
     };
+
+    const handleLogout = async () => {
+    try {
+        await axios.post('http://localhost:8099/auth/logout', {}, {
+            withCredentials: true
+        });
+
+        console.log("Logout successful");
+        localStorage.removeItem('state');
+        localStorage.removeItem('user');
+        setUser(null);
+        setJustLoggedOut(true);
+
+        navigate('/');
+        setTimeout(() => {
+            handleAuth();
+        }, 100);
+    } catch (err) {
+        console.error("Logout failed", err);
+    }
+    };
     const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
     const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
 
     useEffect(() => {
-        handleAuth();
+        if (!justLoggedOut) {
+            handleAuth();
+        } else {
+            setJustLoggedOut(false); // reset sau lần đầu
+        }
+
         handleLocations();
     }, [location.pathname]);
 
@@ -121,7 +134,7 @@ function Header() {
                                 Xin chào {user && user.data && user.data.username ? user.data.username : 'Tài khoản'}! <i className="bi bi-caret-down-fill"></i>
                             </span>
                             <ul className="dropdown-menu dropdown-menu-end">
-                                <li><button className="dropdown-item" onClick={handleNavigate('/profile')}>Thông tin cá nhân</button></li>
+                                <li><button className="dropdown-item" onClick={handleNavigate('/Profile')}>Thông tin cá nhân</button></li>
                                 <li><button className="dropdown-item" onClick={handleLogout}>Đăng xuất</button></li>
                             </ul>
                         </div>
@@ -209,7 +222,7 @@ function Header() {
 
                     <form className="d-flex justify-content-end" role="search" onSubmit={handleFilter}>
                         <input className="form-control me-2" type="search" placeholder="Tìm phim..." aria-label="Search"  value={name}
-    onChange={(e) => setName(e.target.value)} />
+                            onChange={(e) => setName(e.target.value)} />
                         <button className="btn btn-primary" type="submit">Tìm</button>
                     </form>
                 </div>

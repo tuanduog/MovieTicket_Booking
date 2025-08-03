@@ -52,9 +52,20 @@
     border: 2px dashed green;
 }
 
+.seat.normal.sold {
+  background-color: #dd1a1d;
+  color: #fff;
+}
+
+.seat.vip.sold {
+  background-color: #dd1a1d;
+  color: #fff;
+}
+
 .seat.sold {
   background-color: #dd1a1d;
   color: #fff;
+  cursor: not-allowed;
 }
 
 .legend {

@@ -21,7 +21,8 @@ function Booking () {
         const storedTime = localStorage.getItem('timeLeft');
         return storedTime ? parseInt(storedTime, 10) : 600;
     });
-    
+    const [bookeds, setBookeds] = useState([]);
+    // phim, 
 
     const seatPrices = {
         normal: 70000,
@@ -40,6 +41,17 @@ function Booking () {
         const secs = seconds % 60;
         return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
     };
+    const fetchBBST = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8099/auth/get-byshowtime/${time.showTimeId}`,
+                {withCredentials: true}
+            );
+            console.log('booked', res.data);
+            setBookeds(res.data);
+        } catch(error){
+            console.error("Không lấy được booking theo showtimeId", error);
+        }
+    }
 
     useEffect(() => {
         const chairString = selectedSeat.join(', ');
@@ -54,7 +66,6 @@ function Booking () {
         setTime(data.time);
         setDate(data.date);
     }
-    
     const fetchAuthAndConnect = async () => {
         try {
             const res = await axios.get('http://localhost:8099/auth/introspect', {
@@ -104,6 +115,14 @@ function Booking () {
         stompClient.current?.deactivate();
     };
     }, []);
+
+    useEffect(() => {
+        if (time?.showTimeId) {
+            fetchBBST();
+
+        }
+    }, [time?.showTimeId]);
+
     useEffect(() => {
         if (timeLeft <= 0) {
             localStorage.removeItem("timeLeft");
@@ -134,7 +153,9 @@ function Booking () {
         setSelectedSeat((prev) => {
             const isSelected = prev.includes(seatNumber);
             let newSeats;
-
+            if (bookeds.some(booking => booking.chair?.split(', ').includes(seatNumber))) {
+                return prev;
+            }
             if (isSelected) {
                 newSeats = prev.filter(seat => seat !== seatNumber);
             } else {
@@ -182,6 +203,7 @@ function Booking () {
             alert("Vui lòng chọn ít nhất 1 ghế");
         }
     };
+
     return (
         <div className="container mt-4">
             <div className="d-flex flex-wrap p-4 ticket-booking-container gap-5 justify-content-center">
@@ -196,6 +218,9 @@ function Booking () {
                                 {Array.from({ length: 14 }, (_, i) => {
                                     const seatNumber = `${row}${i + 1}`;
                                     const seatIndex = i + 1;
+                                    const isSold = bookeds.some(booking => 
+                                        booking.chair?.split(', ').includes(seatNumber)
+                                    );
                                     const type = getSeatType(seatNumber);
 
                                     if (type === 'couple' && seatIndex % 2 === 0) return null;
@@ -204,6 +229,7 @@ function Booking () {
                                         <div
                                             key={seatNumber}
                                             className={`seat ${type} ${
+                                                isSold ? 'sold' :
                                                 selectedSeat.includes(seatNumber) 
                                                 ? 'selected'
                                                 : othersSelecting.includes(seatNumber)

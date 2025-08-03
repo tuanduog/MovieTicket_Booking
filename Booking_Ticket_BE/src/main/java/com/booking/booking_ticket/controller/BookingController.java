@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.booking.booking_ticket.dto.BookingDTO;
+import com.booking.booking_ticket.dto.BookingSimpleDTO;
 import com.booking.booking_ticket.entity.Booking;
 import com.booking.booking_ticket.repository.BookingRepository;
 import com.booking.booking_ticket.service.BookingService;
@@ -90,8 +91,6 @@ public class BookingController {
         }
     }
 
-    
-
     @GetMapping("/get-userbooking/{userId}")
     public ResponseEntity<?> getUserBooking(@PathVariable Integer userId) {
         try {
@@ -99,7 +98,20 @@ public class BookingController {
             return ResponseEntity.ok(bookings);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Failed to save booking: " + e.getMessage());
+            .body("Failed to get userbooking: " + e.getMessage());
         }
     }
+
+    @GetMapping("/get-byshowtime/{showTimeId}")
+    public ResponseEntity<?> getBookingByShowTime(@PathVariable Integer showTimeId) {
+        try {
+            List<BookingSimpleDTO> bookings = bookingService.getByShowTimeId(showTimeId);
+            return ResponseEntity.ok(bookings);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Failed to getbooking byshowtime: " + e.getMessage());
+        }
+    }
+
+
 }

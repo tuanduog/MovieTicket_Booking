@@ -7,6 +7,8 @@ import com.booking.booking_ticket.dto.response.AuthResponse;
 import com.booking.booking_ticket.dto.response.IntrospectiveResponse;
 import com.booking.booking_ticket.dto.response.ResponseData;
 import com.booking.booking_ticket.dto.response.ResponseError;
+
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -71,8 +73,6 @@ public class AuthController {
             log.error("there is an error of introspect: {}",e.getMessage());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         }
-
-
     }
 
     @PostMapping("/register")
@@ -90,9 +90,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseData<Boolean> logout(HttpServletRequest request) {
+    public ResponseData<Boolean> logout(HttpServletRequest request, HttpServletResponse response) {
         try{
             boolean result = authService.logout(request);
+
+            Cookie cookie = new Cookie("jwt", null);
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
             return new ResponseData<>(HttpStatus.OK.value(),"Logout!",result);
         }
         catch (Exception e)

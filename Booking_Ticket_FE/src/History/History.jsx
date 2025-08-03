@@ -93,7 +93,7 @@ useEffect(() => {
     }, []);
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-5" style={{paddingBottom: (bookings.length === 1 || bookings.length === 0) ? '170px' : '0px'}}>
             <h2 className="mb-4 fw-bold text-primary">Lịch sử đặt vé</h2>
 
             {bookings.map((booking) => (
