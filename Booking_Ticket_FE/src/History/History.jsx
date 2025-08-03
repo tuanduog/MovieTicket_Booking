@@ -6,13 +6,8 @@ import { useLocation } from "react-router-dom";
 function History() {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
-    const user = JSON.parse(localStorage.getItem('user'));
-    const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo'));
-    const showTimeId = bookingInfo.time?.showTimeId;
-    const date = bookingInfo.date;
-    const [day, month] = date.split("/").map(Number);
-    const year = new Date().getFullYear();
-    const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const user = JSON.parse(localStorage.getItem('user') || "null");
+    const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo') || "null");
     const combos = localStorage.getItem('selectedCombos') || '';
     const totalPrice = localStorage.getItem("price");
     const chair = localStorage.getItem('chairString');
@@ -22,7 +17,18 @@ function History() {
 
     const [bookings, setBookings] = useState([]);
 
-    const new_booking = {
+    let showTimeId = null;
+    let date = null;
+    let formattedDate = null;
+    if(bookingInfo){
+        showTimeId = bookingInfo.time?.showTimeId;
+        date = bookingInfo.date;
+        const [day, month] = date.split("/").map(Number);
+        const year = new Date().getFullYear();
+        formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
+    const new_booking = user && bookingInfo ? {
         chair: chair,
         totalPrice: totalPrice,
         combo: combos,
@@ -33,48 +39,48 @@ function History() {
         showTime: {
             showTimeId: showTimeId
         }
-    };
+    } : null;
 
     const [hasAdded, setHasAdded] = useState(false);
 
-useEffect(() => {
-    const addBooking = async () => {
-        if (hasAdded) return;
-        if (status === "PAID" && cancel === "false" && code === "00") {
-            try {
-                const checkRes = await axios.get(`http://localhost:8099/auth/check-booking`, {
-                    params: {
-                        userId: user.userId,
-                        showTimeId: showTimeId,
-                        chair: chair
-                    },
-                    withCredentials: true
-                });
+    useEffect(() => {
+        const addBooking = async () => {
+            if (hasAdded && !new_booking) return;
+            if (status === "PAID" && cancel === "false" && code === "00") {
+                try {
+                    const checkRes = await axios.get(`http://localhost:8099/auth/check-booking`, {
+                        params: {
+                            userId: user.userId,
+                            showTimeId: showTimeId,
+                            chair: chair
+                        },
+                        withCredentials: true
+                    });
 
-                if (checkRes.data === false) {
-                    const res = await axios.post(
-                        "http://localhost:8099/auth/add-booking",
-                        new_booking,
-                        { withCredentials: true }
-                    );
-                    if (res.status === 200) {
-                        console.log("Đặt vé thành công:", res.data);
-                        setHasAdded(true);
-                        window.location.reload();
+                    if (checkRes.data === false) {
+                        const res = await axios.post(
+                            "http://localhost:8099/auth/add-booking",
+                            new_booking,
+                            { withCredentials: true }
+                        );
+                        if (res.status === 200) {
+                            console.log("Đặt vé thành công:", res.data);
+                            setHasAdded(true);
+                            window.location.reload();
+                        }
+                    } else {
+                        console.warn("Vé đã được đặt trước đó.");
                     }
-                } else {
-                    console.warn("Vé đã được đặt trước đó.");
+                } catch (error) {
+                    console.error("Add booking failed:", error);
                 }
-            } catch (error) {
-                console.error("Add booking failed:", error);
+            } else {
+                console.warn("Thanh toán không hợp lệ, không thêm booking.");
             }
-        } else {
-            console.warn("Thanh toán không hợp lệ, không thêm booking.");
-        }
-    };
+        };
 
-    addBooking();
-}, [hasAdded]);
+        addBooking();
+    }, [hasAdded]);
 
 
     useEffect(() => {

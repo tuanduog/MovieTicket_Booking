@@ -5,3 +5,8 @@
     text-decoration: underline;
     font-weight: bold;
 }
+
+.dx:hover {
+    font-weight: bold;
+    cursor: pointer;
+}

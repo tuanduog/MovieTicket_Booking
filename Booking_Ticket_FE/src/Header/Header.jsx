@@ -83,24 +83,24 @@ function Header() {
     };
 
     const handleLogout = async () => {
-    try {
-        await axios.post('http://localhost:8099/auth/logout', {}, {
-            withCredentials: true
-        });
+        try {
+            await axios.post('http://localhost:8099/auth/logout', {}, {
+                withCredentials: true
+            });
 
-        console.log("Logout successful");
-        localStorage.removeItem('state');
-        localStorage.removeItem('user');
-        setUser(null);
-        setJustLoggedOut(true);
+            console.log("Logout successful");
+            localStorage.removeItem('state');
+            localStorage.removeItem('user');
+            setUser(null);
+            setJustLoggedOut(true);
 
-        navigate('/');
-        setTimeout(() => {
-            handleAuth();
-        }, 100);
-    } catch (err) {
-        console.error("Logout failed", err);
-    }
+            navigate('/');
+            setTimeout(() => {
+                handleAuth();
+            }, 100);
+        } catch (err) {
+            console.error("Logout failed", err);
+        }
     };
     const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
     const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
@@ -116,6 +116,14 @@ function Header() {
     }, [location.pathname]);
 
     const handleNavigate = (path) => () => navigate(path);
+
+    const handleHistory = () => {
+        if(!user){
+            navigate("/Login");
+        } else {
+            navigate("/Booking_history");
+        }
+    }
 
     return (
         <div>
@@ -223,7 +231,7 @@ function Header() {
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Theater')}>Rạp</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Ranking')}>Xếp hạng phim</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Member')}>Hội viên</span>
-                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Booking_history')}>Lịch sử đặt vé</span>
+                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleHistory}>Lịch sử đặt vé</span>
                         </div>
                     </div>
 
