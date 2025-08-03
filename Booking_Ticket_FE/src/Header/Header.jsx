@@ -109,7 +109,7 @@ function Header() {
         if (!justLoggedOut) {
             handleAuth();
         } else {
-            setJustLoggedOut(false); // reset sau lần đầu
+            setJustLoggedOut(false);
         }
 
         handleLocations();
@@ -129,7 +129,13 @@ function Header() {
                             <p className="mb-0 ms-2" style={{ cursor: 'pointer' }} onClick={() => handleLogin('register')}>Đăng ký</p>
                         </>
                     ) : (
-                        <div className="dropdown">
+                        <div className='d-flex align-items-center'>
+
+                            <span className='px-2 rounded border border-warning text-warning me-2 fw-bold'
+                            style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)', fontSize: '12px' }}>
+                                VIP
+                            </span>
+                            <div className="dropdown">
                             <span className="mb-0 me-2 fs-6" style={{ cursor: 'pointer' }} data-bs-toggle="dropdown">
                                 Xin chào {user && user.data && user.data.username ? user.data.username : 'Tài khoản'}! <i className="bi bi-caret-down-fill"></i>
                             </span>
@@ -137,6 +143,7 @@ function Header() {
                                 <li><button className="dropdown-item" onClick={handleNavigate('/Profile')}>Thông tin cá nhân</button></li>
                                 <li><button className="dropdown-item" onClick={handleLogout}>Đăng xuất</button></li>
                             </ul>
+                            </div>
                         </div>
                     )}
                 </div>

@@ -45,7 +45,6 @@ function Login() {
     }
   };
 
-  
   const handleRegisterSubmit = async e => {
   e.preventDefault();
   if (registerData.password !== registerData.retypePassword) {

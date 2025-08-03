@@ -33,6 +33,10 @@ function Homepage() {
         setShowModal1(false);
     }
     const handleOpenModal = (movie) => {
+        if(localStorage.getItem('theater') === null){
+            alert("Bạn cần chọn địa điểm rạp chiếu trước!");
+            return;
+        }
         setMovieInfo(movie);
         const select = generateAvailableShowDates(movie.releaseDate, movie.dateShow);
         setShowDates(select);

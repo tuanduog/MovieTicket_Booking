@@ -8,7 +8,7 @@ function History() {
     const query = new URLSearchParams(location.search);
     const user = JSON.parse(localStorage.getItem('user'));
     const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo'));
-    const showTimeId = bookingInfo.time.showTimeId;
+    const showTimeId = bookingInfo.time?.showTimeId;
     const date = bookingInfo.date;
     const [day, month] = date.split("/").map(Number);
     const year = new Date().getFullYear();
