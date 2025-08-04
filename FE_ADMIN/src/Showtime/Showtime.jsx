@@ -24,24 +24,23 @@ import '../assets/vendor/tinymce/tinymce.min.js';
 import '../assets/vendor/quill/quill.js'
 import '../assets/vendor/simple-datatables/simple-datatables.js'
 import '../assets/js/main.js';
-import {useRef} from 'react';
-function Movies () {
-     const navigate = useNavigate();
+function ShowTime () {
+    const navigate = useNavigate();
 
     const [movies, setMovies] = useState([]);
 
   // Gọi API
   useEffect(() => {
-    axios.get('http://localhost:8099/auth/getAll-movies', { withCredentials: true })
-      .then((res) => setMovies(res.data))
+    axios.get('http://localhost:8099/auth/get-showtime', { withCredentials: true })
+      .then((res) => setMovies(res.data.data))
       .catch((err) => console.error(err));
   }, []);
 
   const [selectedMovie, setSelectedMovie] = useState(null);
 const handleEdit = (movie) => {
-  navigate("/Movies_edit", { state: { movie } });
+  navigate("/Showtime_edit", { state: { movie } });
 };
-
+    console.log(movies);
 const openModal = (lmovie) => {
   setSelectedMovie(lmovie);
   const modal = new Modal(document.getElementById("detailModal"));
@@ -50,18 +49,18 @@ const openModal = (lmovie) => {
 
 const handleDeleteClick = (movie) => {
 
-  const response = axios.delete("http://localhost:8099/movies/delete-Movies", {
-      params: { id: movie.movieId },
+  const response = axios.delete("http://localhost:8099/auth/delete-Showtime", {
+      params: { id: movie.showTimeId },
       withCredentials: true,
     });
-    alert("Thực hiện xoá " + movie.movieName + " thành công");
+    alert("Thực hiện xoá " + movie.data + " thành công");
     window.location.reload();
 
   }
 const columns = [
   {
     name: "ID",
-    selector: row => row.movieId,
+    selector: row => row.showTimeId,
     sortable: true
   },
   {
@@ -70,19 +69,19 @@ const columns = [
     sortable: true
   },
   {
-    name: "Thể loại",
-    selector: row => row.genre,
+    name: "Rạp",
+    selector: row => row.theaterName,
     sortable: true
   }
   ,
   {
-    name: "Thời lượng",
-    selector: row => row.duration,
+    name: "Phòng",
+    selector: row => row.roomName,
     sortable: true
   },
   {
-    name: "Ngày phát hành",
-    selector: row => row.releaseDate,
+    name: "Suất chiếu",
+    selector: row => row.startTime,
     sortable: true
   }
   ,
@@ -132,11 +131,11 @@ const columns = [
            <main id="main" className="main">
 
     <div className="pagetitle">
-      <h1>Quản lý phim</h1>
+      <h1>Quản lý lịch chiếu</h1>
       <nav>
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><a href="/">Home</a></li>
-          <li className="breadcrumb-item active">Quản lý phim</li>
+          <li className="breadcrumb-item active">Quản lý lịch chiếu</li>
         </ol>
       </nav>
     </div>
@@ -155,15 +154,15 @@ const columns = [
               <div className="row">
                <div className="col-md-8">
                  <button className="btn btn-success mb-3 ms-auto">
-                <a className='text-light' href="/Movie_add">
+                <a className='text-light' href="/Showtime_add">
                     <i className="bi bi-plus-circle-fill pe-1"></i>
-                    Thêm phim mới</a>
+                    Thêm lịch chiếu mới</a>
                     </button>
                     </div>
               <div className="col-md-4">
               <input
         type="text"
-        placeholder="Tìm phim..."
+        placeholder="Tìm lịch chiếu..."
         className="form-control mb-3"
         value={filterText}
         onChange={e => setFilterText(e.target.value)}
@@ -229,4 +228,4 @@ const columns = [
     );
 }
 
-export default Movies;
+export default ShowTime;

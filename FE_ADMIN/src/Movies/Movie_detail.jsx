@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import '../Movies/Movie_detail.css';
@@ -8,18 +8,104 @@ import { useEffect } from 'react';
 import axios from 'axios';
 
 function Movie_add() {
-   const [image, setImage] = useState(null);
-
+  const [image, setImage] = useState(null);
+  const navigate = useNavigate();
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const file = e.target.files[0];
     if (file) {
       setImage(URL.createObjectURL(file)); // tạo đường dẫn tạm
     }
   };
-    
-    return (
-  <main id="main" class="main">
+const [movieName, setMovieName] = useState("");
+const [cast, setCast] = useState("");
+const [director, setDirector] = useState("");
+const [releaseDate, setReleaseDate] = useState("");
+const [duration, setDuration] = useState("");
+const [movieDescription, setDescription] = useState("");
+const [trailer, setTrailer] = useState("");
+const [genre, setGenre] = useState("");
+const [showingType, setShowingType] = useState("");
 
+const [alertMsg, setAlertMsg] = useState('');
+const [alertType, setAlertType] = useState('');
+
+const [selectedFile, setSelectedFile] = useState(null);
+const [imageUrl, setImageUrl] = useState('');
+
+const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+  
+  const uploadToCloudinary = async () => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('folder', 'movies'); // ví dụ folder là "movies"
+
+    try {
+      const response = await axios.post('http://localhost:8099/api/files/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+          withCredentials: true,
+
+      });
+
+     
+      setImageUrl(response.data.url); // nếu cloudinaryService trả về `url` ảnh
+    } catch (error) {
+      console.error('Upload failed', error);
+    }
+  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const data = {
+    image: imageUrl,
+    movieName,
+    cast,
+    trailerUrl,
+    director,
+    releaseDate,
+    duration,
+    movieDescription,
+    genre,
+    showing: showingType,
+  };
+
+  try {
+    const response = await axios.post("http://localhost:8099/movies/add-Movies", data, {
+      withCredentials: true,
+    });
+    console.log("Phim đã được thêm:", response.data);
+
+    setAlertMsg('Thêm phim thành công!');
+    setAlertType('success');
+  } catch (err) {
+    console.error("Lỗi khi thêm phim:", err);
+      setAlertMsg('Thêm phim thất bại!');
+  setAlertType('danger');
+  }
+};
+useEffect(() => {
+  if (alertMsg) {
+    const timer = setTimeout(() => {
+      setAlertMsg('');
+      setAlertType('');
+    }, 3000); // 3 giây
+
+    return () => clearTimeout(timer);
+  }
+}, [alertMsg]);
+    return (
+  <main id="main" className="main">
+{alertMsg && (
+  <div className={`alert alert-${alertType} alert-dismissible fade show`} role="alert">
+    {alertMsg}
+    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+)}
         <div className="col-lg-12">
 
           <div className="card">
@@ -27,37 +113,45 @@ function Movie_add() {
               <h5 className="card-title">Thêm phim mới</h5>
 
             
-              <form>
+                <form onSubmit={handleSubmit}>
+
                 <div className="row mb-3">
                   <label htmlFor="inputMovie" className="col-sm-2 col-form-label">Ảnh bìa</label>
                   <div className="col-sm-10">
-                <input type="file" accept="image/*" onChange={handleImageChange} className="form-control" />
-      
-      {image && (
+                <input type="file" accept="image/*" onChange={handleFileChange} className="form-control" />
+      {imageUrl  && (
         <div className="mt-3">
-          <img src={image} alt="preview" className="img-thumbnail" style={{ maxWidth: "300px" }} />
+          <img src={imageUrl} alt="preview" className="img-thumbnail" style={{ maxWidth: "300px" }} />
         </div>
       )}
+            <a onClick={uploadToCloudinary} className='btn btn-warning mt-1'>Upload</a>
       </div>
        
+    
                 </div>
   
                 <div className="row mb-3">
                   <label htmlFor="inputMovie" className="col-sm-2 col-form-label">Tên phim</label>
                   <div className="col-sm-10">
-                    <input type="text" className="form-control" id='movieName' required/>
+                    <input type="text" className="form-control" id='movieName' onChange={(e) => setMovieName(e.target.value)} required/>
                   </div>
                 </div>
                  <div className="row mb-3">
                   <label htmlFor="inputCast" className="col-sm-2 col-form-label">Diễn viên</label>
                   <div className="col-sm-10">
-                    <input type="text" className="form-control" id='cast' required/>
+                    <input type="text" className="form-control" id='cast' onChange={(e) => setCast(e.target.value)} required/>
+                  </div>
+                </div>
+                   <div className="row mb-3">
+                  <label htmlFor="inputCast" className="col-sm-2 col-form-label">Trailer</label>
+                  <div className="col-sm-10">
+                    <input type="text" className="form-control" id='cast' onChange={(e) => setTrailer(e.target.value)} required/>
                   </div>
                 </div>
                       <div className="row mb-3">
                   <label htmlFor="inputCast" className="col-sm-2 col-form-label">Đạo diễn</label>
                   <div className="col-sm-10">
-                    <input type="text" className="form-control" id='director'required />
+                    <input type="text" className="form-control" id='director' onChange={(e) => setDirector(e.target.value)} required/>
                   </div>
                 </div>
 
@@ -65,13 +159,13 @@ function Movie_add() {
                 <div className="row mb-3">
                   <label htmlFor="inputDate" className="col-sm-2 col-form-label">Ngày phát hành</label>
                   <div className="col-sm-10">
-                    <input type="date" className="form-control" id='releaseDate' required/>
+                    <input type="date" className="form-control" id='releaseDate' onChange={(e) => setReleaseDate(e.target.value)} required/>
                   </div>
                 </div>
                 <div className="row mb-3">
                   <label htmlFor="inputTime" className="col-sm-2 col-form-label">Thời lượng</label>
                   <div className="col-sm-10">
-                    <input type="text" className="form-control" required/>
+                    <input type="text" className="form-control" onChange={(e) => setDuration(e.target.value)} required/>
                   </div>
                 </div>
 
@@ -79,20 +173,22 @@ function Movie_add() {
                 <div className="row mb-3">
                   <label htmlFor="inputDescription" className="col-sm-2 col-form-label">Mô tả</label>
                   <div className="col-sm-10">
-                    <textarea className="form-control" style={{height: 100}} id='description'></textarea>
+                    <textarea className="form-control" style={{height: 100}} onChange={(e) => setDescription(e.target.value)} id='description'></textarea>
                   </div>
                 </div>
                 <fieldset className="row mb-3">
                   <legend className="col-form-label col-sm-2 pt-0">Loại phim</legend>
                   <div className="col-sm-10">
                     <div className="form-check">
-                      <input className="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" />
+                      <input className="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="not showing"  
+    onChange={(e) => setShowingType(e.target.value)} />
                       <label className="form-check-label" htmlFor="gridRadios1">
                         Sắp chiếu
                       </label>
                     </div>
                     <div className="form-check">
-                      <input className="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="option2"/>
+                      <input className="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="showing"  
+    onChange={(e) => setShowingType(e.target.value)}/>
                       <label className="form-check-label" htmlFor="gridRadios2">
                         Đang chiếu
                       </label>
@@ -100,82 +196,20 @@ function Movie_add() {
                    
                   </div>
                 </fieldset>
+                
                 <div className="row mb-3">
-                  <legend className="col-form-label col-sm-2 pt-0">Thể loại</legend>
+                  <label htmlFor="inputGenre" className="col-sm-2 col-form-label">Thể loại</label>
                   <div className="col-sm-10">
-                    <div className="row">
-                        <div className="col">
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck1"/>
-                      <label className="form-check-label" htmlFor="gridCheck1">
-                        Kinh dị
-                      </label>
-                    </div>
-
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck2" checked/>
-                      <label className="form-check-label" htmlFor="gridCheck2">
-                        Hành động
-                      </label>
-                    </div>
-                    </div>
-                         <div className="col">
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck1"/>
-                      <label className="form-check-label" htmlFor="gridCheck1">
-                        Gia Đình
-                      </label>
-                    </div>
-
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck2" checked/>
-                      <label className="form-check-label" htmlFor="gridCheck2">
-                        Hoạt Hình
-                      </label>
-                    </div>
-                    </div>
-                         <div className="col">
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck1"/>
-                      <label className="form-check-label" htmlFor="gridCheck1">
-                        Tình cảm
-                      </label>
-                    </div>
-
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck2" checked/>
-                      <label className="form-check-label" htmlFor="gridCheck2">
-                        Hài hước
-                      </label>
-                    </div>
-                    </div>
-                     <div className="col">
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck1"/>
-                      <label className="form-check-label" htmlFor="gridCheck1">
-                        Phiêu lưu
-                      </label>
-                    </div>
-
-                    <div className="form-check">
-                      <input className="form-check-input" type="checkbox" id="gridCheck2" checked/>
-                      <label className="form-check-label" htmlFor="gridCheck2">
-                        Tài liệu
-                      </label>
-                    </div>
-                    </div>
-                </div>
+                    <input type="text" className="form-control" onChange={(e) => setGenre(e.target.value)} required/>
                   </div>
                 </div>
-
 
                 
 
 
                 <div className="row mb-3">
-                  <label className="col-sm-2 col-form-label">Thêm phim</label>
                   <div className="col-sm-10">
-                    <button type="submit" className="btn btn-primary">Thêm phim</button>
+                    <button type="submit" className="btn btn-primary" >Thêm phim</button>
                   </div>
                 </div>
 

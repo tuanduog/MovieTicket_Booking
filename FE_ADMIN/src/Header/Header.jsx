@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,17 +21,30 @@ import '../assets/vendor/tinymce/tinymce.min.js';
 import '../assets/vendor/quill/quill.js'
 import '../assets/vendor/simple-datatables/simple-datatables.js'
 import '../assets/js/main.js';
-
 import './Header.css';
-
+import ProfileDropdown from './ProfileDropdown.jsx';
 function Header() {
-   
+  const navigate = useNavigate();
+  const handleSignOut = () => {
+  axios.post('http://localhost:8099/auth/logout', null, {
+    withCredentials: true
+  })
+    .then(() => {
+      navigate('/Login');
+    })
+    .catch((err) => console.error(err));
+};
+const [user,setUser] = useState(null);
+
+
+
+
     return (
         <div>
            <header id="header" className="header fixed-top d-flex align-items-center">
 
     <div className="d-flex align-items-center justify-content-between">
-      <a href="index.html" className="logo d-flex align-items-center">
+      <a href="/" className="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt=""/>
         <span className="d-none d-lg-block">Betacimeplex</span>
       </a>
@@ -195,61 +208,7 @@ function Header() {
 
         </li>
 
-        <li className="nav-item dropdown pe-3">
-
-          <a className="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="assets/img/profile-img.jpg" alt="Profile" className="rounded-circle"/>
-            <span className="d-none d-md-block dropdown-toggle ps-2">K. Anderson</span>
-          </a>
-
-          <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-            <li className="dropdown-header">
-              <h6>Kevin Anderson</h6>
-              <span>Web Designer</span>
-            </li>
-            <li>
-              <hr className="dropdown-divider"/>
-            </li>
-
-            <li>
-              <a className="dropdown-item d-flex align-items-center" href="users-profile.html">
-                <i className="bi bi-person"></i>
-                <span>My Profile</span>
-              </a>
-            </li>
-            <li>
-              <hr className="dropdown-divider"/>
-            </li>
-
-            <li>
-              <a className="dropdown-item d-flex align-items-center" href="users-profile.html">
-                <i className="bi bi-gear"></i>
-                <span>Account Settings</span>
-              </a>
-            </li>
-            <li>
-              <hr className="dropdown-divider"/>
-            </li>
-
-            <li>
-              <a className="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                <i className="bi bi-question-circle"></i>
-                <span>Need Help?</span>
-              </a>
-            </li>
-            <li>
-              <hr className="dropdown-divider"/>
-            </li>
-
-            <li>
-              <a className="dropdown-item d-flex align-items-center" href="#">
-                <i className="bi bi-box-arrow-right"></i>
-                <span>Sign Out</span>
-              </a>
-            </li>
-
-          </ul>
-        </li>
+<ProfileDropdown handleSignOut={handleSignOut} />
 
       </ul>
     </nav>
