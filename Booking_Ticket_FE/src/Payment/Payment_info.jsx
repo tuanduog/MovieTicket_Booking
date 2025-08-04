@@ -103,7 +103,7 @@ const handleVoucher = () => {
       const res = await axios.post("http://localhost:8099/Order/create", {
         productName: 'Đơn hàng: ' + paymentId,
         description: 'Thanh toán đơn hàng',
-        price: 2000, // đảm bảo gửi số nguyên
+        price: 2000,
         returnUrl: "http://localhost:5173/Booking_history",
         cancelUrl: "http://localhost:5173",
       }, { withCredentials: true });

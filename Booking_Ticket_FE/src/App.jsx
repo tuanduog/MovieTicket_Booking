@@ -15,6 +15,8 @@ import Up from "./up";
 import Filter from "./Search/Filter";
 import History from "./History/History";
 import Payment from "./Payment/Payment";
+import UserInfo from "./UserInfo/User_info";
+
 function App() {
   return (  
     <BrowserRouter>
@@ -33,6 +35,7 @@ function App() {
         <Route path="/Filter" element={<Filter/>}></Route>
         <Route path="/Booking_history" element={<History/>}></Route>
         <Route path="/Payment" element={<Payment/>}></Route>
+        <Route path="/Profile" element={<UserInfo/>}></Route>
       </Routes>
       <Footer/>
     </BrowserRouter>

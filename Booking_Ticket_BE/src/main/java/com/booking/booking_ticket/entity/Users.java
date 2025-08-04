@@ -4,6 +4,7 @@ import com.booking.booking_ticket.utils.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +35,15 @@ public class Users {
     @Column(name = "phone_number", length = 50,nullable = false)
     private String phone;
 
+    @Column(name = "gender", length = 255, nullable = false)
+    private String gender;
+
+    @Column(name = "dob", length = 255, nullable = false)
+    private LocalDate dob;
+
+    @Column(name = "nationality", length = 255, nullable = false)
+    private String nationality;
+
     @Column(name = "membership", length = 50,nullable = false)
     private String membership;
 
@@ -41,26 +51,24 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private Set<Cart> setCart = new HashSet();
+    // @OneToMany(mappedBy = "user")
+    // @ToString.Exclude
+    // private Set<Cart> setCart = new HashSet();
 
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private Set<Comments> setComments  = new HashSet();
+    // @OneToMany(mappedBy = "user")
+    // @ToString.Exclude
+    // private Set<Comments> setComments  = new HashSet();
 
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private Set<Comment_likes> setCommentLike = new HashSet();
+    // @OneToMany(mappedBy = "user")
+    // @ToString.Exclude
+    // private Set<Comment_likes> setCommentLike = new HashSet();
 
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private Set<Booking> setBookings = new HashSet();
+    // @OneToMany(mappedBy = "user")
+    // @ToString.Exclude
+    // private Set<Booking> setBookings = new HashSet();
 
-    @OneToMany(mappedBy = "user")
-    @ToString.Exclude
-    private Set<Reviews> setReviews = new HashSet();
-
-
+    // @OneToMany(mappedBy = "user")
+    // @ToString.Exclude
+    // private Set<Reviews> setReviews = new HashSet();
 
 }

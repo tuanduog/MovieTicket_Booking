@@ -20,7 +20,7 @@ function NavBar(){
         </a>
       </li>
        <li className="nav-item">
-        <a className="nav-link" href="/Movies" style={{fontSize: 'small'}}>
+        <a className="nav-link" href="/Theater" style={{fontSize: 'small'}}>
           <i className="bi bi-camera-reels"></i>
   Quản lý rạp chiếu
         </a>
@@ -31,15 +31,15 @@ function NavBar(){
   Quản lý thông tin khách hàng
         </a>
       </li>
-               <li className="nav-item">
-        <a className="nav-link" href="/Movies" style={{fontSize: 'small'}}>
-<i className="bi bi-card-checklist"></i>
-          
-            Duyệt yêu cầu huỷ vé
+             <li className="nav-item">
+        <a className="nav-link" href="/Showtime" style={{fontSize: 'small'}}>
+          <i className="bi bi-calendar-fill"></i>
+  Quản lý suất chiếu
         </a>
       </li>
+              
 
-      <li className="nav-item">
+      {/* <li className="nav-item">
         <a className="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
           <i className="bi bi-journal-text"></i><span>Forms</span><i className="bi bi-chevron-down ms-auto"></i>
         </a>
@@ -180,7 +180,7 @@ function NavBar(){
           <i className="bi bi-file-earmark"></i>
           <span>Blank</span>
         </a>
-      </li>
+      </li> */}
 
     </ul>
 

@@ -25,16 +25,7 @@ import '../assets/vendor/simple-datatables/simple-datatables.js'
 import '../assets/js/main.js';
 function Login() {
     const location = useLocation();
-    const [rightPanelActive, setRightPanelActive] = useState(false);
     const [loginData, setLoginData] = useState({ username: '', password: '' });
-    const [registerData, setRegisterData] = useState({
-      username: '',
-      email: '',
-      password: '',
-      retypePassword: '',
-      birthday: '',
-      phone: ''
-    });    
     let navigate = useNavigate();
     const handleLoginChange = e => {
       setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -64,35 +55,7 @@ function Login() {
   };
 
   
-  const handleRegisterSubmit = async e => {
-  e.preventDefault();
-  if (registerData.password !== registerData.retypePassword) {
-    alert('Mật khẩu nhập lại không khớp!');
-    return;
-  }
-  try {
-    const res = await axios.post('http://localhost:8099/auth/register', registerData, {
-      withCredentials: true
-    });
-    // Xử lý kết quả đăng ký
-    if (res.status === 200) {
-      alert('Đăng ký thành công!');
-      setRightPanelActive(false); // Quay lại đăng nhập sau khi đăng ký thành công
-    } else {
-      alert('Đăng ký không thành công, vui lòng thử lại.');
-    }
-    console.log(res.data);
-  } catch (err) {
-    console.error(err);
-  }
-  };
-    useEffect(() => {
-    if(location.state?.type === 'register'){
-        setRightPanelActive(true);
-    } else {
-        setRightPanelActive(false);
-    }
-  },[location.state]);
+  
   return (
      <div className="container">
 
@@ -104,7 +67,7 @@ function Login() {
               <div className="d-flex justify-content-center py-4">
                 <a href="index.html" className="logo d-flex align-items-center w-auto">
                   <img src="assets/img/logo.png" alt=""/>
-                  <span className="d-none d-lg-block">NiceAdmin</span>
+                  <span className="d-none d-lg-block">Betacineplex</span>
                 </a>
               </div>
 
@@ -117,35 +80,33 @@ function Login() {
                     <p className="text-center small">Enter your username & password to login</p>
                   </div>
 
-                  <form className="row g-3 needs-validation" novalidate>
+                  <form className="row g-3 needs-validation" noValidate onSubmit={handleLoginSubmit}>
 
                     <div className="col-12">
-                      <label for="yourUsername" className="form-label">Username</label>
+                      <label htmlFor="yourUsername" className="form-label">Username</label>
                       <div className="input-group has-validation">
                         <span className="input-group-text" id="inputGroupPrepend">@</span>
-                        <input type="text" name="username" className="form-control" id="yourUsername" required/>
+                        <input type="text" name="username" className="form-control" id="yourUsername" required onChange={handleLoginChange} value={loginData.username}/>
                         <div className="invalid-feedback">Please enter your username.</div>
                       </div>
                     </div>
 
                     <div className="col-12">
-                      <label for="yourPassword" className="form-label">Password</label>
-                      <input type="password" name="password" className="form-control" id="yourPassword" required/>
+                      <label htmlFor="yourPassword" className="form-label">Password</label>
+                      <input type="password" name="password" className="form-control" id="yourPassword" required onChange={handleLoginChange} value={loginData.password}/>
                       <div className="invalid-feedback">Please enter your password!</div>
                     </div>
 
                     <div className="col-12">
                       <div className="form-check">
                         <input className="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe"/>
-                        <label className="form-check-label" for="rememberMe">Remember me</label>
+                        <label className="form-check-label" htmlFor="rememberMe">Remember me</label>
                       </div>
                     </div>
                     <div className="col-12">
                       <button className="btn btn-primary w-100" type="submit">Login</button>
                     </div>
-                    <div className="col-12">
-                      <p className="small mb-0">Don't have account? <a href="pages-register.html">Create an account</a></p>
-                    </div>
+          
                   </form>
 
                 </div>

@@ -3,6 +3,7 @@ package com.booking.booking_ticket.controller;
 
 import com.booking.booking_ticket.dto.BookingDTO;
 import com.booking.booking_ticket.dto.response.*;
+import com.booking.booking_ticket.dto.BookingSimpleDTO;
 import com.booking.booking_ticket.entity.Booking;
 import com.booking.booking_ticket.repository.BookingRepository;
 import com.booking.booking_ticket.service.BookingService;
@@ -145,4 +146,19 @@ public class BookingController {
     public ResponseEntity<List<BookingResponse>> getAllBookingResponses() {
         return ResponseEntity.ok(bookingService.getAllBookingResponses());
     }
+
+
+
+    @GetMapping("/get-byshowtime/{showTimeId}")
+    public ResponseEntity<?> getBookingByShowTime(@PathVariable Integer showTimeId) {
+        try {
+            List<BookingSimpleDTO> bookings = bookingService1.getByShowTimeId(showTimeId);
+            return ResponseEntity.ok(bookings);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Failed to getbooking byshowtime: " + e.getMessage());
+        }
+    }
+
+
 }

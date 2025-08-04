@@ -102,40 +102,45 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEException, ParseException {
-        String token = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
-                .filter(c -> "jwt".equals(c.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEException, ParseException {
+    String token = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+            .filter(c -> "jwt".equals(c.getName()))
+            .map(Cookie::getValue)
+            .findFirst()
+            .orElse(null);
 
-        if(token == null)
-            return IntrospectiveResponse.builder().isValid(false).build();
-        boolean checkInvalid = (invalidTokenRepsitory.findById(token) == null) ? false : true;
+    if (token == null)
+        return IntrospectiveResponse.builder().isValid(false).build();
 
-        System.out.println(checkInvalid);
-        JWSVerifier verifier  = new MACVerifier(SIGNER_KEY.getBytes());
-        Optional<InvalidToken> itokens =  invalidTokenRepsitory.findById(token);
-        InvalidToken invalidToken = itokens.orElse(null);
-        SignedJWT jwt =  SignedJWT.parse(token);
-        var verifired = jwt.verify(verifier);
+    // Kiểm tra token có trong danh sách bị vô hiệu
+    Optional<InvalidToken> optionalInvalid = invalidTokenRepsitory.findById(token);
+    boolean isBlacklisted = false;
 
-        Date exprirationTime = jwt.getJWTClaimsSet().getExpirationTime();
-        boolean checkDate = false;
-        if (invalidToken != null) {
-            checkDate = invalidToken.getExpired_at().equals(exprirationTime.toInstant());
-        }
+    if (optionalInvalid.isPresent()) {
+        SignedJWT parsedJwt = SignedJWT.parse(token);
+        Date expiration = parsedJwt.getJWTClaimsSet().getExpirationTime();
+        isBlacklisted = expiration.toInstant().equals(optionalInvalid.get().getExpired_at());
+    }
 
-        checkInvalid = checkDate && checkInvalid;
+    if (isBlacklisted)
+        return IntrospectiveResponse.builder().isValid(false).build();
 
-        return IntrospectiveResponse.builder()
-                .isValid(verifired && exprirationTime.after(new Date()) && !checkInvalid)
-                .userId(((Number) jwt.getJWTClaimsSet().getClaim("user_id")).intValue())
-                .username(jwt.getJWTClaimsSet().getSubject())
-                .email((String) jwt.getJWTClaimsSet().getClaim("email"))
-                .phoneNumber((String) jwt.getJWTClaimsSet().getClaim("phone_number"))
-                .build();
-        }
+    SignedJWT jwt = SignedJWT.parse(token);
+    JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+    boolean verified = jwt.verify(verifier);
+
+    Date expirationTime = jwt.getJWTClaimsSet().getExpirationTime();
+    boolean isExpired = expirationTime.before(new Date());
+
+    return IntrospectiveResponse.builder()
+            .isValid(verified && !isExpired)
+            .userId(((Number) jwt.getJWTClaimsSet().getClaim("user_id")).intValue())
+            .username(jwt.getJWTClaimsSet().getSubject())
+            .email((String) jwt.getJWTClaimsSet().getClaim("email"))
+            .phoneNumber((String) jwt.getJWTClaimsSet().getClaim("phone_number"))
+            .build();
+}
+
 
     @Override
     public long registerCustomer(RegisterRequestDTO registerRequestDTO) {

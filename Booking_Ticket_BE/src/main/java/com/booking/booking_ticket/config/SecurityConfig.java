@@ -52,7 +52,7 @@ public class SecurityConfig {
             .jwt(jwtConfigurer -> jwtConfigurer
                 .decoder(jwtDecoder())
                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
-            )
+        )
     );
 
     return httpSecurity.build();
