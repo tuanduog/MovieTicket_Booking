@@ -168,6 +168,7 @@ public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEE
                     .findFirst()
                     .orElse(null);
 
+            System.out.println(token);
             SignedJWT jwt = SignedJWT.parse(token);
             System.out.println(token);
 //            var signToken = verifyToken(request.getToken(), true);

@@ -2,6 +2,7 @@ package com.booking.booking_ticket.service;
 
 import java.util.List;
 
+import com.booking.booking_ticket.dto.request.MovieRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,4 +21,6 @@ public class MovieService {
     public Movies getMovieById (int id){
         return movieRepository.findByMovieId(id);
     }
+
+
 }

@@ -19,7 +19,7 @@ import java.time.Instant;
 public class InvalidToken {
 
     @Id
-    @Column(name = "token_id")
+    @Column(name = "token_id",columnDefinition = "varchar(340)")
     private String token_id;
 
     @Column(name = "expired_at")
