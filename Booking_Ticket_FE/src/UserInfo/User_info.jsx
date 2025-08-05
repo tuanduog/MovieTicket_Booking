@@ -68,9 +68,9 @@ function UserInfo() {
                 email: email,
                 password: newPassword ? newPassword : password,
                 phone: phoneNumber,
-                dob: dob,
-                gender: gender,
-                nationality: nationality,
+                dob: dob ?? null,
+                gender: gender ?? null,
+                nationality: nationality ?? null,
                 };
 
             const res = await axios.put();
@@ -154,11 +154,11 @@ function UserInfo() {
                         </div>
                         <div className="col-md-6">
                             <label className="form-label">Giới tính</label>
-                            <select className="form-select">
-                                <option>---</option>
-                                <option>Nam</option>
-                                <option>Nữ</option>
-                                <option>Khác</option>
+                            <select className="form-select" value={gender} onChange={(e) => setGender(e.target.value)}>
+                                <option value="">---</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
                             </select>
                         </div>
                         <div className="col-md-6">
@@ -174,16 +174,15 @@ function UserInfo() {
                         <div className="col-md-6">
                         <label className="form-label">Ngôn ngữ</label>
                         <select className="form-select" value={nationality} onChange={(e) => setNationality(e.target.value)}>
-                            <option>---</option>
-                            <option>Tiếng Việt</option>
-                            <option>Tiếng Anh</option>
-                            <option>Tiếng Nhật</option>
-                            <option>Tiếng Hàn</option>
-                            <option>Tiếng Trung</option>
-                            <option>Tiếng Pháp</option>
-                            <option>Tiếng Đức</option>
-                            <option>Tiếng Tây Ban Nha</option>
-                            <option>Tiếng Nga</option>
+                            <option value="">---</option>
+                            <option value="Tiếng Việt">Tiếng Việt</option>
+                            <option value="Tiếng Anh">Tiếng Anh</option>
+                            <option value="Tiếng Nhật">Tiếng Nhật</option>
+                            <option value="Tiếng Hàn">Tiếng Hàn</option>
+                            <option value="Tiếng Pháp">Tiếng Pháp</option>
+                            <option value="Tiếng Đức">Tiếng Đức</option>
+                            <option value="Tiếng Tây Ban Nha">Tiếng Tây Ban Nha</option>
+                            <option value="Tiếng Nga">Tiếng Nga</option>
                         </select>
                         </div>
                         <div className="col-9">
