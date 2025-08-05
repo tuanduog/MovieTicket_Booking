@@ -48,7 +48,7 @@ function History() {
             if (hasAdded && !new_booking) return;
             if (status === "PAID" && cancel === "false" && code === "00") {
                 try {
-                    const checkRes = await axios.get(`http://localhost:8099/auth/check-booking`, {
+                    const checkRes = await axios.get(`http://localhost:8099/booking/check-booking`, {
                         params: {
                             userId: user.userId,
                             showTimeId: showTimeId,
@@ -59,7 +59,7 @@ function History() {
 
                     if (checkRes.data === false) {
                         const res = await axios.post(
-                            "http://localhost:8099/auth/add-booking",
+                            "http://localhost:8099/booking/add-booking",
                             new_booking,
                             { withCredentials: true }
                         );
@@ -86,7 +86,7 @@ function History() {
     useEffect(() => {
         const fetchBooking = async () => {
             try {
-                const res = await axios.get(`http://localhost:8099/auth/get-userbooking/${user.userId}`,
+                const res = await axios.get(`http://localhost:8099/booking/get-userbooking/${user.userId}`,
                     { withCredentials: true }
                 );
                 setBookings(res.data);

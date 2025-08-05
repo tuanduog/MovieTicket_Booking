@@ -4,17 +4,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.booking.booking_ticket.entity.Movies;
 import com.booking.booking_ticket.service.MovieService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/movies")
 @CrossOrigin(origins = "http://localhost:5173")
 public class MovieController {
     @Autowired
@@ -31,5 +27,5 @@ public class MovieController {
         Movies mv = movieService.getMovieById(id);
         return ResponseEntity.ok(mv);
     }
-    
+
 }

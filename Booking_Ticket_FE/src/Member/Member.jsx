@@ -1,16 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../Member/Member.module.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 function Member() {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [price, setPrice] = useState(null);
   const [agreed, setAgreed] = useState(false);
+  const status = query.get('status');
+  const code = query.get('code');
+  const cancel = query.get('cancel');
+  const user = JSON.parse(localStorage.getItem('user')) || null;
 
   const handleVipThang = () => {
     if (localStorage.getItem('state') === 'Login successful') {
-      setSelectedPlan("vip_month");
+      setSelectedPlan("vip tháng");
+      setPrice(99000);
+      const member = {
+        vip: 'vip tháng',
+        expire: 30
+      }
+      localStorage.setItem('member', member);
       setShowConfirm(true);
     } else {
       navigate("/Login");
@@ -19,16 +33,43 @@ function Member() {
 
   const handleVipNam = () => {
     if (localStorage.getItem('state') === 'Login successful') {
-      setSelectedPlan("vip_year");
+      setSelectedPlan("vip năm");
+      setPrice(899000);
+      const member = {
+        vip: 'vip năm',
+        expire: 365
+      }
+      localStorage.setItem('member', member);
       setShowConfirm(true);
     } else {
       navigate("/Login");
     }
   };
+  const handlePayment = async () => {
+    try {
+      const res = await axios.post("http://localhost:8099/Order/create", {
+        productName: "Gói " + selectedPlan,
+        description: 'Thanh toán đơn hàng',
+        price: 2000, // price
+        returnUrl: "http://localhost:5173/Member",
+        cancelUrl: "http://localhost:5173",
+      }, { withCredentials: true });
+      console.log("res.data:", res.data);
+      const payUrl = res.data?.data?.checkoutUrl;
+      if (payUrl) {
+        window.location.href = payUrl;
+      } else {
+        alert("Không lấy được link thanh toán!");
+      }
+    } catch (error) {
+      console.error("Tạo đơn thanh toán thất bại:", error);
+      alert("Tạo đơn thanh toán thất bại!");
+    }
+  };
 
   const handleConfirm = () => {
     if (agreed) {
-      navigate("/confirm-vip");
+      handlePayment();
     }
   };
 
@@ -37,6 +78,25 @@ function Member() {
     setAgreed(false);
     setSelectedPlan(null);
   };
+
+  useEffect(() => {
+    const updateMembership = async () => {
+      if(status === "PAID" && cancel === "false" && code === "00"){
+        try {
+          const member = localStorage.getItem('member');
+          const res = await axios.put(`http://localhost:8099/auth/update-Membership/${user.userId}`, 
+            member,
+          {withCredentials: true}
+          )
+          console.log(res.data);
+          alert(`Đăng ký gói ${member.vip} thành công`);
+        } catch (error) {
+          console.error("Cập nhật membership thất bại", error);
+        }
+      }
+    }
+    updateMembership();
+  },[]);
 
   return (
     <div className={styles.container}>
@@ -47,11 +107,11 @@ function Member() {
         {/* Gói VIP Tháng */}
         <div className={`${styles.card} ${styles.vipMonth}`}>
           <h3 className={styles.name}>Gói VIP Tháng</h3>
-          <p className={styles.price}>99.000đ/tháng</p>
+          <p className={styles.price}>99.000đ/30 ngày</p>
           <ul className={styles.benefitList}>
             <li>✓ Xem không giới hạn</li>
             <li>✓ Ưu tiên đặt vé</li>
-            <li>✓ Combo bắp nước giảm 20%</li>
+            <li>✓ Combo bắp nước giảm 15%</li>
           </ul>
           <div className={styles.buttonWrapper}>
             <button className={styles.subscribeBtn} onClick={handleVipThang}>Đăng ký</button>
@@ -61,11 +121,11 @@ function Member() {
         {/* Gói VIP Năm */}
         <div className={`${styles.card} ${styles.vipYear}`}>
           <h3 className={styles.name}>Gói VIP Năm</h3>
-          <p className={styles.price}>899.000đ/năm</p>
+          <p className={styles.price}>899.000đ/365 ngày</p>
           <ul className={styles.benefitList}>
             <li>✓ Tất cả quyền lợi VIP Tháng</li>
             <li>✓ Miễn phí 2 vé/tháng</li>
-            <li>✓ Giảm 30% combo bắp nước</li>
+            <li>✓ Giảm 20% combo bắp nước</li>
             <li>✓ Quà sinh nhật đặc biệt</li>
           </ul>
           <div className={styles.buttonWrapper}>

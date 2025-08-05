@@ -47,6 +47,9 @@ public class Users {
     @Column(name = "membership", length = 50,nullable = false)
     private String membership;
 
+    @Column(name = "expired", nullable = false)
+    private Integer expired;
+
     @Column(name = "role", length = 50,nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;

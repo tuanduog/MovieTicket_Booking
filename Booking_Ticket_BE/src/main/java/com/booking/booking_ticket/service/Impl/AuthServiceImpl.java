@@ -81,6 +81,7 @@ public class AuthServiceImpl implements AuthService {
                 .claim("user_id", account.getUserId())     
                 .claim("email", account.getEmail())           
                 .claim("phone_number", account.getPhone()) 
+                .claim("membership", account.getMembership())
                 .subject(account.getUsername())
                 .issuer("BetaCineplex.com")
                 .issueTime(new Date())
@@ -138,6 +139,7 @@ public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEE
             .username(jwt.getJWTClaimsSet().getSubject())
             .email((String) jwt.getJWTClaimsSet().getClaim("email"))
             .phoneNumber((String) jwt.getJWTClaimsSet().getClaim("phone_number"))
+            .membership((String) jwt.getJWTClaimsSet().getClaim("membership"))
             .build();
 }
 
@@ -168,6 +170,7 @@ public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEE
                     .findFirst()
                     .orElse(null);
 
+            System.out.println(token);
             SignedJWT jwt = SignedJWT.parse(token);
             System.out.println(token);
 //            var signToken = verifyToken(request.getToken(), true);

@@ -2,9 +2,11 @@ package com.booking.booking_ticket.entity;
 
 import java.time.LocalDate;
 
+import com.booking.booking_ticket.utils.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
@@ -30,6 +32,14 @@ public class Booking {
 
     @Column(name = "date", nullable = false)
     private LocalDate date;
+
+    @Column(name = "created_at")
+    private LocalDateTime created_at;
+
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private TicketStatus ticketStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

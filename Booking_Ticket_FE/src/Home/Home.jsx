@@ -140,7 +140,7 @@ function Homepage() {
     }
     const fetchMovies = async () => {
         try {
-            const res = await axios.get("http://localhost:8099/auth/getAll-movies");
+            const res = await axios.get("http://localhost:8099/movies/getAll-movies");
             const s1 = res.data.filter(movie => movie.showing === "Đang chiếu");
             const c1 = res.data.filter(movie => movie.showing === "Sắp chiếu");
             console.log(res.data);

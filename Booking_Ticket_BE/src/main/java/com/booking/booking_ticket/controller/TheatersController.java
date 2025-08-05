@@ -1,5 +1,7 @@
 package com.booking.booking_ticket.controller;
 
+import com.booking.booking_ticket.dto.request.ShowTimeRequestDTO;
+import com.booking.booking_ticket.dto.request.ThearterRequestDTO;
 import com.booking.booking_ticket.dto.response.ResponseData;
 import com.booking.booking_ticket.dto.response.ResponseError;
 import com.booking.booking_ticket.entity.Theaters;
@@ -58,6 +60,58 @@ public class TheatersController {
         }
 
 
+    }
+    @GetMapping("/getTheaters")
+    public ResponseData<?> getTheaters()
+    {
+        try{
+            List<Theaters> result = theatersService.getAllTheater();
+            if(!result.isEmpty())
+                return new ResponseData<>(HttpStatus.OK.value(),"Có theater",result);
+            else
+                return new ResponseError(HttpStatus.BAD_REQUEST.value(), "theater null");
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error of introspect: {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+
+
+    }
+
+    @PostMapping("/add-Theater")
+    public ResponseData<?> addShowtime( @RequestBody ThearterRequestDTO showTimeRequestDTO) {
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"Theater add!",theatersService.addTheater(showTimeRequestDTO));
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+    @PutMapping("/edit-Theater")
+    public ResponseData<?> editShowtime(@RequestParam int id, @RequestBody ThearterRequestDTO showTimeRequestDTO) {
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"Theater edit!",theatersService.editTheater(id,showTimeRequestDTO));
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+    @DeleteMapping("/delete-Theater")
+    public ResponseData<?> deleteShowtime(@RequestParam int id) {
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"Theater delete!",theatersService.deleteTheater(id));
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
 }

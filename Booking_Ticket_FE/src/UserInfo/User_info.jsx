@@ -32,10 +32,12 @@ function UserInfo() {
         setShowDoiMK(false);
         setNewPassword(null);
         setConfirmPassword(null);
+        setShowOk(false);
     }
 
     const handleOpen = () => {
         setShowDoiMK(true);
+        setShowOk(false);
     }
 
     const handleChangePassword = async () => {
@@ -62,20 +64,27 @@ function UserInfo() {
         }
     }
 
-    const handleUpdateProfile = async () => {
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
         try {
             const updateData = {
+                username: userName,
                 email: email,
-                password: newPassword ? newPassword : password,
                 phone: phoneNumber,
-                dob: dob ?? null,
-                gender: gender ?? null,
-                nationality: nationality ?? null,
-                };
-
-            const res = await axios.put();
+                dob: dob || null,
+                gender: gender || null,
+                nationality: nationality || null,
+            };
+            if (newPassword && newPassword.trim() !== "") {
+                updateData.password = newPassword;
+            }
+            const res = await axios.put("http://localhost:8099/auth/update-Userprofile", updateData, 
+                {withCredentials: true}
+            );
             console.log(res.data);
-            alert("Cập nhật thông tin thành công!");
+            
+            setTextOk("Cập nhật thông tin thành công!!");
+            setShowOk(true);
         } catch (error) {
             console.error("Cập nhật profile thất bại", error);
         }
@@ -186,7 +195,7 @@ function UserInfo() {
                         </select>
                         </div>
                         <div className="col-9">
-                            <p></p>
+                            {showOk ? <p style={{color: 'green', fontSize: '14px', fontStyle: 'italic'}}>{textOk}</p> : <></>}
                         </div>
                         <div className="col-3 d-flex justify-content-end mt-2">
                         <button type="button" className={`btn btn-link text-primary px-0 ${styles.doimk}`} onClick={handleOpen}>
