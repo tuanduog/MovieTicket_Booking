@@ -25,7 +25,7 @@ public class BookingServiceImpl implements BookingsService {
     }
 
     @Override
-    public Integer getCustomersThisMonth() {
+    public Long getCustomersThisMonth() {
         return bookingRepository.getCurrentMonthCustomersAmount();
     }
 
@@ -55,8 +55,33 @@ public class BookingServiceImpl implements BookingsService {
             int totalBookings = ((Number) row[1]).intValue();
             double totalRevenue = ((Number) row[2]).doubleValue();
 
-            bookings[month - 1] = totalBookings;
-            revenues[month - 1] = totalRevenue;
+            bookings[month ] = totalBookings;
+            revenues[month ] = totalRevenue;
+        }
+
+        Map<String, List<Number>> data = new HashMap<>();
+        data.put("bookings", Arrays.asList(bookings));
+        data.put("revenues", Arrays.asList(revenues));
+        return data;
+    }
+    @Override
+    public Map<String, List<Number>> getYearlyChartData(int year) {
+        List<Object[]> result = bookingRepository.findYearlyBookingStats(year);
+        System.out.println(result.size());
+        // Khởi tạo mảng mặc định cho đủ 12 tháng
+        Integer[] bookings = new Integer[32];
+        Double[] revenues = new Double[32];
+
+        Arrays.fill(bookings, 0);
+        Arrays.fill(revenues, 0.0);
+
+        for (Object[] row : result) {
+            int month = (int) row[0]; // ngay từ 1 → 30
+            int totalBookings = ((Number) row[1]).intValue();
+            double totalRevenue = ((Number) row[2]).doubleValue();
+
+            bookings[month ] = totalBookings;
+            revenues[month ] = totalRevenue;
         }
 
         Map<String, List<Number>> data = new HashMap<>();

@@ -29,7 +29,7 @@ public interface BookingRepository extends JpaRepository<Booking,Integer> {
     Long countBookingsThisYear();
 
     @Query("SELECT count (b) FROM Booking b WHERE MONTH(b.created_at) = MONTH(CURRENT_DATE)")
-    Integer getCurrentMonthCustomersAmount();
+    Long getCurrentMonthCustomersAmount();
 
     @Query("SELECT count (b) FROM Booking b WHERE DAY(b.created_at) = DAY(CURRENT_DATE)")
     Integer getCurrentDayCustomersAmount();
@@ -41,12 +41,22 @@ public interface BookingRepository extends JpaRepository<Booking,Integer> {
             "ORDER BY month(b.created_at)")
     List<Object[]> findMonthlyBookingStats(@Param("year") int year);
 
+    @Query("SELECT DAY(b.created_at) AS day, COUNT(b) AS totalBookings, SUM(b.totalPrice) AS totalRevenue " +
+            "FROM Booking b " +
+            "WHERE YEAR(b.created_at) = YEAR(CURRENT_DATE)" +
+            "AND MONTH(b.created_at) = :month " +
+            "GROUP BY DAY(b.created_at) " +
+            "ORDER BY DAY(b.created_at)")
+    List<Object[]> findYearlyBookingStats(@Param("month") int month);
+
     @Query("SELECT m.genre AS category, COUNT(b) AS total " +
             "FROM Booking b " +
             "JOIN b.showTime s " +
             "JOIN s.movie m " +
             "GROUP BY m.genre")
     List<BookingByCategoryStats> countBookingsByMovieCategory();
+
+
 
     @Query("SELECT new com.booking.booking_ticket.dto.response.BookingResponse(u.username, b.totalPrice, m.movieName, b.ticketStatus) " +
             "FROM Booking b " +

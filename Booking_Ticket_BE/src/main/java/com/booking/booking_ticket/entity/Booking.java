@@ -36,7 +36,6 @@ public class Booking {
     @Column(name = "created_at")
     private LocalDateTime created_at;
 
-
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private TicketStatus ticketStatus;

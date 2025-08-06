@@ -107,11 +107,21 @@ public class BookingController {
 
     }
     @GetMapping("/get-data-for-line-chart")
-    public ResponseData<LineChartDTOResponse> getProductMultipleSearchCol() {
-        LineChartDTOResponse l_c = LineChartDTOResponse.builder()
-                .a_cus(bookingService.getCustomersThisyear())
-                .revenue(bookingService.getRevenueThisYear())
-                .build();
+    public ResponseData<LineChartDTOResponse> getProductMultipleSearchCol(@RequestParam String filter) {
+        LineChartDTOResponse l_c = null;
+        if(filter.equalsIgnoreCase("Year"))
+        {
+             l_c = LineChartDTOResponse.builder()
+                    .a_cus(bookingService.getCustomersThisyear())
+                    .revenue(bookingService.getRevenueThisYear())
+                    .build();
+        }else if(filter.equalsIgnoreCase("month")){
+             l_c = LineChartDTOResponse.builder()
+                    .a_cus(bookingService.getCustomersThisMonth())
+                    .revenue(bookingService.getRevenueThisMonth())
+                    .build();
+        }
+
         try{
             return new ResponseData<>(HttpStatus.OK.value(),"User found!",l_c);
         }
@@ -127,6 +137,14 @@ public class BookingController {
         Map<String, List<Number>> chartData = bookingService.getMonthlyChartData(year);
         return ResponseEntity.ok(chartData);
     }
+
+    @GetMapping("/stats-monthly")
+    public ResponseEntity<?> getBookingStatsMonthly(@RequestParam int month) {
+        Map<String, List<Number>> chartData = bookingService.getYearlyChartData(month);
+        return ResponseEntity.ok(chartData);
+    }
+
+
     @GetMapping("/bookings-by-category")
     public ResponseEntity<List<Map<String, Object>>> getBookingStatsByCategory() {
         List<BookingByCategoryStats> stats = bookingService.getBookingStatsByCategory();
@@ -141,6 +159,7 @@ public class BookingController {
 
         return ResponseEntity.ok(result);
     }
+
 
     @GetMapping("/responses")
     public ResponseEntity<List<BookingResponse>> getAllBookingResponses() {

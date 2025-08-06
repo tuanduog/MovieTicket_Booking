@@ -24,4 +24,7 @@ public interface ShowTimeRepository extends JpaRepository<Show_time, Integer>{
             "JOIN s.movie m")
     List<ShowtimeResponse> findAllShowtimes();
 
+    @Query("SELECT s f from Show_time  s where s.room.roomId = :roomId")
+    List<Show_time> findShowtimesByRoomId(Integer roomId);
+
 }

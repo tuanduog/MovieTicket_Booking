@@ -8,11 +8,12 @@ public interface BookingsService {
 
 
     public Double getRevenueThisMonth();
-    public Integer getCustomersThisMonth();
+    public Long getCustomersThisMonth();
     public Long getCustomersThisyear();
     public Double getRevenueThisYear();
     Map<String, List<Number>> getMonthlyChartData(int year);
 
+    Map<String, List<Number>> getYearlyChartData(int month);
 
 
 
