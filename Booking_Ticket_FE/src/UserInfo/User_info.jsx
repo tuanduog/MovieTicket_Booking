@@ -10,7 +10,7 @@ import bcrypt from "bcryptjs";
 import { useNavigate } from "react-router-dom";
 
 function UserInfo() {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(sessionStorage.getItem('user'));
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -100,8 +100,8 @@ function UserInfo() {
                 });
     
                 console.log("Logout successful");
-                localStorage.removeItem('state');
-                localStorage.removeItem('user');
+                sessionStorage.removeItem('state');
+                sessionStorage.removeItem('user');
 
     
                 navigate('/Login');

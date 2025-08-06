@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function PaymentInfo() {
-  const userInfo = JSON.parse(localStorage.getItem('user'));
+  const userInfo = JSON.parse(sessionStorage.getItem('user'));
   const location = useLocation();
   const navigate = useNavigate();
   const { total, selectedSeats, seatTypes } = location.state;

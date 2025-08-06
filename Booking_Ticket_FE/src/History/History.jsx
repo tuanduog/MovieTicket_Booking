@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 function History() {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
-    const user = JSON.parse(localStorage.getItem('user') || "null");
+    const user = JSON.parse(sessionStorage.getItem('user') || "null");
     const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo') || "null");
     const combos = localStorage.getItem('selectedCombos') || '';
     const totalPrice = localStorage.getItem("price");

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.booking.booking_ticket.dto.MembershipDTO;
 import com.booking.booking_ticket.dto.request.MembershipRequest;
 import com.booking.booking_ticket.entity.Users;
 import com.booking.booking_ticket.repository.UsersRepository;
@@ -45,8 +46,21 @@ public class UserService {
     public Users updateMembership (Integer userId, MembershipRequest membership){
         return usersRepository.findByUserId(userId).map(u -> {
             u.setMembership(membership.getVip());
-            u.setExpiredAt(membership.getExpire());
+            u.setExpired(membership.getExpire());
             return usersRepository.save(u);
         }).orElseThrow(() -> new UsernameNotFoundException("Khong tim thay user!"));
     }
+
+    public MembershipDTO getUserMembership(Integer userId){
+        Users users = usersRepository.findByUserId(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new MembershipDTO(
+            users.getUserId(),
+            users.getMembership(),
+            users.getStartDate(),
+            users.getExpired()
+        );
+    }
+
 }

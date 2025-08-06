@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.booking.booking_ticket.dto.BookingSimpleDTO;
+import com.booking.booking_ticket.dto.MembershipDTO;
 import com.booking.booking_ticket.dto.request.MembershipRequest;
 import com.booking.booking_ticket.entity.Users;
 import com.booking.booking_ticket.service.UserService;
@@ -60,4 +61,16 @@ public class UserController {
             .body("Failed to getbooking byshowtime: " + e.getMessage());
         }
     }
+
+    @GetMapping("/get-Membership/{userId}")
+    public ResponseEntity<?> getMembership(@PathVariable Integer userId) {
+        try {
+            MembershipDTO mem = userService.getUserMembership(userId);
+            return ResponseEntity.ok(mem);
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Failed to getuser membership: " + e.getMessage());
+        }
+    }
+    
 }

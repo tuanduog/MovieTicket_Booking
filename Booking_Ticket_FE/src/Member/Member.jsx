@@ -14,17 +14,22 @@ function Member() {
   const status = query.get('status');
   const code = query.get('code');
   const cancel = query.get('cancel');
-  const user = JSON.parse(localStorage.getItem('user')) || null;
+  const user = JSON.parse(sessionStorage.getItem('user')) || null;
+  const [membership, setMembership] = useState("");
+  const [expired, setExpired] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const today = new Date();
 
   const handleVipThang = () => {
-    if (localStorage.getItem('state') === 'Login successful') {
+    if (sessionStorage.getItem('state') === 'Login successful') {
       setSelectedPlan("vip tháng");
       setPrice(99000);
       const member = {
         vip: 'vip tháng',
+        startDate: today.toISOString(),
         expire: 30
       }
-      localStorage.setItem('member', member);
+      localStorage.setItem('member', JSON.stringify(member));
       setShowConfirm(true);
     } else {
       navigate("/Login");
@@ -32,14 +37,15 @@ function Member() {
   };
 
   const handleVipNam = () => {
-    if (localStorage.getItem('state') === 'Login successful') {
+    if (sessionStorage.getItem('state') === 'Login successful') {
       setSelectedPlan("vip năm");
       setPrice(899000);
       const member = {
         vip: 'vip năm',
+        startDate: today.toISOString(),
         expire: 365
       }
-      localStorage.setItem('member', member);
+      localStorage.setItem('member', JSON.stringify(member));
       setShowConfirm(true);
     } else {
       navigate("/Login");
@@ -79,11 +85,59 @@ function Member() {
     setSelectedPlan(null);
   };
 
+  const fetchMember = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8099/auth/get-Membership/${user.userId}`, 
+                { withCredentials: true}
+            )
+            setMembership(res.data.membership);
+            setStartDate(res.data.startDate);
+            setExpired(res.data.expired);
+        } catch (error) {   
+            console.error("Khong lay duoc membership", error);
+        }
+    }
+
+    useEffect(() => {
+        if(user){
+            fetchMember();
+        }
+    },[user]);
+
+    useEffect(() => {
+      if(startDate && expired){
+        const today = new Date();
+        const start = new Date(startDate);
+        const passDay = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+        const dayLeft = expired - passDay;
+
+        if(dayLeft <= 0){
+          setMembership("no membership");
+          
+          axios.put(`http://localhost:8099/auth/update-Membership/${user.userId}`,
+          {
+            vip: 'no membership',
+            startDate: null,
+            expired: null
+          }, { withCredentials: true})
+          .then(() => {
+            console.log("Cập nhật trạng thái membership về no membership");
+          })
+          .catch((error) => {
+            console.error("Lỗi cập nhật membership:", error);
+          });
+
+          } else {
+            setExpired(dayLeft); 
+          }
+        }
+      },[startDate, expired])
+
   useEffect(() => {
     const updateMembership = async () => {
       if(status === "PAID" && cancel === "false" && code === "00"){
         try {
-          const member = localStorage.getItem('member');
+          const member = JSON.parse(localStorage.getItem('member'));
           const res = await axios.put(`http://localhost:8099/auth/update-Membership/${user.userId}`, 
             member,
           {withCredentials: true}
@@ -114,8 +168,16 @@ function Member() {
             <li>✓ Combo bắp nước giảm 15%</li>
           </ul>
           <div className={styles.buttonWrapper}>
-            <button className={styles.subscribeBtn} onClick={handleVipThang}>Đăng ký</button>
-          </div>
+          <button
+            className={`${styles.subscribeBtn} ${membership === "vip tháng" ? styles.disabled : ""}`}
+            onClick={membership === "vip tháng" ? null : handleVipThang}
+            disabled={membership === "vip tháng"}
+            style={{display: 'inline'}}
+          >
+            Đăng ký
+          </button>
+          {membership === "vip tháng" && <p>Còn {expired} ngày</p>}
+        </div>
         </div>
 
         {/* Gói VIP Năm */}
@@ -129,8 +191,16 @@ function Member() {
             <li>✓ Quà sinh nhật đặc biệt</li>
           </ul>
           <div className={styles.buttonWrapper}>
-            <button className={styles.subscribeBtn} onClick={handleVipNam}>Đăng ký</button>
-          </div>
+          <button
+            className={`${styles.subscribeBtn} ${membership === "vip năm" ? styles.disabled : ""}`}
+            onClick={membership === "vip năm" ? null : handleVipNam}
+            disabled={membership === "vip năm"}
+            style={{display: 'inline'}}
+          >
+            Đăng ký
+          </button>
+          {membership === "vip năm" && <p>Còn {expired} ngày</p>}
+        </div>
         </div>
       </div>
 

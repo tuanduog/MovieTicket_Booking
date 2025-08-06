@@ -73,12 +73,7 @@ function Header() {
 
             if (res.data.status === 200) {
                 setUser(res.data); // Dữ liệu user nằm ngay trong res.data
-                if(res.data.data.membership != null && res.data.data.membership !== 'no membership'){
-                    setMembership(true);
-                } else {
-                    setMembership(false);
-                }
-                localStorage.setItem('user', JSON.stringify(res.data.data));
+                sessionStorage.setItem('user', JSON.stringify(res.data.data));
             } else {
                 setUser(null);
             }
@@ -88,6 +83,27 @@ function Header() {
         }
     };
 
+    const fetchMember = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8099/auth/get-Membership/${user.data.userId}`, 
+                { withCredentials: true}
+            )
+            if(res.data.membership != "no membership"){
+                setMembership(true);
+            } else {
+                setMembership(false);
+            }
+        } catch (error) {   
+            console.error("Khong lay duoc membership", error);
+        }
+    }
+
+    useEffect(() => {
+        if(user){
+            fetchMember();
+        }
+    },[user]);
+
     const handleLogout = async () => {
         try {
             await axios.post('http://localhost:8099/auth/logout', {}, {
@@ -95,8 +111,9 @@ function Header() {
             });
 
             console.log("Logout successful");
-            localStorage.removeItem('state');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('state');
+            sessionStorage.removeItem('user');
+            setMembership(false);
             setUser(null);
             setJustLoggedOut(true);
 

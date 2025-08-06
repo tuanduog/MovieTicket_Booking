@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import axios from 'axios';
 
+
 function Movie_detail() {
     const [showModal, setShowModal] = useState(false);
     const [confirmPopup, setConfirmPopup] = useState(false);
@@ -19,6 +20,8 @@ function Movie_detail() {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedTime, setSelectedTime] = useState([]);
+    const [rating, setRating] = useState(0); // Số sao được chọn
+    const [hover, setHover] = useState(0); 
     const savedTheater = JSON.parse(localStorage.getItem('theater'));
     // const trailerUrl = "https://www.youtube.com/watch?v=BGS4l3xEc-0";
     // const embedUrl = trailerUrl.replace("watch?v=", "embed/"); // đổei sang link nhúng
@@ -48,7 +51,7 @@ function Movie_detail() {
     }
     const handleBooking = (movieInfo, date, time) => {
         // console.log('Booking:', { movieInfo, date, time });
-        const user = localStorage.getItem('state');
+        const user = sessionStorage.getItem('state');
         const bookingInfo = {
             movieInfo, date, time
         };
@@ -85,7 +88,7 @@ function Movie_detail() {
     };
     const fetchShowTime = async (movieId) => {
             try {
-                const res = await axios.get(`http://localhost:8099/auth/get-showtime/${movieId}`);
+                const res = await axios.get(`http://localhost:8099/movies/get-showtime/${movieId}`);
     
                 console.log('showtime:',res.data);
                 setShowTime(res.data);
@@ -93,11 +96,50 @@ function Movie_detail() {
                 console.error("Lỗi khi lấy phim", error);
             }
     }
+    const updateOrCreateRate = async (starValue, movieId) => { //
+        const userStr = sessionStorage.getItem('user');
+        if(userStr){
+            const user = JSON.parse(userStr);
+            try {
+            const res = await axios.put(`http://localhost:8099/reviews/update-Rate/${movieId}/${user.userId}`, 
+                {starValue},
+                { withCredentials: true }
+            )
+                console.log(res.data);
+                setRating(starValue);
+            } catch(error){
+                console.error("Update rate that bai", error);
+            }
+        } else {
+            navigate("/Login");
+        }
+    }
+    const fetchReview = async () => {
+        const userStr = sessionStorage.getItem('user');
+        if(userStr){
+            try {
+                const movieId = location.state?.id;
+                const user = JSON.parse(userStr);
+                const res = await axios.get(`http://localhost:8099/reviews/get-Review/${movieId}/${user.userId}`,
+                    { withCredentials: true }
+            )
+                setRating(res.data.point);
+                
+            } catch (error) {
+                console.error("fetch review that bai", error);
+            }
+        } else {
+            console.log("Chưa đăng nhập");
+        }
+    }
+    useEffect(() => {
+        fetchReview();
+    },[]);
     const fetchMovie = async () => {
         try {
             const id = location.state?.id;
 
-            const res = await axios.get(`http://localhost:8099/auth/get-movie/${id}`);
+            const res = await axios.get(`http://localhost:8099/movie/get-movie/${id}`);
             setMovieInfo(res.data);
             console.log(res.data.trailerUrl);
         } catch (error){
@@ -238,13 +280,45 @@ function Movie_detail() {
                     <h2 className="mb-3">Tên phim: {movieInfo.movieName}</h2>
                     <p><strong>Thể loại:</strong> {movieInfo.genre}</p>
                     <p><strong>Thời lượng:</strong> {movieInfo.duration}</p>
-                    <p><strong>Khởi chiếu:</strong> {movieInfo.releaseDate}</p>
+                    <p><strong>Khởi chiếu:</strong> {new Date(movieInfo.releaseDate).toLocaleDateString('vi-VN')}</p>
                     <p><strong>Đạo diễn:</strong> {movieInfo.director}</p>
 
-                    <p>
+                    <div>
                         <strong>Nội dung:</strong><br />
                         <p style={{fontSize: '15px', paddingTop: '4px'}}>{movieInfo.movieDescription}</p>
-                    </p>
+                    </div>
+                    <div style={{ display: "inline-block" }}>
+                    <span
+                        style={{
+                        fontWeight: "600",
+                        fontSize: "16px",
+                        color: "#333",
+                        marginRight: "10px",
+                        }}
+                    >
+                        Đánh giá phim:
+                    </span>
+                    {[...Array(5)].map((_, index) => {
+                        const starValue = index + 1;
+                        const isFilled = starValue <= (hover || rating);
+
+                        return (
+                        <i
+                            key={index}
+                            className={`fa-${isFilled ? "solid" : "regular"} fa-star`}
+                            style={{
+                            fontSize: "22px",
+                            marginRight: "5px",
+                            cursor: "pointer",
+                            color: isFilled ? "gold" : "gray",
+                            }}
+                            onClick={() => updateOrCreateRate(starValue, movieInfo.movieId)}
+                            onMouseEnter={() => setHover(starValue)}
+                            onMouseLeave={() => setHover(0)}
+                        ></i>
+                        );
+                    })}
+                    </div>
 
                     <div className="mt-4 d-flex gap-3">
                         <button className="btn btn-primary" onClick={handleOpenModal}>
@@ -259,88 +333,86 @@ function Movie_detail() {
             <div className="mt-5 p-4 rounded shadow" style={{ backgroundColor: '#f8f9fa' }}>
                 <h4 className="mb-3">Bình luận</h4>
                 <div className="mt-4">
-                    <div class="row d-flex justify-content-center ps-5 pe-5">
-                        <div class="col-12">
-                            <div class="card">
-                            <div class="card-body p-4">
+                    <div className="row d-flex justify-content-center ps-5 pe-5">
+                        <div className="col-12">
+                            <div className="card">
+                            <div className="card-body p-4">
 
-                                <div class="row">
-                                <div class="col">
-                                    <div class="d-flex flex-start">
-                                    <img class="rounded-circle shadow-1-strong me-3"
+                                <div className="row">
+                                <div className="col">
+                                    <div className="d-flex flex-start">
+                                    <img className="rounded-circle shadow-1-strong me-3"
                                         src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(10).webp" alt="avatar" width="65"
                                         height="65" />
-                                    <div class="flex-grow-1 flex-shrink-1">
+                                    <div className="flex-grow-1 flex-shrink-1">
                                         <div>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <p class="mb-1">
-                                            Maria Smantha <span class="small">- 2 hours ago</span>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <p className="mb-1">
+                                            Bình gold <span className="small">- 2 giờ trước</span>
                                             </p>
                                         </div>
-                                        <p class="small mb-0">
-                                            It is a long established fact that a reader will be distracted by
-                                            the readable content of a page.
+                                        <p className="small mb-0">
+                                            Phim này thật sự rất hay
                                         </p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center">
-                                                <a href="" class="link-muted me-2"><i class="fa-regular fa-s fa-thumbs-up"></i>132</a>
-                                                <a href="" class="link-muted ps-2"><i class="fa-regular fa-thumbs-down"></i>15</a>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div className="d-flex align-items-center">
+                                                <a href="" className="link-muted me-2"><i className="fa-regular fa-s fa-thumbs-up"></i>132</a>
+                                                <a href="" className="link-muted ps-2"><i className="fa-regular fa-thumbs-down"></i>15</a>
                                             </div>
-                                            <a href=""><i class="fas fa-reply fa-xs"></i><span class="small"> Phản hồi</span></a>
+                                            <a href=""><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
                                         </div>
                                         </div>
 
-                                        <div class="d-flex flex-start mt-4">
-                                        <a class="me-3" href="#">
-                                            <img class="rounded-circle shadow-1-strong"
+                                        <div className="d-flex flex-start mt-4">
+                                        <a className="me-3" href="#">
+                                            <img className="rounded-circle shadow-1-strong"
                                             src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(11).webp" alt="avatar"
                                             width="65" height="65" />
                                         </a>
-                                        <div class="flex-grow-1 flex-shrink-1">
+                                        <div className="flex-grow-1 flex-shrink-1">
                                             <div>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <p class="mb-1">
-                                                Simona Disa <span class="small">- 3 hours ago</span>
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <p className="mb-1">
+                                                Hiếu thứ hai <span className="small">- 3 giớ trước</span>
                                                 </p>
                                             </div>
-                                            <p class="small mb-0">
-                                                letters, as opposed to using 'Content here, content here',
-                                                making it look like readable English.
+                                            <p className="small mb-0">
+                                                Phim thể hiện được cho câu nói "Trình là gì?" 
                                             </p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center">
-                                                <a href="" class="link-muted me-2"><i class="fa-regular fa-thumbs-up"></i>132</a>
-                                                <a href="" class="link-muted ps-2"><i class="fa-regular fa-thumbs-down"></i>15</a>
+                                            <div className="d-flex justify-content-between align-items-center">
+                                            <div className="d-flex align-items-center">
+                                                <a href="" className="link-muted me-2"><i className="fa-regular fa-thumbs-up"></i>132</a>
+                                                <a href="" className="link-muted ps-2"><i className="fa-regular fa-thumbs-down"></i>15</a>
                                             </div>
-                                            <a href=""><i class="fas fa-reply fa-xs"></i><span class="small"> Phản hồi</span></a>
+                                            <a href=""><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
                                             </div>
                                             </div>
                                         </div>
                                         </div>
 
-                                        <div class="d-flex flex-start mt-4">
-                                        <a class="me-3" href="#">
-                                            <img class="rounded-circle shadow-1-strong"
+                                        <div className="d-flex flex-start mt-4">
+                                        <a className="me-3" href="#">
+                                            <img className="rounded-circle shadow-1-strong"
                                             src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(32).webp" alt="avatar"
                                             width="65" height="65" />
                                         </a>
-                                        <div class="flex-grow-1 flex-shrink-1">
+                                        <div className="flex-grow-1 flex-shrink-1">
                                             <div>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <p class="mb-1">
-                                                John Smith <span class="small">- 4 hours ago</span>
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <p className="mb-1">
+                                                Trịnh Trần Phương Tuấn (Meo meo) <span className="small">- 4 giớ trước</span>
                                                 </p>
                                             </div>
-                                            <p class="small mb-0">
-                                                the majority have suffered alteration in some form, by
-                                                injected humour, or randomised words.
+                                            <p className="small mb-0">
+                                                Phim này làm tôi rất cảm động, thấm đãm tình phụ tử, dù trong hoàn cảnh ngàn cân treo sợi
+                                                tóc vẫn lo cho con, ko bỏ rơi con
                                             </p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center">
-                                                <a href="" class="link-muted me-2"><i class="fa-regular fa-thumbs-up"></i>132</a>
-                                                <a href="" class="link-muted ps-2"><i class="fa-regular fa-thumbs-down"></i>15</a>
+                                            <div className="d-flex justify-content-between align-items-center">
+                                            <div className="d-flex align-items-center">
+                                                <a href="" className="link-muted me-2"><i className="fa-regular fa-thumbs-up"></i>132</a>
+                                                <a href="" className="link-muted ps-2"><i className="fa-regular fa-thumbs-down"></i>15</a>
                                             </div>
-                                            <a href=""><i class="fas fa-reply fa-xs"></i><span class="small"> Phản hồi</span></a>
+                                            <a href=""><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
                                             </div>
                                             </div>
                                         </div>
