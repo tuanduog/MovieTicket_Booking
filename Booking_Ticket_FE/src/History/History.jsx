@@ -99,9 +99,9 @@ function History() {
     }, []);
 
     return (
-        <div className="container mt-5" style={{paddingBottom: (bookings.length === 1 || bookings.length === 0) ? '170px' : '0px'}}>
+        <div className="container mt-5" style={{paddingBottom: (bookings.length === 1 || bookings.length === 0) ? '120px' : '0px'}}>
             <h2 className="mb-4 fw-bold text-primary">Lịch sử đặt vé</h2>
-
+            {bookings.length === 0 ? <p style={{textAlign: 'center', fontSize: '22px', paddingTop: '20px'}}>Hiện bạn chưa đặt bất kì vé nào</p> : <></>}
             {bookings.map((booking) => (
                 <div key={booking.bookingId} className="card mb-4 shadow border-0" style={{ backgroundColor: "#e6f4ea" }}>
                     <div className="row g-0 align-items-center">

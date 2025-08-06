@@ -207,7 +207,7 @@ useEffect(() => {
                                         <div className="time fw-bold fs-5 mb-1">
                                             {time.startTime.slice(0, 5)} {/* Format HH:mm */}
                                         </div>
-                                        <div className="seats text-muted" style={{fontSize: '13px'}}>91 ghế trống</div>
+                                        <div className="seats text-muted" style={{fontSize: '13px'}}>91 ghế ngồi</div>
                                     </div>
                                 ))
                             )}

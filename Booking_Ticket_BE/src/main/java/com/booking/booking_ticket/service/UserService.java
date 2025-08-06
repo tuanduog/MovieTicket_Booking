@@ -46,6 +46,7 @@ public class UserService {
     public Users updateMembership (Integer userId, MembershipRequest membership){
         return usersRepository.findByUserId(userId).map(u -> {
             u.setMembership(membership.getVip());
+            u.setStartDate(membership.getStartDate());
             u.setExpired(membership.getExpire());
             return usersRepository.save(u);
         }).orElseThrow(() -> new UsernameNotFoundException("Khong tim thay user!"));

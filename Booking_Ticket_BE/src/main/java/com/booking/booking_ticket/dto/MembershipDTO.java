@@ -1,6 +1,6 @@
 package com.booking.booking_ticket.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class MembershipDTO {
     private Integer userId;
     private String membership;
-    private LocalDateTime startDate;
+    private OffsetDateTime startDate;
     private Integer expired;
 }

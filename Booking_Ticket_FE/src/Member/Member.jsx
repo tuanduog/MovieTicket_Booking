@@ -186,7 +186,7 @@ function Member() {
           <p className={styles.price}>899.000đ/365 ngày</p>
           <ul className={styles.benefitList}>
             <li>✓ Tất cả quyền lợi VIP Tháng</li>
-            <li>✓ Miễn phí 2 vé/tháng</li>
+            <li>✓ Miễn phí vé gửi xe 2 tháng</li>
             <li>✓ Giảm 20% combo bắp nước</li>
             <li>✓ Quà sinh nhật đặc biệt</li>
           </ul>

@@ -88,7 +88,7 @@ function Movie_detail() {
     };
     const fetchShowTime = async (movieId) => {
             try {
-                const res = await axios.get(`http://localhost:8099/movies/get-showtime/${movieId}`);
+                const res = await axios.get(`http://localhost:8099/auth/get-showtime/${movieId}`);
     
                 console.log('showtime:',res.data);
                 setShowTime(res.data);
@@ -222,7 +222,7 @@ function Movie_detail() {
                                         <div className="time fw-bold fs-5 mb-1">
                                             {time.startTime.slice(0, 5)} {/* Format HH:mm */}
                                         </div>
-                                        <div className="seats text-muted" style={{fontSize: '13px'}}>91 ghế trống</div>
+                                        <div className="seats text-muted" style={{fontSize: '13px'}}>91 ghế ngồi</div>
                                     </div>
                                 ))
                             )}

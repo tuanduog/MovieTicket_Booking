@@ -4,7 +4,7 @@ import styles from "../Footer/Footer.module.css";
 
 function Footer() {
   return (
-    <footer className="bg-light text-dark mt-5 pt-4 pb-3 px-3 shadow">
+    <footer className="text-dark mt-5 pt-4 pb-3 px-3 shadow" style={{backgroundColor: '#e4e4e4ff', borderTop: '1px solid black'}}>
       <div className="container">
         <div className="row">
           <div className="col-12 col-md-10 mx-auto">
