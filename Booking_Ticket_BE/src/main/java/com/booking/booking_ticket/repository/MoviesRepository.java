@@ -15,4 +15,5 @@ public interface MoviesRepository extends JpaRepository<Movies, Integer> {
     @Query("Select distinct m.genre from Movies m")
     List<String> collectGenre();
 
+
 }

@@ -1,16 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../Member/Member.module.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 function Member() {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [price, setPrice] = useState(null);
   const [agreed, setAgreed] = useState(false);
+  const status = query.get('status');
+  const code = query.get('code');
+  const cancel = query.get('cancel');
+  const user = JSON.parse(sessionStorage.getItem('user')) || null;
+  const [membership, setMembership] = useState("");
+  const [expired, setExpired] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const today = new Date();
 
   const handleVipThang = () => {
-    if (localStorage.getItem('state') === 'Login successful') {
-      setSelectedPlan("vip_month");
+    if (sessionStorage.getItem('state') === 'Login successful') {
+      setSelectedPlan("vip tháng");
+      setPrice(99000);
+      const member = {
+        vip: 'vip tháng',
+        startDate: today.toISOString(),
+        expire: 30
+      }
+      localStorage.setItem('member', JSON.stringify(member));
       setShowConfirm(true);
     } else {
       navigate("/Login");
@@ -18,17 +37,45 @@ function Member() {
   };
 
   const handleVipNam = () => {
-    if (localStorage.getItem('state') === 'Login successful') {
-      setSelectedPlan("vip_year");
+    if (sessionStorage.getItem('state') === 'Login successful') {
+      setSelectedPlan("vip năm");
+      setPrice(899000);
+      const member = {
+        vip: 'vip năm',
+        startDate: today.toISOString(),
+        expire: 365
+      }
+      localStorage.setItem('member', JSON.stringify(member));
       setShowConfirm(true);
     } else {
       navigate("/Login");
     }
   };
+  const handlePayment = async () => {
+    try {
+      const res = await axios.post("http://localhost:8099/Order/create", {
+        productName: "Gói " + selectedPlan,
+        description: 'Thanh toán đơn hàng',
+        price: 2000, // price
+        returnUrl: "http://localhost:5173/Member",
+        cancelUrl: "http://localhost:5173",
+      }, { withCredentials: true });
+      console.log("res.data:", res.data);
+      const payUrl = res.data?.data?.checkoutUrl;
+      if (payUrl) {
+        window.location.href = payUrl;
+      } else {
+        alert("Không lấy được link thanh toán!");
+      }
+    } catch (error) {
+      console.error("Tạo đơn thanh toán thất bại:", error);
+      alert("Tạo đơn thanh toán thất bại!");
+    }
+  };
 
   const handleConfirm = () => {
     if (agreed) {
-      navigate("/confirm-vip");
+      handlePayment();
     }
   };
 
@@ -37,6 +84,73 @@ function Member() {
     setAgreed(false);
     setSelectedPlan(null);
   };
+
+  const fetchMember = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8099/auth/get-Membership/${user.userId}`, 
+                { withCredentials: true}
+            )
+            setMembership(res.data.membership);
+            setStartDate(res.data.startDate);
+            setExpired(res.data.expired);
+        } catch (error) {   
+            console.error("Khong lay duoc membership", error);
+        }
+    }
+
+    useEffect(() => {
+        if(user){
+            fetchMember();
+        }
+    },[user]);
+
+    useEffect(() => {
+      if(startDate && expired){
+        const today = new Date();
+        const start = new Date(startDate);
+        const passDay = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+        const dayLeft = expired - passDay;
+
+        if(dayLeft <= 0){
+          setMembership("no membership");
+          
+          axios.put(`http://localhost:8099/auth/update-Membership/${user.userId}`,
+          {
+            vip: 'no membership',
+            startDate: null,
+            expired: null
+          }, { withCredentials: true})
+          .then(() => {
+            console.log("Cập nhật trạng thái membership về no membership");
+          })
+          .catch((error) => {
+            console.error("Lỗi cập nhật membership:", error);
+          });
+
+          } else {
+            setExpired(dayLeft); 
+          }
+        }
+      },[startDate, expired])
+
+  useEffect(() => {
+    const updateMembership = async () => {
+      if(status === "PAID" && cancel === "false" && code === "00"){
+        try {
+          const member = JSON.parse(localStorage.getItem('member'));
+          const res = await axios.put(`http://localhost:8099/auth/update-Membership/${user.userId}`, 
+            member,
+          {withCredentials: true}
+          )
+          console.log(res.data);
+          alert(`Đăng ký gói ${member.vip} thành công`);
+        } catch (error) {
+          console.error("Cập nhật membership thất bại", error);
+        }
+      }
+    }
+    updateMembership();
+  },[]);
 
   return (
     <div className={styles.container}>
@@ -47,30 +161,46 @@ function Member() {
         {/* Gói VIP Tháng */}
         <div className={`${styles.card} ${styles.vipMonth}`}>
           <h3 className={styles.name}>Gói VIP Tháng</h3>
-          <p className={styles.price}>99.000đ/tháng</p>
+          <p className={styles.price}>99.000đ/30 ngày</p>
           <ul className={styles.benefitList}>
             <li>✓ Xem không giới hạn</li>
             <li>✓ Ưu tiên đặt vé</li>
-            <li>✓ Combo bắp nước giảm 20%</li>
+            <li>✓ Combo bắp nước giảm 15%</li>
           </ul>
           <div className={styles.buttonWrapper}>
-            <button className={styles.subscribeBtn} onClick={handleVipThang}>Đăng ký</button>
-          </div>
+          <button
+            className={`${styles.subscribeBtn} ${membership === "vip tháng" ? styles.disabled : ""}`}
+            onClick={membership === "vip tháng" ? null : handleVipThang}
+            disabled={membership === "vip tháng"}
+            style={{display: 'inline'}}
+          >
+            Đăng ký
+          </button>
+          {membership === "vip tháng" && <p>Còn {expired} ngày</p>}
+        </div>
         </div>
 
         {/* Gói VIP Năm */}
         <div className={`${styles.card} ${styles.vipYear}`}>
           <h3 className={styles.name}>Gói VIP Năm</h3>
-          <p className={styles.price}>899.000đ/năm</p>
+          <p className={styles.price}>899.000đ/365 ngày</p>
           <ul className={styles.benefitList}>
             <li>✓ Tất cả quyền lợi VIP Tháng</li>
-            <li>✓ Miễn phí 2 vé/tháng</li>
-            <li>✓ Giảm 30% combo bắp nước</li>
+            <li>✓ Miễn phí vé gửi xe 2 tháng</li>
+            <li>✓ Giảm 20% combo bắp nước</li>
             <li>✓ Quà sinh nhật đặc biệt</li>
           </ul>
           <div className={styles.buttonWrapper}>
-            <button className={styles.subscribeBtn} onClick={handleVipNam}>Đăng ký</button>
-          </div>
+          <button
+            className={`${styles.subscribeBtn} ${membership === "vip năm" ? styles.disabled : ""}`}
+            onClick={membership === "vip năm" ? null : handleVipNam}
+            disabled={membership === "vip năm"}
+            style={{display: 'inline'}}
+          >
+            Đăng ký
+          </button>
+          {membership === "vip năm" && <p>Còn {expired} ngày</p>}
+        </div>
         </div>
       </div>
 

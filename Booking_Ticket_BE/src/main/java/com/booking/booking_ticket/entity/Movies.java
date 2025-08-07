@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "movies")
 @Getter
@@ -15,6 +17,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Movies {
 
     @Id
@@ -58,9 +61,9 @@ public class Movies {
     private Set<Cart> setCart = new HashSet();
 
 
-    @OneToMany(mappedBy = "movie")
-    @ToString.Exclude
-    private Set<Reviews> setReview = new HashSet();
+    // @OneToMany(mappedBy = "movie")
+    // @ToString.Exclude
+    // private Set<Reviews> setReview = new HashSet();
 
 
     @OneToMany(mappedBy = "movie")

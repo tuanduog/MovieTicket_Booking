@@ -6,8 +6,11 @@ import lombok.*;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
-@Table(name = "comments")
+@Table(name = "reviews")
 @Getter
 @Setter
 @Builder
@@ -20,19 +23,18 @@ public class Reviews {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer reviewId;
 
+    @Column(name = "point", nullable = false)
+    private Integer point;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Movies movie;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Users user;
-
-    @Column(name = "parent_id", nullable = false)
-    private String parentId;
-
-    @Column(name = "point", nullable = false)
-    private Integer point;
 
     @Column(name = "created_at", nullable = false)
     private Instant created_at;

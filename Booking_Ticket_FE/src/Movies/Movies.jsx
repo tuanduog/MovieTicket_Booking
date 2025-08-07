@@ -48,7 +48,7 @@ function Movies () {
         }
     
     const handleBooking = (movieInfo, date, time) => {
-        const user = localStorage.getItem('state');
+        const user = sessionStorage.getItem('state');
         console.log('Booking:', { movieInfo, date, time });
         const bookingInfo = {
             movieInfo, date, time
@@ -97,7 +97,7 @@ function Movies () {
     }
     const fetchMovies = async () => {
         try {
-            const res = await axios.get("http://localhost:8099/auth/getAll-movies");
+            const res = await axios.get("http://localhost:8099/movie/getAll-movies");
             const s1 = res.data.filter(movie => movie.showing === "Đang chiếu");
             const c1 = res.data.filter(movie => movie.showing === "Sắp chiếu");
             console.log(res.data);
@@ -297,7 +297,7 @@ function Movies () {
                                                 <strong>Thể loại:</strong> {movie.genre}
                                             </p>
                                             <p className={`mb-2 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
-                                                <strong>Ngày khởi chiếu:</strong> {movie.releaseDate}
+                                                <strong>Ngày khởi chiếu:</strong> {new Date(movie.releaseDate).toLocaleDateString('vi-VN')}
                                             </p>
                                             <button className="btn btn-primary btn-sm w-100 rounded" onClick={() => handleOpenModal(movie)}>
                                                 Đặt vé

@@ -10,7 +10,7 @@ import bcrypt from "bcryptjs";
 import { useNavigate } from "react-router-dom";
 
 function UserInfo() {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(sessionStorage.getItem('user'));
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -32,10 +32,12 @@ function UserInfo() {
         setShowDoiMK(false);
         setNewPassword(null);
         setConfirmPassword(null);
+        setShowOk(false);
     }
 
     const handleOpen = () => {
         setShowDoiMK(true);
+        setShowOk(false);
     }
 
     const handleChangePassword = async () => {
@@ -62,20 +64,27 @@ function UserInfo() {
         }
     }
 
-    const handleUpdateProfile = async () => {
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
         try {
             const updateData = {
+                username: userName,
                 email: email,
-                password: newPassword ? newPassword : password,
                 phone: phoneNumber,
-                dob: dob,
-                gender: gender,
-                nationality: nationality,
-                };
-
-            const res = await axios.put();
+                dob: dob || null,
+                gender: gender || null,
+                nationality: nationality || null,
+            };
+            if (newPassword && newPassword.trim() !== "") {
+                updateData.password = newPassword;
+            }
+            const res = await axios.put("http://localhost:8099/auth/update-Userprofile", updateData, 
+                {withCredentials: true}
+            );
             console.log(res.data);
-            alert("Cập nhật thông tin thành công!");
+            
+            setTextOk("Cập nhật thông tin thành công!!");
+            setShowOk(true);
         } catch (error) {
             console.error("Cập nhật profile thất bại", error);
         }
@@ -91,8 +100,8 @@ function UserInfo() {
                 });
     
                 console.log("Logout successful");
-                localStorage.removeItem('state');
-                localStorage.removeItem('user');
+                sessionStorage.removeItem('state');
+                sessionStorage.removeItem('user');
 
     
                 navigate('/Login');
@@ -154,11 +163,11 @@ function UserInfo() {
                         </div>
                         <div className="col-md-6">
                             <label className="form-label">Giới tính</label>
-                            <select className="form-select">
-                                <option>---</option>
-                                <option>Nam</option>
-                                <option>Nữ</option>
-                                <option>Khác</option>
+                            <select className="form-select" value={gender} onChange={(e) => setGender(e.target.value)}>
+                                <option value="">---</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
                             </select>
                         </div>
                         <div className="col-md-6">
@@ -174,20 +183,19 @@ function UserInfo() {
                         <div className="col-md-6">
                         <label className="form-label">Ngôn ngữ</label>
                         <select className="form-select" value={nationality} onChange={(e) => setNationality(e.target.value)}>
-                            <option>---</option>
-                            <option>Tiếng Việt</option>
-                            <option>Tiếng Anh</option>
-                            <option>Tiếng Nhật</option>
-                            <option>Tiếng Hàn</option>
-                            <option>Tiếng Trung</option>
-                            <option>Tiếng Pháp</option>
-                            <option>Tiếng Đức</option>
-                            <option>Tiếng Tây Ban Nha</option>
-                            <option>Tiếng Nga</option>
+                            <option value="">---</option>
+                            <option value="Tiếng Việt">Tiếng Việt</option>
+                            <option value="Tiếng Anh">Tiếng Anh</option>
+                            <option value="Tiếng Nhật">Tiếng Nhật</option>
+                            <option value="Tiếng Hàn">Tiếng Hàn</option>
+                            <option value="Tiếng Pháp">Tiếng Pháp</option>
+                            <option value="Tiếng Đức">Tiếng Đức</option>
+                            <option value="Tiếng Tây Ban Nha">Tiếng Tây Ban Nha</option>
+                            <option value="Tiếng Nga">Tiếng Nga</option>
                         </select>
                         </div>
                         <div className="col-9">
-                            <p></p>
+                            {showOk ? <p style={{color: 'green', fontSize: '14px', fontStyle: 'italic'}}>{textOk}</p> : <></>}
                         </div>
                         <div className="col-3 d-flex justify-content-end mt-2">
                         <button type="button" className={`btn btn-link text-primary px-0 ${styles.doimk}`} onClick={handleOpen}>

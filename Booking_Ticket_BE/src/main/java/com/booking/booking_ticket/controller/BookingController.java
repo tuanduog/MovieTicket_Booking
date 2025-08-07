@@ -1,36 +1,38 @@
 package com.booking.booking_ticket.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.booking.booking_ticket.dto.BookingDTO;
+import com.booking.booking_ticket.dto.response.*;
 import com.booking.booking_ticket.dto.BookingSimpleDTO;
 import com.booking.booking_ticket.entity.Booking;
 import com.booking.booking_ticket.repository.BookingRepository;
 import com.booking.booking_ticket.service.BookingService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.booking.booking_ticket.service.Impl.BookingServiceImpl;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-
+@Controller
 @RestController
-@RequestMapping("/auth")
+@RequiredArgsConstructor
+@Slf4j
+@RequestMapping("/booking")
 @CrossOrigin(origins = "http://localhost:5173")
 public class BookingController {
-    @Autowired 
-    private BookingService bookingService;
 
-    @Autowired
-    private BookingRepository bookingRepository;
+    public final BookingServiceImpl bookingService;
+
+    private final BookingService bookingService1;
+
+    private final BookingRepository bookingRepository;
 
     @PostMapping("/add-booking")
     public ResponseEntity<?> addBooking(@RequestBody Booking booking) {
@@ -91,21 +93,83 @@ public class BookingController {
         }
     }
 
+
     @GetMapping("/get-userbooking/{userId}")
     public ResponseEntity<?> getUserBooking(@PathVariable Integer userId) {
         try {
-            List<BookingDTO> bookings = bookingService.getUserBooking(userId);
+            List<BookingDTO> bookings = bookingService1.getUserBooking(userId);
             return ResponseEntity.ok(bookings);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Failed to get userbooking: " + e.getMessage());
+                    .body("Failed to save booking: " + e.getMessage());
         }
     }
+    @GetMapping("/get-data-for-line-chart")
+    public ResponseData<LineChartDTOResponse> getProductMultipleSearchCol(@RequestParam String filter) {
+        LineChartDTOResponse l_c = null;
+        if(filter.equalsIgnoreCase("Year"))
+        {
+             l_c = LineChartDTOResponse.builder()
+                    .a_cus(bookingService.getCustomersThisyear())
+                    .revenue(bookingService.getRevenueThisYear())
+                    .build();
+        }else if(filter.equalsIgnoreCase("month")){
+             l_c = LineChartDTOResponse.builder()
+                    .a_cus(bookingService.getCustomersThisMonth())
+                    .revenue(bookingService.getRevenueThisMonth())
+                    .build();
+        }
+
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"User found!",l_c);
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<?> getBookingStats(@RequestParam int year) {
+        Map<String, List<Number>> chartData = bookingService.getMonthlyChartData(year);
+        return ResponseEntity.ok(chartData);
+    }
+
+    @GetMapping("/stats-monthly")
+    public ResponseEntity<?> getBookingStatsMonthly(@RequestParam int month) {
+        Map<String, List<Number>> chartData = bookingService.getYearlyChartData(month);
+        return ResponseEntity.ok(chartData);
+    }
+
+
+    @GetMapping("/bookings-by-category")
+    public ResponseEntity<List<Map<String, Object>>> getBookingStatsByCategory() {
+        List<BookingByCategoryStats> stats = bookingService.getBookingStatsByCategory();
+
+        // Convert sang format ECharts pie: [{name, value}]
+        List<Map<String, Object>> result = stats.stream().map(stat -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", stat.getCategory());
+            map.put("value", stat.getTotal());
+            return map;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
+    }
+
+
+    @GetMapping("/responses")
+    public ResponseEntity<List<BookingResponse>> getAllBookingResponses() {
+        return ResponseEntity.ok(bookingService.getAllBookingResponses());
+    }
+
+
 
     @GetMapping("/get-byshowtime/{showTimeId}")
     public ResponseEntity<?> getBookingByShowTime(@PathVariable Integer showTimeId) {
         try {
-            List<BookingSimpleDTO> bookings = bookingService.getByShowTimeId(showTimeId);
+            List<BookingSimpleDTO> bookings = bookingService1.getByShowTimeId(showTimeId);
             return ResponseEntity.ok(bookings);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
