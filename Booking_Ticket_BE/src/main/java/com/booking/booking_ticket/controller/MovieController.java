@@ -10,7 +10,7 @@ import com.booking.booking_ticket.entity.Movies;
 import com.booking.booking_ticket.service.MovieService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/movie")
 @CrossOrigin(origins = "http://localhost:5173")
 public class MovieController {
     @Autowired

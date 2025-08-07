@@ -10,9 +10,11 @@ import pic2 from '../assets/sweetcombo.png';
 import pic3 from '../assets/betacombo.png';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { GiConsoleController } from "react-icons/gi";
 
 function PaymentInfo() {
-  const userInfo = JSON.parse(localStorage.getItem('user'));
+  const userInfo = JSON.parse(sessionStorage.getItem('user'));
+  const [membership, setMembership] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
   const { total, selectedSeats, seatTypes } = location.state;
@@ -41,31 +43,35 @@ function PaymentInfo() {
   });
 
   const handleIncrement = (key) => {
-  setComboCounts(prev => {
-    const updated = { ...prev, [key]: prev[key] + 1 };
-    const newTotal = total + 
-      updated.family * 113000 + 
-      updated.sweet * 80000 + 
-      updated.beta * 60000;
-    setTotalPrice(newTotal);
-    return updated;
-  });
+  setComboCounts(prev => ({
+    ...prev,
+    [key]: prev[key] + 1
+  }));
 };
 
 const handleDecrement = (key) => {
-  setComboCounts(prev => {
-    const updated = {
-      ...prev,
-      [key]: Math.max(0, prev[key] - 1)
-    };
-    const newTotal = total + 
-      updated.family * 113000 + 
-      updated.sweet * 80000 + 
-      updated.beta * 60000;
-    setTotalPrice(newTotal);
-    return updated;
-  });
+  setComboCounts(prev => ({
+    ...prev,
+    [key]: Math.max(0, prev[key] - 1)
+  }));
 };
+useEffect(() => {
+  const comboPrices = {
+    family: 113000,
+    sweet: 80000,
+    beta: 60000
+  }
+  let vipDiscount = 1;
+  if(membership.membership === "vip tháng") vipDiscount = 0.85;
+  if(membership.membership === "vip năm") vipDiscount = 0.8;
+
+  const res = comboPrices.family * comboCounts.family
+  + comboPrices.sweet * comboCounts.sweet + comboPrices.beta * comboCounts.beta;
+
+  const newTotal = total + res * vipDiscount;
+  setTotalPrice(newTotal);
+},[comboCounts, membership, total]);
+
 const handleVoucher = () => {
   setShowAlert(true);
   if(voucher === 'DHDT01'){
@@ -161,6 +167,21 @@ const handleVoucher = () => {
           return () => clearInterval(interval); 
       }, [timeLeft]);
 
+  const fetchMember = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8099/auth/get-Membership/${userInfo.userId}`, 
+                { withCredentials: true}
+            )
+            setMembership(res.data);
+            console.log(res.data);
+        } catch (error) {   
+            console.error("Khong lay duoc membership", error);
+        }
+    }
+    useEffect(() => {
+      fetchMember();
+    },[]);
+
   return (
     <div className={styles.container}>
       {/* Thông tin thanh toán */}
@@ -202,7 +223,13 @@ const handleVoucher = () => {
             alt="combo"
             className={styles.icon}
           />
-          COMBO ƯU ĐÃI
+          COMBO ƯU ĐÃI 
+          {membership.membership === "vip tháng" ?
+          <span style={{fontWeight: 'normal', fontSize: '15px', color: 'red'}}>
+            <span style={{textTransform: 'uppercase', fontWeight: 'bold'}}>{membership.membership}</span> giảm giá 15%</span> : <></>}
+          {membership.membership === "vip năm" ?
+          <span style={{fontWeight: 'normal', fontSize: '15px', color: 'red'}}>
+            <span style={{textTransform: 'uppercase', fontWeight: 'bold'}}>{membership.membership}</span> giảm giá 20%</span> : <></>}
         </h5>
 
         <table className={styles.comboTable}>
@@ -226,9 +253,9 @@ const handleVoucher = () => {
               </td>
               <td>
                 <div className={styles.quantityControl}>
-                  <button onClick={() => handleDecrement("family")}> <FaMinus /> </button>
+                  <button onClick={() => handleDecrement("family", membership.membership)}> <FaMinus /> </button>
                   <span>{comboCounts.family}</span>
-                  <button onClick={() => handleIncrement("family")}> <FaPlus /> </button>
+                  <button onClick={() => handleIncrement("family", membership.membership)}> <FaPlus /> </button>
                 </div>
               </td>
             </tr>

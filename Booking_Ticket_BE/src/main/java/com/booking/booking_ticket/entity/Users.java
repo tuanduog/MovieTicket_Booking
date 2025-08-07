@@ -1,10 +1,14 @@
 package com.booking.booking_ticket.entity;
 
 import com.booking.booking_ticket.utils.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,6 +19,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Users {
 
 
@@ -46,6 +51,12 @@ public class Users {
 
     @Column(name = "membership", length = 50,nullable = false)
     private String membership;
+
+    @Column(name = "start_date", nullable = false)
+    private OffsetDateTime startDate;
+
+    @Column(name = "expired", nullable = false)
+    private Integer expired;
 
     @Column(name = "role", length = 50,nullable = false)
     @Enumerated(EnumType.STRING)

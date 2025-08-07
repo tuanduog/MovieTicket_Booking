@@ -17,6 +17,12 @@ function Booking () {
     const stompClient = useRef(null); // Dùng useRef để giữ stompClient ổn định
     const savedTheater = JSON.parse(localStorage.getItem("theater"));
     const [user, setUser] = useState("");
+    const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo'));
+    const d = new Date();
+    const y = d.getFullYear();
+    const savedDate = bookingInfo.date + "/" + y;
+    const [day, month, year] = savedDate.split('/');
+    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     const [timeLeft, setTimeLeft] = useState(() => {
         const storedTime = localStorage.getItem('timeLeft');
         return storedTime ? parseInt(storedTime, 10) : 600;
@@ -43,11 +49,13 @@ function Booking () {
     };
     const fetchBBST = async () => {
         try {
-            const res = await axios.get(`http://localhost:8099/auth/get-byshowtime/${time.showTimeId}`,
+            console.log('time', time.showTimeId);
+            const res = await axios.get(`http://localhost:8099/booking/get-byshowtime/${time.showTimeId}`,
                 {withCredentials: true}
             );
-            console.log('booked', res.data);
-            setBookeds(res.data);
+            const filterbook = res.data.filter(book => book.date === formattedDate);
+            console.log('booked', filterbook)
+            setBookeds(filterbook);
         } catch(error){
             console.error("Không lấy được booking theo showtimeId", error);
         }

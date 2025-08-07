@@ -56,7 +56,7 @@ function Homepage() {
     }
 
     const handleBooking = (movieInfo, date, time) => {
-        const user = localStorage.getItem('state');
+        const user = sessionStorage.getItem('state');
         console.log('Booking:', { movieInfo, date, time });
         const bookingInfo = {
             movieInfo, date, time
@@ -139,20 +139,25 @@ function Homepage() {
         }
     }
     const fetchMovies = async () => {
-        try {
-            const res = await axios.get("http://localhost:8099/auth/getAll-movies");
-            const s1 = res.data.filter(movie => movie.showing === "Đang chiếu");
-            const c1 = res.data.filter(movie => movie.showing === "Sắp chiếu");
-            console.log(res.data);
-            setShowingNow(s1);
-            setCommingSoon(c1);
-        } catch (error) {
-            console.error("Lỗi khi lấy danh sách phim", error);
-        }
+    try {
+        const res = await axios.get("http://localhost:8099/movie/getAll-movies");
+        const movies = res.data; 
+        console.log(movies);
+
+        const s1 = movies.filter(movie => movie.showing === "Đang chiếu");
+        const c1 = movies.filter(movie => movie.showing === "Sắp chiếu");
+
+        setShowingNow(s1);
+        setCommingSoon(c1);
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách phim", error);
     }
-    useEffect(() => {
-        fetchMovies();
-    },[]);
+};
+
+useEffect(() => {
+    fetchMovies();
+}, []);
+
 
     return (
         <div>
@@ -202,7 +207,7 @@ function Homepage() {
                                         <div className="time fw-bold fs-5 mb-1">
                                             {time.startTime.slice(0, 5)} {/* Format HH:mm */}
                                         </div>
-                                        <div className="seats text-muted" style={{fontSize: '13px'}}>91 ghế trống</div>
+                                        <div className="seats text-muted" style={{fontSize: '13px'}}>91 ghế ngồi</div>
                                     </div>
                                 ))
                             )}

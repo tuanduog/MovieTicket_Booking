@@ -86,7 +86,15 @@
 
 .buttonWrapper {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80px; /* Giữ nút luôn ở cùng vị trí */
+  justify-content: flex-start;
+}
+
+.buttonWrapper p {
+  padding-top: 8px;
+  font-size: 14px;
 }
 
 .subscribeBtn {
@@ -102,6 +110,13 @@
   position: relative;
   overflow: hidden;
   transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.disabled {
+  background-color: gray !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 .subscribeBtn:hover {
@@ -222,7 +237,7 @@
 
 .confirmBtn {
   padding: 6px 12px;
-  background-color: #28a745;
+  background-color: #0d6efd;
   color: white;
   border: none;
   cursor: pointer;

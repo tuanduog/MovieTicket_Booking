@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 function History() {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
-    const user = JSON.parse(localStorage.getItem('user') || "null");
+    const user = JSON.parse(sessionStorage.getItem('user') || "null");
     const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo') || "null");
     const combos = localStorage.getItem('selectedCombos') || '';
     const totalPrice = localStorage.getItem("price");
@@ -48,7 +48,7 @@ function History() {
             if (hasAdded && !new_booking) return;
             if (status === "PAID" && cancel === "false" && code === "00") {
                 try {
-                    const checkRes = await axios.get(`http://localhost:8099/auth/check-booking`, {
+                    const checkRes = await axios.get(`http://localhost:8099/booking/check-booking`, {
                         params: {
                             userId: user.userId,
                             showTimeId: showTimeId,
@@ -59,7 +59,7 @@ function History() {
 
                     if (checkRes.data === false) {
                         const res = await axios.post(
-                            "http://localhost:8099/auth/add-booking",
+                            "http://localhost:8099/booking/add-booking",
                             new_booking,
                             { withCredentials: true }
                         );
@@ -86,7 +86,7 @@ function History() {
     useEffect(() => {
         const fetchBooking = async () => {
             try {
-                const res = await axios.get(`http://localhost:8099/auth/get-userbooking/${user.userId}`,
+                const res = await axios.get(`http://localhost:8099/booking/get-userbooking/${user.userId}`,
                     { withCredentials: true }
                 );
                 setBookings(res.data);
@@ -99,9 +99,9 @@ function History() {
     }, []);
 
     return (
-        <div className="container mt-5" style={{paddingBottom: (bookings.length === 1 || bookings.length === 0) ? '170px' : '0px'}}>
+        <div className="container mt-5" style={{paddingBottom: (bookings.length === 1 || bookings.length === 0) ? '120px' : '0px'}}>
             <h2 className="mb-4 fw-bold text-primary">Lịch sử đặt vé</h2>
-
+            {bookings.length === 0 ? <p style={{textAlign: 'center', fontSize: '22px', paddingTop: '20px'}}>Hiện bạn chưa đặt bất kì vé nào</p> : <></>}
             {bookings.map((booking) => (
                 <div key={booking.bookingId} className="card mb-4 shadow border-0" style={{ backgroundColor: "#e6f4ea" }}>
                     <div className="row g-0 align-items-center">

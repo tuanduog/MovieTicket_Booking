@@ -16,4 +16,6 @@ public class IntrospectiveResponse {
     private String email;
 
     private String phoneNumber;
+
+    private String membership;
 }

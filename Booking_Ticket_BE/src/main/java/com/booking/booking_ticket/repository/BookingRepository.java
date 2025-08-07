@@ -57,7 +57,6 @@ public interface BookingRepository extends JpaRepository<Booking,Integer> {
     List<BookingByCategoryStats> countBookingsByMovieCategory();
 
 
-
     @Query("SELECT new com.booking.booking_ticket.dto.response.BookingResponse(u.username, b.totalPrice, m.movieName, b.ticketStatus) " +
             "FROM Booking b " +
             "JOIN b.user u " +

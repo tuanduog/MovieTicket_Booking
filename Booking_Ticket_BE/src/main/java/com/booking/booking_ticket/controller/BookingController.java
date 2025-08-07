@@ -103,8 +103,6 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to save booking: " + e.getMessage());
         }
-
-
     }
     @GetMapping("/get-data-for-line-chart")
     public ResponseData<LineChartDTOResponse> getProductMultipleSearchCol(@RequestParam String filter) {

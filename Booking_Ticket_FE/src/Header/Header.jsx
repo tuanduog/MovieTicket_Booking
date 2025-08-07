@@ -10,6 +10,7 @@ import logo from '../assets/vite-vite-logo.png';
 function Header() {
     const navigate = useNavigate();
     const location = useLocation();
+    const [membership, setMembership] = useState(false);
 
     const [user, setUser] = useState(null);
 
@@ -72,7 +73,7 @@ function Header() {
 
             if (res.data.status === 200) {
                 setUser(res.data); // Dữ liệu user nằm ngay trong res.data
-                localStorage.setItem('user', JSON.stringify(res.data.data));
+                sessionStorage.setItem('user', JSON.stringify(res.data.data));
             } else {
                 setUser(null);
             }
@@ -82,6 +83,27 @@ function Header() {
         }
     };
 
+    const fetchMember = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8099/auth/get-Membership/${user.data.userId}`, 
+                { withCredentials: true}
+            )
+            if(res.data.membership != "no membership"){
+                setMembership(true);
+            } else {
+                setMembership(false);
+            }
+        } catch (error) {   
+            console.error("Khong lay duoc membership", error);
+        }
+    }
+
+    useEffect(() => {
+        if(user){
+            fetchMember();
+        }
+    },[user]);
+
     const handleLogout = async () => {
         try {
             await axios.post('http://localhost:8099/auth/logout', {}, {
@@ -89,8 +111,9 @@ function Header() {
             });
 
             console.log("Logout successful");
-            localStorage.removeItem('state');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('state');
+            sessionStorage.removeItem('user');
+            setMembership(false);
             setUser(null);
             setJustLoggedOut(true);
 
@@ -139,10 +162,10 @@ function Header() {
                     ) : (
                         <div className='d-flex align-items-center'>
 
-                            <span className='px-2 rounded border border-warning text-warning me-2 fw-bold'
+                            {membership ? <span className='px-2 rounded border border-warning text-warning me-2 fw-bold'
                             style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)', fontSize: '12px' }}>
                                 VIP
-                            </span>
+                            </span> : <></>}
                             <div className="dropdown">
                             <span className="mb-0 me-2 fs-6" style={{ cursor: 'pointer' }} data-bs-toggle="dropdown">
                                 Xin chào {user && user.data && user.data.username ? user.data.username : 'Tài khoản'}! <i className="bi bi-caret-down-fill"></i>
