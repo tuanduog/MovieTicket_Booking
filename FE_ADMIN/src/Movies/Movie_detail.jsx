@@ -65,7 +65,7 @@ const handleFileChange = (e) => {
     image: imageUrl,
     movieName,
     cast,
-    trailerUrl,
+    trailerUrl : trailer,
     director,
     releaseDate,
     duration,

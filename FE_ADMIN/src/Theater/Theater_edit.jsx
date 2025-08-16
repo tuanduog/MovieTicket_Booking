@@ -43,7 +43,7 @@
     const data = {
       theaterId: showtime?.theaterId, // thêm showtimeId khi sửa
       theaterName,
-      locations,
+      location : locations,
     };
     try {
       const response = await axios.put("http://localhost:8099/theaters/edit-Theater", data, {
@@ -52,13 +52,13 @@
               id: data.theaterId,
       },
       });
-      console.log("Đã cập nhật suất chiếu:", response.data);
+      console.log("Đã rạp suất chiếu:", response.data);
 
-      setAlertMsg('Cập nhật suất chiếu thành công!');
+      setAlertMsg('Cập nhật rạp thành công!');
       setAlertType('success');
     } catch (err) {
-      console.error("Lỗi khi cập nhật suất chiếu:", err);
-      setAlertMsg('Cập nhật suất chiếu thất bại!');
+      console.error("Lỗi khi cập nhật rạp:", err);
+      setAlertMsg('Cập nhật rạp thất bại!');
       setAlertType('danger');
     }
   };

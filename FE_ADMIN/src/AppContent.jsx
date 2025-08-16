@@ -24,6 +24,7 @@ import Showtime_add from "./Showtime/Showtime_add";
 import Showtime_edit from "./Showtime/Showtime_edit";
 import Theater_add from "./Theater/Theater_add";
 import Theater_edit from "./Theater/Theater_edit";
+import UserProfile from "./UserProfile/UserProfile";
 function AppContent() {
   const location = useLocation();
 
@@ -93,6 +94,7 @@ useEffect(() => {
         <Route path="/Showtime_edit" element={<Showtime_edit/>}/>
         <Route path="/Theater_add" element={<Theater_add/>}/>
         <Route path="/Theater_edit" element={<Theater_edit/>}/>
+        <Route path="/UserProfile" element={<UserProfile/>}/>
 
       </Routes>
       <Footer />

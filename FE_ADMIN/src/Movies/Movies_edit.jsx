@@ -70,7 +70,7 @@ const handleFileChange = (e) => {
   };
 
   try {
-    const response = await axios.delete("http://localhost:8099/movies/delete-Movies", {
+    const response = await axios.post("http://localhost:8099/movies/edit-Movies", data, {
       params: { id: movie.movieId },
       withCredentials: true,
     });

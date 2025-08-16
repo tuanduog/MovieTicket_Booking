@@ -32,7 +32,7 @@ function Movies () {
 
   // Gọi API
   useEffect(() => {
-    axios.get('http://localhost:8099/auth/getAll-movies', { withCredentials: true })
+    axios.get('http://localhost:8099/movie/getAll-movies', { withCredentials: true })
       .then((res) => setMovies(res.data))
       .catch((err) => console.error(err));
   }, []);

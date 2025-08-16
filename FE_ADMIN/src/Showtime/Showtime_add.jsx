@@ -90,7 +90,7 @@ useEffect(() => {
 const [movies, setMovies] = useState([]);
 const [selectedMovie, setSelectedMovie] = useState(null);
 useEffect(() => {
-  axios.get('http://localhost:8099/auth/getAll-movies', { withCredentials: true })
+  axios.get('http://localhost:8099/movie/getAll-movies', { withCredentials: true })
     .then(res => setMovies(res.data))
     .catch(err => console.error(err));
 }, []);
@@ -173,7 +173,7 @@ useEffect(() => {
                    <div className="row mb-3">
                   <label htmlFor="inputCast" className="col-sm-2 col-form-label">Giờ chiếu</label>
                   <div className="col-sm-10">
-                    <input type="text" className="form-control" id='cast' onChange={(e) => setStartTime(e.target.value)} required/>
+                    <input type="time" className="form-control" id='cast' onChange={(e) => setStartTime(e.target.value)} required/>
                   </div>
                 </div>
                    
