@@ -2,9 +2,6 @@ import React from "react";
 import '../Booking/Booking.css';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import SockJS from "sockjs-client";
-import { Client } from "@stomp/stompjs";
-import { useRef } from "react";
 import axios from "axios";
 
 function Booking () {
@@ -13,10 +10,8 @@ function Booking () {
     const [time, setTime] = useState({});
     const [date, setDate] = useState("");
     const [selectedSeat, setSelectedSeat] = useState([]);
-    const [othersSelecting, setOthersSelecting] = useState([]);
-    const stompClient = useRef(null); // Dùng useRef để giữ stompClient ổn định
+
     const savedTheater = JSON.parse(localStorage.getItem("theater"));
-    const [user, setUser] = useState("");
     const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo'));
     const d = new Date();
     const y = d.getFullYear();
@@ -67,62 +62,15 @@ function Booking () {
     }, [selectedSeat]);
     
     useEffect(() => {
-    window.scrollTo(0, 0);
-    const data = JSON.parse(localStorage.getItem("bookingInfo"));
-    if (data) {
-        setMovieInfo(data.movieInfo);
-        setTime(data.time);
-        setDate(data.date);
-    }
-    const fetchAuthAndConnect = async () => {
-        try {
-            const res = await axios.get('http://localhost:8099/auth/introspect', {
-                withCredentials: true,
-            });
-            console.log("cc:", res.data.data?.username)
-            if (res.data.status === 200 && res.data.data?.username) {
-                console.log('kk',res.data.data)
-                setUser(res.data.data);
-                const socket = new SockJS("http://localhost:8099/wsocket");
-                const client = new Client({
-                    webSocketFactory: () => socket,
-                    reconnectDelay: 5000,
-                    debug: str => console.log("WebSocket Debug:", str),
-                });
-
-                client.onConnect = () => {
-                    console.log("WebSocket connected");
-                    client.subscribe(`/topic/seats/${data.time.showTimeId}`, (message) => {
-                        const payload = JSON.parse(message.body);
-                        if (payload.seat) {
-                            setOthersSelecting((prev) => {
-                                if (!prev.includes(payload.seat)) {
-                                    return [...prev, payload.seat];
-                                }
-                                return prev;
-                            });
-                        }
-                    });
-                };
-
-                client.activate();
-                stompClient.current = client;
-            } else {
-                setUser(null);
-            }
-        } catch (err) {
-            console.error("Auth failed:", err);
-            setUser(null);
+        window.scrollTo(0, 0);
+        const data = JSON.parse(localStorage.getItem("bookingInfo"));
+        if (data) {
+            setMovieInfo(data.movieInfo);
+            setTime(data.time);
+            setDate(data.date);
         }
-    };
-
-    fetchAuthAndConnect();
-
-    return () => {
-        console.log("Cleanup: WebSocket disconnecting...");
-        stompClient.current?.deactivate();
-    };
     }, []);
+
 
     useEffect(() => {
         if (time?.showTimeId) {
@@ -159,13 +107,13 @@ function Booking () {
 
     const handleSeatSelection = (seatNumber) => {
         setSelectedSeat((prev) => {
-            const isSelected = prev.includes(seatNumber);
+            const isSelected = prev.includes(seatNumber); // => trả bool
             let newSeats;
             if (bookeds.some(booking => booking.chair?.split(', ').includes(seatNumber))) {
                 return prev;
             }
             if (isSelected) {
-                newSeats = prev.filter(seat => seat !== seatNumber);
+                newSeats = prev.filter(seat => seat !== seatNumber); // chọn rồi => bỏ khỏi mảng
             } else {
                 if (prev.length >= 8) {
                     setTimeout(() => {
@@ -173,23 +121,17 @@ function Booking () {
                     }, 0);
                     return prev;
                 }
-                newSeats = [...prev, seatNumber];
+                newSeats = [...prev, seatNumber]; // add ghế mới vào
             }
-            if (
-                stompClient.current &&
-                stompClient.current.connected &&
-                time?.showTimeId &&
-                user?.userName
-            ) {
-                stompClient.current.publish({
-                    destination: `/app/selectSeat/${time.showTimeId}`,
-                    body: JSON.stringify({
-                        seatCode: seatNumber,
-                        showTimeId: time.showTimeId,
-                        userName: user.userName,
-                    }),
-                });
-            }
+            // newSeats là ds ghế đang chọn -> lấy ném vào ws
+            // xác định ngày đang đặt, giờ đặt, phim -> showtime, user, date
+            // const seatInfo = {
+            //     movieId: movieInfo.movieId,
+            //     date: formattedDate, // ngày chọn
+            //     showTimeId: time.showTimeId,
+            //     userId: user.userId,
+            //     newSeats
+            // }
 
             return newSeats;
         });
@@ -238,10 +180,10 @@ function Booking () {
                                             key={seatNumber}
                                             className={`seat ${type} ${
                                                 isSold ? 'sold' :
-                                                selectedSeat.includes(seatNumber) 
+                                                selectedSeat.includes(seatNumber) // ghế mình chọn -> màu xanh dương
                                                 ? 'selected'
-                                                : othersSelecting.includes(seatNumber)
-                                                ? 'selecting'
+                                                // : othersSelecting.includes(seatNumber) // ghế người khác chọn -> màu xanh lá
+                                                // ? 'selecting'
                                                 : ''}`}
                                             onClick={() => handleSeatSelection(seatNumber)}
                                             style={{ cursor: 'pointer', ...(type === 'couple' ? { width: '80px' } : {}) }}

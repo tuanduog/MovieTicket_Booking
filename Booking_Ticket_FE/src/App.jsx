@@ -16,6 +16,7 @@ import Filter from "./Search/Filter";
 import History from "./History/History";
 import Payment from "./Payment/Payment";
 import UserInfo from "./UserInfo/User_info";
+import Test from "./test";
 
 function App() {
   return (  
@@ -36,6 +37,7 @@ function App() {
         <Route path="/Booking_history" element={<History/>}></Route>
         <Route path="/Payment" element={<Payment/>}></Route>
         <Route path="/Profile" element={<UserInfo/>}></Route>
+        <Route path="/test" element={<Test/>}></Route>
       </Routes>
       <Footer/>
     </BrowserRouter>

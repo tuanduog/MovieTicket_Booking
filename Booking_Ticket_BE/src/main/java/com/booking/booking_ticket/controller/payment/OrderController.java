@@ -44,8 +44,8 @@ public class OrderController {
             ItemData item = ItemData.builder().name(productName).price(price).quantity(1).build();
 
             PaymentData paymentData = PaymentData.builder().orderCode(orderCode).description(description).amount(price)
-                    .item(item).returnUrl(returnUrl).cancelUrl(cancelUrl).expiredAt(System.currentTimeMillis()/1000 + 30*60).build();
-
+                    .item(item).returnUrl(returnUrl).cancelUrl(cancelUrl).expiredAt(System.currentTimeMillis()/1000 + 10*60).build();
+            
             CheckoutResponseData data = payOS.createPaymentLink(paymentData);
 
             //lưu pending status invoice vào db

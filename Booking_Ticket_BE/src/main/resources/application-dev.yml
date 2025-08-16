@@ -31,3 +31,10 @@ server:
   port: 8099
 jwt:
   signerKey : "jimCkrbwN6xbegs1wNqLlyqsAk2vsGqSJ2d9oOCvXIE57Qa34TlgM3Xe48Q8IxPp"
+
+logging:
+  level:
+    org.springframework.web.socket: DEBUG
+    org.springframework.web.socket.messaging: DEBUG
+    org.springframework.messaging: DEBUG
+    org.springframework.web.servlet: DEBUG

@@ -1,5 +1,7 @@
 package com.booking.booking_ticket.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SeatSelectionDTO {
-    private String seatCode;
+    private Integer movieId;
+    private String date;
     private Integer showTimeId;
-    private String userName;
+    private Integer userId;
+    private List<String> newSeats;
 }

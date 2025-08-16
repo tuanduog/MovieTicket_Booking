@@ -21,12 +21,17 @@ function Movies () {
         const [selectedDate, setSelectedDate] = useState("");
         const [selectedTime, setSelectedTime] = useState([]);
         const savedTheater = JSON.parse(localStorage.getItem('theater'));
+        const [showChoseLocation, setShowChoseLocation] = useState(false);
+        const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
+        const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
+        const[theater, setTheater] = useState([]);
+        const[locations, setLocation] = useState([]);
         const handleCloseModal = () => {
             setShowModal1(false);
         }
         const handleOpenModal = (movie) => {
             if(localStorage.getItem('theater') === null){
-                alert("Bạn cần chọn địa điểm rạp chiếu trước!");
+                setShowChoseLocation(true);
                 return;
             }
             setMovieInfo(movie);
@@ -63,6 +68,45 @@ function Movies () {
             window.scrollTo(0, 0);
         }
     }
+
+    const handleTheater = async (location) => {
+            const url = `http://localhost:8099/theaters/getTheaterByLocation?Location=${encodeURIComponent(location)}`;
+            try {
+                const res = await axios.get(url, {
+                    withCredentials: true
+                });
+                if (res.data.status === 200) {
+                    setTheater(res.data.data);
+                    // thông tin rạp
+                } else {
+                    setTheater([]);
+                }
+            } catch (err) {
+                setTheater([]);
+                console.error("Fetch theaters failed:", err);
+            }
+    };
+    const handleLocations = async () => {
+        try {
+            const res = await axios.get('http://localhost:8099/theaters/getLocations', {
+                withCredentials: true
+            });
+            if (res.data.status === 200) {
+                setLocation(Array.isArray(res.data.data) ? res.data.data : []);
+                // địa điểm rạp
+                console.log(res.data.data);
+            } else {
+                setLocation([]);
+            }
+        } catch (err) {
+            console.error("Fetch locations failed:", err);
+        }
+    };
+
+    useEffect(() => {
+            handleLocations();
+    }, [location.pathname]);
+
     const generateAvailableShowDates = (releasedDateStr, numberOfDays) => {
         const today = new Date();
         const releasedDate = new Date(releasedDateStr);
@@ -112,6 +156,71 @@ function Movies () {
     },[]);
     return (
         <div>
+            {showChoseLocation && (
+                <div className={styles.overlay}>
+                    <div className={styles.popup}>
+                        {/* Nút đóng */}
+                        <button className={styles.closeBtn} onClick={() => setShowChoseLocation(false)}>
+                        &times;
+                        </button>
+
+                        {/* Nội dung */}
+                        <div className={styles.content}>
+                        <div className={styles.formRow} style={{ marginBottom: '35px', marginLeft: '20px', marginRight: '20px' }}>
+                            <div className={styles.formGroup}>
+                            <label>Tỉnh/ Thành phố</label>
+                            <select
+                            style={{ fontSize: '14px'}}
+                            value={selectedLocation}
+                            onChange={e => {
+                                const loc = e.target.value;
+                                setSelectedLocation(loc);
+                                handleTheater(loc);
+                            }}
+                            >
+                                <option value="">Chọn Tỉnh/ Thành phố</option>
+                                {Array.isArray(locations) &&
+                                    locations.map((loc, idx) => (
+                                    <option key={idx} value={loc}>
+                                        {loc}
+                                    </option>
+                                    ))}
+                            </select>
+                            </div>
+
+                            <div className={styles.formGroup}>
+                            <label>Tên rạp</label>
+                            <select style={{ fontSize: '14px' }}
+                            value={selectedTheater}
+                            onChange={e => {
+                                const selectedValue = e.target.value;
+                                setselectedTheater(selectedValue);
+
+                                const selectedObj = theater.find(t => t.theaterId.toString() === selectedValue);
+                                if(selectedObj){
+                                    localStorage.setItem('theater', JSON.stringify({
+                                        theaterId: selectedObj.theaterId,
+                                        theaterName: selectedObj.theaterName,
+                                        theaterLocation: selectedObj.theaterLocation
+                                    }));
+                                    setShowChoseLocation(false);
+                                }
+
+                            }}>
+                                <option value="">Chọn rạp</option>
+                                {Array.isArray(theater) &&
+                                theater.map((theaterItem, idx) => (
+                                    <option key={idx} value={theaterItem.theaterId}>
+                                    {theaterItem.theaterName}
+                                    </option>
+                                ))}
+                            </select>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {showModal1 && (
                             <div className="modal-overlay" onClick={handleCloseModal}>
                                 <div className="modal-box p-4 rounded shadow" onClick={(e) => e.stopPropagation()}>

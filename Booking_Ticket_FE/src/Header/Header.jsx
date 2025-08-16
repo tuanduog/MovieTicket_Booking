@@ -16,6 +16,7 @@ function Header() {
 
     const [name, setName] = useState('');
     const [justLoggedOut, setJustLoggedOut] = useState(false);
+    const theaterSaved = JSON.parse(localStorage.getItem('theater') || '{}');
 
     const handleLogin = (type) => {
         navigate("/Login", { state: { type } });
@@ -46,7 +47,7 @@ function Header() {
         }
     };
 
-     const handleLocations = async () => {
+    const handleLocations = async () => {
         try {
             const res = await axios.get('http://localhost:8099/theaters/getLocations', {
                 withCredentials: true
@@ -125,9 +126,8 @@ function Header() {
             console.error("Logout failed", err);
         }
     };
-    const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
-    const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
-
+    const [selectedLocation, setSelectedLocation] = useState(theaterSaved.theaterLocation); // địa điểm đã chọn
+    const [selectedTheater, setselectedTheater] = useState(theaterSaved.theaterId); // thông tin các rạp
     useEffect(() => {
         if (!justLoggedOut) {
             handleAuth();
@@ -196,11 +196,12 @@ function Header() {
   {!selectedTheater && (
     <select
       className="form-select"
-      style={{ width: '150px', height: '38px', border: '1px solid black' }}
+      style={{ width: '150px', height: '38px', border: '1px solid black', fontSize: '15px', cursor: 'pointer' }}
       value={selectedLocation}
       onChange={e => {
         const loc = e.target.value;
         setSelectedLocation(loc);
+        setselectedTheater(""); // Reset rạp đã chọn
         handleTheater(loc);
       }}
     >
@@ -216,10 +217,10 @@ function Header() {
 
   {/* Dropdown chọn rạp */}
   {theater.length > 0 && (
-    <div className="ms-4">
+    <div className="ms-3">
       <select
         className="form-select"
-        style={{ width: '180px', height: '38px', border: '1px solid black' }}
+        style={{ width: '180px', height: '38px', border: '1px solid black', fontSize: '15px', cursor: 'pointer' }}
         value={selectedTheater}
         onChange={e => {
             const selectedValue = e.target.value;

@@ -7,7 +7,6 @@ import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import axios from 'axios';
 
-
 function Movie_detail() {
     const [showModal, setShowModal] = useState(false);
     const [confirmPopup, setConfirmPopup] = useState(false);
@@ -23,6 +22,11 @@ function Movie_detail() {
     const [rating, setRating] = useState(0); // Số sao được chọn
     const [hover, setHover] = useState(0); 
     const savedTheater = JSON.parse(localStorage.getItem('theater'));
+    const [showChoseLocation, setShowChoseLocation] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
+    const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
+    const[theater, setTheater] = useState([]);
+    const[locations, setLocation] = useState([]);
     // const trailerUrl = "https://www.youtube.com/watch?v=BGS4l3xEc-0";
     // const embedUrl = trailerUrl.replace("watch?v=", "embed/"); // đổei sang link nhúng
     const handleCloseModal = () => {
@@ -30,7 +34,7 @@ function Movie_detail() {
     }
     const handleOpenModal = () => {
         if(localStorage.getItem('theater') === null){
-            alert("Bạn cần chọn địa điểm rạp chiếu trước!");
+            setShowChoseLocation(true);
             return;
         }
         const select = generateAvailableShowDates(movieInfo.releaseDate, movieInfo.dateShow);
@@ -64,6 +68,45 @@ function Movie_detail() {
             window.scrollTo(0, 0);
         }
     }
+
+    const handleTheater = async (location) => {
+            const url = `http://localhost:8099/theaters/getTheaterByLocation?Location=${encodeURIComponent(location)}`;
+            try {
+                const res = await axios.get(url, {
+                    withCredentials: true
+                });
+                if (res.data.status === 200) {
+                    setTheater(res.data.data);
+                    // thông tin rạp
+                } else {
+                    setTheater([]);
+                }
+            } catch (err) {
+                setTheater([]);
+                console.error("Fetch theaters failed:", err);
+            }
+    };
+    const handleLocations = async () => {
+        try {
+            const res = await axios.get('http://localhost:8099/theaters/getLocations', {
+                withCredentials: true
+            });
+            if (res.data.status === 200) {
+                setLocation(Array.isArray(res.data.data) ? res.data.data : []);
+                // địa điểm rạp
+                console.log(res.data.data);
+            } else {
+                setLocation([]);
+            }
+        } catch (err) {
+            console.error("Fetch locations failed:", err);
+        }
+    };
+
+    useEffect(() => {
+            handleLocations();
+    }, [location.pathname]);
+
     const generateAvailableShowDates = (releasedDateStr, numberOfDays) => {
         const today = new Date();
         const releasedDate = new Date(releasedDateStr);
@@ -153,6 +196,71 @@ function Movie_detail() {
     
     return (
         <div className="container mt-5">
+        {showChoseLocation && (
+                <div className="overlay">
+                    <div className="popup">
+                        {/* Nút đóng */}
+                        <button className="closeBtn" onClick={() => setShowChoseLocation(false)}>
+                        &times;
+                        </button>
+
+                        {/* Nội dung */}
+                        <div className="content">
+                        <div className="formRow" style={{ marginBottom: '35px', marginLeft: '20px', marginRight: '20px' }}>
+                            <div className="formGroup">
+                            <label>Tỉnh/ Thành phố</label>
+                            <select
+                            style={{ fontSize: '14px'}}
+                            value={selectedLocation}
+                            onChange={e => {
+                                const loc = e.target.value;
+                                setSelectedLocation(loc);
+                                handleTheater(loc);
+                            }}
+                            >
+                                <option value="">Chọn Tỉnh/ Thành phố</option>
+                                {Array.isArray(locations) &&
+                                    locations.map((loc, idx) => (
+                                    <option key={idx} value={loc}>
+                                        {loc}
+                                    </option>
+                                    ))}
+                            </select>
+                            </div>
+
+                            <div className="formGroup">
+                            <label>Tên rạp</label>
+                            <select style={{ fontSize: '14px' }}
+                            value={selectedTheater}
+                            onChange={e => {
+                                const selectedValue = e.target.value;
+                                setselectedTheater(selectedValue);
+
+                                const selectedObj = theater.find(t => t.theaterId.toString() === selectedValue);
+                                if(selectedObj){
+                                    localStorage.setItem('theater', JSON.stringify({
+                                        theaterId: selectedObj.theaterId,
+                                        theaterName: selectedObj.theaterName,
+                                        theaterLocation: selectedObj.theaterLocation
+                                    }));
+                                    setShowChoseLocation(false);
+                                }
+
+                            }}>
+                                <option value="">Chọn rạp</option>
+                                {Array.isArray(theater) &&
+                                theater.map((theaterItem, idx) => (
+                                    <option key={idx} value={theaterItem.theaterId}>
+                                    {theaterItem.theaterName}
+                                    </option>
+                                ))}
+                            </select>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {showTrailer && (
             <div className="modal-overlay" onClick={handleCloseTrailer}>
                 {/* <span className="close-btn fs-3" onClick={handleCloseTrailer}>&times;</span> */}

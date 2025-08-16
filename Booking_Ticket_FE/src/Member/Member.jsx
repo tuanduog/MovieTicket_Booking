@@ -16,7 +16,8 @@ function Member() {
   const cancel = query.get('cancel');
   const user = JSON.parse(sessionStorage.getItem('user')) || null;
   const [membership, setMembership] = useState("");
-  const [expired, setExpired] = useState("");
+  const [totalDay, setTotalDay] = useState(0);
+  const [dayLeft, setDayLeft] = useState(0);
   const [startDate, setStartDate] = useState("");
   const today = new Date();
 
@@ -56,7 +57,7 @@ function Member() {
       const res = await axios.post("http://localhost:8099/Order/create", {
         productName: "Gói " + selectedPlan,
         description: 'Thanh toán đơn hàng',
-        price: 2000, // price
+        price: price, // price
         returnUrl: "http://localhost:5173/Member",
         cancelUrl: "http://localhost:5173",
       }, { withCredentials: true });
@@ -92,7 +93,7 @@ function Member() {
             )
             setMembership(res.data.membership);
             setStartDate(res.data.startDate);
-            setExpired(res.data.expired);
+            setTotalDay(res.data.expired);
         } catch (error) {   
             console.error("Khong lay duoc membership", error);
         }
@@ -105,33 +106,33 @@ function Member() {
     },[user]);
 
     useEffect(() => {
-      if(startDate && expired){
+      if(startDate && totalDay){
         const today = new Date();
         const start = new Date(startDate);
         const passDay = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-        const dayLeft = expired - passDay;
+        const dayLeft = totalDay - passDay;
 
-        if(dayLeft <= 0){
-          setMembership("no membership");
-          
-          axios.put(`http://localhost:8099/auth/update-Membership/${user.userId}`,
-          {
-            vip: 'no membership',
-            startDate: null,
-            expired: null
-          }, { withCredentials: true})
-          .then(() => {
-            console.log("Cập nhật trạng thái membership về no membership");
-          })
-          .catch((error) => {
-            console.error("Lỗi cập nhật membership:", error);
-          });
+          if(dayLeft <= 0){
+            setMembership("no membership");
+            
+            axios.put(`http://localhost:8099/auth/update-Membership/${user.userId}`,
+            {
+              vip: 'no membership',
+              startDate: null,
+              expired: null
+            }, { withCredentials: true})
+            .then(() => {
+              console.log("Cập nhật trạng thái membership về no membership");
+            })
+            .catch((error) => {
+              console.error("Lỗi cập nhật membership:", error);
+            });
 
           } else {
-            setExpired(dayLeft); 
+            setDayLeft(dayLeft); 
           }
         }
-      },[startDate, expired])
+      },[startDate])
 
   useEffect(() => {
     const updateMembership = async () => {
@@ -176,7 +177,7 @@ function Member() {
           >
             Đăng ký
           </button>
-          {membership === "vip tháng" && <p>Còn {expired} ngày</p>}
+          {membership === "vip tháng" && <p>Còn {dayLeft} ngày</p>}
         </div>
         </div>
 
@@ -199,7 +200,7 @@ function Member() {
           >
             Đăng ký
           </button>
-          {membership === "vip năm" && <p>Còn {expired} ngày</p>}
+          {membership === "vip năm" && <p>Còn {dayLeft} ngày</p>}
         </div>
         </div>
       </div>
@@ -209,7 +210,7 @@ function Member() {
         <div className={styles.overlay}>
           <div className={styles.confirmBox}>
             <h4>Xác nhận đăng ký</h4>
-            <p>Bạn có chắc chắn muốn đăng ký gói {selectedPlan === "vip_month" ? "VIP Tháng" : "VIP Năm"} không?</p>
+            <p>Bạn có chắc chắn muốn đăng ký gói {selectedPlan === "vip tháng" ? "VIP Tháng" : "VIP Năm"} không?</p>
             <div className={styles.terms}>
               <div style={{ textAlign: "justify", fontSize: "14px", lineHeight: "1.6" }}>
                 <p>
