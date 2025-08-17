@@ -19,7 +19,7 @@ function Footer() {
               </div>
 
               {/* Cột phải */}
-              <div className="col-md-6 mb-4 ps-md-5" style={{paddingLeft: '50px'}}>
+              <div className="col-md-6 mb-4" style={{paddingLeft: '90px'}}>
                 <h5 className={styles.footerTitle}>Liên kết & Mạng xã hội</h5>
                 <div className="mb-3">
                   <a href="" className={styles.linkHoverEffect}>Điều khoản</a>

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useRef } from "react";
 import '../Booking/Booking.css';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Client } from "@stomp/stompjs";
 
 function Booking () {
     const navigate = useNavigate();
@@ -10,9 +11,10 @@ function Booking () {
     const [time, setTime] = useState({});
     const [date, setDate] = useState("");
     const [selectedSeat, setSelectedSeat] = useState([]);
-
+    const user = JSON.parse(sessionStorage.getItem("user")) || {};
     const savedTheater = JSON.parse(localStorage.getItem("theater"));
     const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo'));
+    const [othersSelecting, setOthersSelecting] = useState([]);
     const d = new Date();
     const y = d.getFullYear();
     const savedDate = bookingInfo.date + "/" + y;
@@ -23,6 +25,7 @@ function Booking () {
         return storedTime ? parseInt(storedTime, 10) : 600;
     });
     const [bookeds, setBookeds] = useState([]);
+    const client = useRef(null); // giữ client ko biến mất khi re-render
     // phim, 
 
     const seatPrices = {
@@ -105,6 +108,48 @@ function Booking () {
         return "normal";
     };
 
+    useEffect(() => {
+        if(client.current) return;
+        client.current = new Client({
+            brokerURL: "ws://localhost:8099/wsocket",
+            debug: (str) => console.log("STOMP:", str),
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+        });
+        client.current.activate();
+        return () => client.current.deactivate();
+    },[]);
+
+    useEffect(() => {
+        if (!time?.showTimeId || !movieInfo.movieId) return;
+        if (!client.current) return;
+
+        client.current.onConnect = () => {
+            console.log("Connected to WS!");
+            client.current.subscribe(
+                `/topic/seats/${movieInfo.movieId}/${time.showTimeId}/${formattedDate}`,
+                (message) => {
+                    const seatSelecting = JSON.parse(message.body);
+                    console.log("Seat selecting:", seatSelecting);
+
+                    const otherSeats = seatSelecting.userId === user.userId
+                        ? []
+                        : seatSelecting.seats.split(',').map(s => s.trim());
+
+                    setOthersSelecting(otherSeats);
+                }
+            );
+        };
+
+        if (!client.current.active) client.current.activate();
+
+        return () => {
+            if (client.current) client.current.deactivate();
+        }
+    }, [movieInfo.movieId, time.showTimeId, formattedDate]); // chạy lại khi movieId, showTimeId hoặc formattedDate thay đổi
+
+
     const handleSeatSelection = (seatNumber) => {
         setSelectedSeat((prev) => {
             const isSelected = prev.includes(seatNumber); // => trả bool
@@ -123,15 +168,19 @@ function Booking () {
                 }
                 newSeats = [...prev, seatNumber]; // add ghế mới vào
             }
+            
             // newSeats là ds ghế đang chọn -> lấy ném vào ws
-            // xác định ngày đang đặt, giờ đặt, phim -> showtime, user, date
-            // const seatInfo = {
-            //     movieId: movieInfo.movieId,
-            //     date: formattedDate, // ngày chọn
-            //     showTimeId: time.showTimeId,
-            //     userId: user.userId,
-            //     newSeats
-            // }
+            // xác định ngày đang đặt, giờ đặt, phim, user, ghế -> showtime, user, date
+
+            const seatInfo = {
+                movieId: movieInfo.movieId,
+                date: formattedDate, // ngày chọn
+                showTimeId: time.showTimeId,
+                userId: user.userId,
+                seats: newSeats.join(', '), // ghế đang chọn
+            }
+            
+            client.current.publish({ destination: "/app/seat-selecting", body: JSON.stringify(seatInfo)});
 
             return newSeats;
         });
@@ -182,8 +231,8 @@ function Booking () {
                                                 isSold ? 'sold' :
                                                 selectedSeat.includes(seatNumber) // ghế mình chọn -> màu xanh dương
                                                 ? 'selected'
-                                                // : othersSelecting.includes(seatNumber) // ghế người khác chọn -> màu xanh lá
-                                                // ? 'selecting'
+                                                : othersSelecting.includes(seatNumber) // ghế người khác chọn -> màu xanh lá
+                                                ? 'selecting'
                                                 : ''}`}
                                             onClick={() => handleSeatSelection(seatNumber)}
                                             style={{ cursor: 'pointer', ...(type === 'couple' ? { width: '80px' } : {}) }}
@@ -201,24 +250,25 @@ function Booking () {
                         <div className="d-flex flex-wrap gap-4">
                             <div>
                                 <span className="seat normal me-2"></span> 
-                                Ghế thường  <span className="text-muted">( 70.000 VNĐ )</span>
+                                Ghế thường  <span className="text">( 70.000 VNĐ )</span>
                             </div>
                             <div>
                                 <span className="seat vip me-2"></span> 
-                                Ghế VIP <span className="text-muted">( 100.000 VNĐ )</span>
+                                Ghế VIP <span className="text">( 100.000 VNĐ )</span>
                             </div>
                             <div>
                                 <span className="seat couple me-2"></span> 
-                                Ghế đôi <span className="text-muted">( 130.000 VNĐ )</span>
+                                Ghế đôi <span className="text">( 130.000 VNĐ )</span>
                             </div>
                         </div>
                     </div>
                     <div className="legend mt-4">
                         <h6 className="mb-3 fw-bold col-2">Tình trạng:</h6>
-                        <div className="d-flex flex-wrap gap-3">
-                            <div><span className="seat empty"></span> Ghế trống</div>
-                            <div><span className="seat selected"></span> Đang chọn</div>
-                            <div><span className="seat sold"></span> Đã bán</div>
+                        <div className="d-flex flex-wrap gap-4">
+                            <div><span className="seat empty"></span>Ghế trống</div>
+                            <div><span className="seat selected"></span>Đang chọn</div>
+                            <div><span className="seat selecting"></span>Đang bị giữ</div>
+                            <div><span className="seat sold"></span>Đã bán</div>
                         </div>
                     </div>
 

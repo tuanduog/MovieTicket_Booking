@@ -3,10 +3,11 @@ package com.booking.booking_ticket.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -29,87 +30,66 @@ import java.util.List;
 public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
-    private String SECRET_KEY;
+    protected String SECRET_KEY;
 
     public static final  String[] PUBLIC_ENDPOINTS = {"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**"
             ,"/auth/token", "/auth/login", "/auth/introspect", "/auth/register",  "/auth/logout", "/product/get-product", "/discount/get-discount", 
-            "/movies/**","/movie/getAll-movies", "/theaters/**", "/movie/get-movie/**", 
+            "/movies/**","/movie/getAll-movies", "/wsocket", "/wsocket/**", "/topic/**", "/app/**", "/sockjs/**", "/theaters/**", "/movie/get-movie/**", 
             "/auth/get-showtime/**", "/api/files/upload/image" ,"/booking/**", "/reviews/get-Top5Movies" };
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        JwtCookieFilter jwtCookieFilter = new JwtCookieFilter(jwtDecoder(), jwtAuthenticationConverter());
 
-        http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers(
-                    "/wsocket/**",
-                    "/sockjs/**",
-                    "/topic/**",
-                    "/app/**"
-                )
-            )
-            .headers(headers -> headers
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // Required for SockJS
-                .contentTypeOptions(HeadersConfigurer.ContentTypeOptionsConfig::disable)
-                .xssProtection(xss -> xss.disable())
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/wsocket/**",
-                    "/sockjs/**",
-                    "/topic/**",
-                    "/app/**",
-                    "/wsocket/info/**"
-                    
-                ).permitAll()
+    @Bean
+    public JwtCookieFilter jwtCookieFilter(){
+        return new JwtCookieFilter(jwtDecoder(), jwtAuthenticationConverter());
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtCookieFilter jwtCookieFilter) throws Exception {
+        httpSecurity
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(request -> request
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyRequest().authenticated()
             )
+            .csrf(AbstractHttpConfigurer::disable)
             .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class)
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
+            .oauth2ResourceServer(config -> config
+                .jwt(jwtConfigurer -> jwtConfigurer
                     .decoder(jwtDecoder())
                     .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
-            );
+            )
+        );
 
-        return http.build();
+        return httpSecurity.build();
     }
 
-    // @Bean
-    // public WebSecurityCustomizer webSecurityCustomizer() {
-    //     return web -> web.ignoring().requestMatchers("/wsocket/**");
-    // };
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        SecretKeySpec spec = new SecretKeySpec(SECRET_KEY.getBytes(), "HS512");
-        return NimbusJwtDecoder.withSecretKey(spec)
+    JwtDecoder jwtDecoder()
+    {
+        SecretKeySpec spec = new SecretKeySpec(SECRET_KEY.getBytes(),"HS512");
+        return  NimbusJwtDecoder.withSecretKey(spec)
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();
     }
-
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
-        converter.setAuthorityPrefix("ROLE_");
+        converter.setAuthorityPrefix("ROLE_"); // Mặc định là "SCOPE_"
         JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
         jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
         return jwtConverter;
     }
-
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173"));
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

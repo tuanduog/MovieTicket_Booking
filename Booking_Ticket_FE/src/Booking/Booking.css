@@ -48,8 +48,12 @@
 }
 
 .seat.selecting {
-    background-color: lightgreen;
-    border: 2px dashed green;
+    background-color: hsl(212, 95%, 70%);
+}
+
+.seat.normal.selecting {
+    background-color: hsl(212, 95%, 70%);
+    color: #fff;
 }
 
 .seat.normal.sold {
