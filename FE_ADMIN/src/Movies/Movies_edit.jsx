@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../Movies/Movie_detail.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect ,useRef } from 'react';
 import axios from 'axios';
 
 function Movie_edit() {
@@ -84,14 +84,13 @@ const handleFileChange = (e) => {
   setAlertType('danger');
   }
 };
-useEffect(() => {
-  if (alertMsg) {
-    const timer = setTimeout(() => {
-      setAlertMsg('');
-      setAlertType('');
-    }, 3000); // 3 giây
 
-    return () => clearTimeout(timer);
+const toastRef = useRef(null);
+
+useEffect(() => {
+  if (alertMsg && toastRef.current) {
+    const toast = window.bootstrap.Toast.getOrCreateInstance(toastRef.current);
+    toast.show();
   }
 }, [alertMsg]);
   useEffect(() => {
@@ -111,12 +110,27 @@ useEffect(() => {
   }, [movie]);
     return (
   <main id="main" className="main">
-{alertMsg && (
-  <div className={`alert alert-${alertType} alert-dismissible fade show`} role="alert">
-    {alertMsg}
-    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-)}
+   <div
+      className={`toast align-items-center text-bg-${alertType || 'primary'} border-0 position-fixed top-0 end-0 m-3`}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      ref={toastRef}
+      data-bs-delay="3000"
+      style={{ zIndex: 9999, minWidth: '250px' }}
+    >
+      <div className="d-flex">
+        <div className="toast-body">
+          {alertMsg}
+        </div>
+        <button
+          type="button"
+          className="btn-close btn-close-white me-2 m-auto"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
         <div className="col-lg-12">
 
           <div className="card">

@@ -1,8 +1,9 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect,useRef } from 'react';
 import axios from 'axios';
 import DataTable from "react-data-table-component";
 import '../assets/vendor/bootstrap/css/bootstrap.min.css';
@@ -27,22 +28,60 @@ import '../assets/js/main.js';
 function Theater () {
         const [theater, setTheater] = useState([]);
         const navigate = useNavigate();
+        useEffect(() => {
+  // Kiểm tra thông báo lưu trong localStorage khi trang load lại
+  const storedMsg = localStorage.getItem('theater_alertMsg');
+  const storedType = localStorage.getItem('theater_alertType');
+  if (storedMsg) {
+    setAlertMsg(storedMsg);
+    setAlertType(storedType || 'primary');
+    localStorage.removeItem('theater_alertMsg');
+    localStorage.removeItem('theater_alertType');
+  }
+}, []);
 const handleEdit = (movie) => {
   navigate("/Theater_edit", { state: { movie } });
 };
 
 
-
 const handleDeleteClick = (movie) => {
+  setMovieToDelete(movie);
+  setShowDeleteModal(true);
+  const modal = new Modal(document.getElementById("deleteModal"));
+  modal.show();
+};
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [movieToDelete, setMovieToDelete] = useState(null);
 
-  const response = axios.delete("http://localhost:8099/theaters/delete-Theater", {
-      params: { id: movie.theaterId },
-      withCredentials: true,
+const confirmDelete = async () => {
+  if (!movieToDelete) return;
+  try {
+    const re = await axios.delete("http://localhost:8099/theaters/delete-Theater", {
+       params: { id: movieToDelete.theaterId },
+       withCredentials: true,
     });
-    alert("Thực hiện xoá " + movie.theaterName + " thành công");
+    if(re.data.status !== 200) {
+          setShowDeleteModal(false);
+          setMovieToDelete(null);
+          localStorage.setItem('theater_alertMsg', 'Xoá rạp thất bại, rạp đã có lịch chiếu!');
+          localStorage.setItem('theater_alertType', 'danger');
+          window.location.reload();
+          return;
+    }else{
+    setShowDeleteModal(false);
+    setMovieToDelete(null);
+    localStorage.setItem('theater_alertMsg', 'Xoá rạp thành công!');
+    localStorage.setItem('theater_alertType', 'success');
     window.location.reload();
+    }
+  } catch (err) {
+    setShowDeleteModal(false);
+    setMovieToDelete(null);
+    setAlertMsg('Xoá thất bại!' + err.message);
+    setAlertType('danger');  }
+};
 
-  }
+
 const columns = [
   {
     name: "ID",
@@ -97,10 +136,43 @@ const filteredTheater = Array.isArray(theater)
       t.theaterName?.toLowerCase().includes(filterText.toLowerCase())
     )
   : [];
+
+  
+      const [alertMsg, setAlertMsg] = useState('');
+      const [alertType, setAlertType] = useState('primary');
+      const toastRef = useRef(null);
+  
+      useEffect(() => {
+        if (alertMsg && toastRef.current) {
+          const toast = window.bootstrap.Toast.getOrCreateInstance(toastRef.current);
+          toast.show();
+        }
+      }, [alertMsg]);
+
     return (
         <div>
            <main id="main" className="main">
-
+<div
+  className={`toast align-items-center text-bg-${alertType} border-0 position-fixed top-0 end-0 m-3`}
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+  ref={toastRef}
+  data-bs-delay="3000"
+  style={{ zIndex: 9999, minWidth: '250px' }}
+>
+  <div className="d-flex">
+    <div className="toast-body">
+      {alertMsg}
+    </div>
+    <button
+      type="button"
+      className="btn-close btn-close-white me-2 m-auto"
+      data-bs-dismiss="toast"
+      aria-label="Close"
+    ></button>
+  </div>
+    </div>
     <div className="pagetitle">
       <h1>Quản lý rạp chiếu</h1>
       <nav>
@@ -148,6 +220,48 @@ const filteredTheater = Array.isArray(theater)
         highlightOnHover
         selectableRows
       />
+       <div
+        className="modal fade"
+        id="deleteModal"
+        tabIndex="-1"
+        aria-labelledby="deleteModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="deleteModalLabel">Xác nhận xoá</h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                onClick={() => setShowDeleteModal(false)}
+              ></button>
+            </div>
+            <div className="modal-body">
+              <p>Bạn có chắc chắn muốn xoá rạp <strong>{movieToDelete?.theaterName}</strong>?</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Huỷ
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={confirmDelete}
+              >
+                Xoá
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
               
 
             </div>
