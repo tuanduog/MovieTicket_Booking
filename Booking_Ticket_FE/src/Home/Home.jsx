@@ -182,24 +182,27 @@ function Homepage() {
         }
     }
     const fetchMovies = async () => {
-    try {
-        const res = await axios.get("http://localhost:8099/movie/getAll-movies");
-        const movies = res.data; 
-        console.log(movies);
+        try {
+            const res = await axios.get("http://localhost:8099/movie/getAll-movies");
+            const movies = res.data; 
+            
+            console.log(movies);
+            console.log("API response type:", typeof res.data);
 
-        const s1 = movies.filter(movie => movie.showing === "Đang chiếu");
-        const c1 = movies.filter(movie => movie.showing === "Sắp chiếu");
 
-        setShowingNow(s1);
-        setCommingSoon(c1);
-    } catch (error) {
-        console.error("Lỗi khi lấy danh sách phim", error);
-    }
-};
+            const s1 = movies.filter(movie => movie.showing === "Đang chiếu");
+            const c1 = movies.filter(movie => movie.showing === "Sắp chiếu");
 
-useEffect(() => {
-    fetchMovies();
-}, []);
+            setShowingNow(s1);
+            setCommingSoon(c1);
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách phim", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMovies();
+    }, []);
 
 
     return (
@@ -252,6 +255,7 @@ useEffect(() => {
                                         theaterLocation: selectedObj.theaterLocation
                                     }));
                                     setShowChoseLocation(false);
+                                    window.location.reload();
                                 }
 
                             }}>
@@ -467,7 +471,11 @@ useEffect(() => {
                                     <strong>Thể loại:</strong> {movie.genre}
                                 </p>
                                 <p className={`mb-2 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
-                                    <strong>Ngày khởi chiếu:</strong> {new Date(movie.releaseDate).toLocaleDateString("vi-VN")}
+                                    <strong>Ngày khởi chiếu:</strong> {new Date(movie.releaseDate).toLocaleDateString("vi-VN", {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric'
+                                    })}
                                 </p>
                                 <button className="btn btn-primary btn-sm w-100 rounded" onClick={() => handleOpenModal(movie)}>
                                     Đặt vé

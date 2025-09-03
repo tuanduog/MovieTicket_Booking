@@ -139,3 +139,30 @@
   border: 1px solid #ccc;
   border-radius: 3px;
 }
+
+.comment-reply {
+  position: relative;
+  margin-left: 40px; /* đẩy lệch sang phải để lộ line */
+  padding-left: 15px;
+}
+
+.comment-reply::before {
+  content: "";
+  position: absolute;
+  top: -45px;   /* bắt đầu gần avatar reply */
+  left: -90px;  /* canh sang trái để nối với avatar cha */
+  width: 95px;  /* chiều rộng cong */
+  height: 82px; /* chiều cao dây cong */
+  border-left: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  border-bottom-left-radius: 10px; /* bo cong góc */
+}
+
+.rep:hover {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.showRep:hover {
+  cursor: pointer;
+}

@@ -10,6 +10,10 @@ import com.booking.booking_ticket.service.BookingService;
 import com.booking.booking_ticket.service.Impl.BookingServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.cache.CacheProperties.Redis;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Controller
 @RestController
@@ -33,6 +40,9 @@ public class BookingController {
     private final BookingService bookingService1;
 
     private final BookingRepository bookingRepository;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @PostMapping("/add-booking")
     public ResponseEntity<?> addBooking(@RequestBody Booking booking) {
@@ -177,5 +187,18 @@ public class BookingController {
         }
     }
 
+    @GetMapping("/seats-locking/{movieId}/{showTimeId}/{date}")
+    public ResponseEntity<?> getLockedSeats(@PathVariable Integer movieId, @PathVariable Integer showTimeId, @PathVariable String date) {
+        try {
+            String redisKey = "seatLock:" + movieId + ":" + showTimeId + ":" + date;
+            Map<Object, Object> lockedSeats = redisTemplate.opsForHash().entries(redisKey);
 
+            return ResponseEntity.ok(lockedSeats);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to get locked seats: " + e.getMessage());
+        }
+    }
+    
 }

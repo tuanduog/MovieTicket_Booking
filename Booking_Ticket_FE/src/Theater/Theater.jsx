@@ -29,6 +29,7 @@ function Theater() {
     if (index === 0) return "#1";
     if (index === 1) return "#2";
     if (index === 2) return "#3";
+    if (index === 3) return "#4";
   }
 
   const handleMovieDetail = (id) => {
@@ -64,8 +65,8 @@ function Theater() {
           <div className="col-lg-5 col-md-12">
             <h3 className={`${styles.hotTitle} text-center mb-4`}>PHIM ĐANG HOT</h3>
             <div className="row">
-              {top5.slice(0, 3).map((movie, index) => (
-              <div className="col-6 d-flex flex-column align-items-center" key={index}>
+              {top5.slice(0, 4).map((movie, index) => (
+              <div className="col-6 d-flex flex-column align-items-center mb-4" key={index}>
                 <div className={styles.movieCard} onClick={() => handleMovieDetail(movie[0])}>
                   <img src={movie[1]} alt="anh" className={`img-fluid ${styles.movieImg}`} />
                   <p className={styles.movieName}><span>{getRank(index)}. </span>{movie[2]}</p>

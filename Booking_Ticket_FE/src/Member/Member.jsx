@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"
 import styles from "../Member/Member.module.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function Member() {
   const location = useLocation();
@@ -66,11 +67,11 @@ function Member() {
       if (payUrl) {
         window.location.href = payUrl;
       } else {
-        alert("Không lấy được link thanh toán!");
+        toast.error("Không lấy được link thanh toán!");
       }
     } catch (error) {
       console.error("Tạo đơn thanh toán thất bại:", error);
-      alert("Tạo đơn thanh toán thất bại!");
+      toast.warning("Tạo đơn thanh toán thất bại!");
     }
   };
 
@@ -144,7 +145,7 @@ function Member() {
           {withCredentials: true}
           )
           console.log(res.data);
-          alert(`Đăng ký gói ${member.vip} thành công`);
+          toast.success(`Đăng ký gói ${member.vip} thành công`);
         } catch (error) {
           console.error("Cập nhật membership thất bại", error);
         }

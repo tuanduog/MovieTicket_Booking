@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 function Login() {
     const location = useLocation();
     const [rightPanelActive, setRightPanelActive] = useState(false);
@@ -13,7 +15,6 @@ function Login() {
       email: '',
       password: '',
       retypePassword: '',
-      birthday: '',
       phone: ''
     });    
     let navigate = useNavigate();
@@ -33,10 +34,10 @@ function Login() {
     });        if (res.data.status === 200) {
               navigate('/');
               console.log("Login successful"); 
-              alert("Đăng nhập thành công");
+              toast.success("Đăng nhập thành công")
               sessionStorage.setItem('state', 'Login successful') // 1
             } else {
-              alert("Đăng nhập không thành công, vui lòng kiểm tra lại tài khoản hoặc mật khẩu.");
+              toast.error("Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!");
 
         }
       console.log(res.data);
@@ -47,8 +48,17 @@ function Login() {
 
   const handleRegisterSubmit = async e => {
   e.preventDefault();
+  if(!registerData.email || !registerData.password || !registerData.phone || !registerData.retypePassword || !registerData.username){
+    toast.warning("Vui lòng nhập đầy đủ thông tin!");
+  }
+  if(registerData.password.length < 6){
+    toast.warning("Mật khẩu phải có ít nhất 6 kí tự");
+  }
+  if(registerData.phone.length != 10){
+    toast.warning("Nhập sai số điện thoại");
+  }
   if (registerData.password !== registerData.retypePassword) {
-    alert('Mật khẩu nhập lại không khớp!');
+    toast.warning("Mật khẩu xác nhận không khớp!");
     return;
   }
   try {
@@ -57,10 +67,10 @@ function Login() {
     });
     // Xử lý kết quả đăng ký
     if (res.status === 200) {
-      alert('Đăng ký thành công!');
+      toast.success("Đăng ký thành công!");
       setRightPanelActive(false); // Quay lại đăng nhập sau khi đăng ký thành công
     } else {
-      alert('Đăng ký không thành công, vui lòng thử lại.');
+      toast.error("Đăng ký không thành công, vui lòng thử lại");
     }
     console.log(res.data);
   } catch (err) {
@@ -79,7 +89,7 @@ function Login() {
       <div className={`${styles.containers} ${rightPanelActive ? styles.rightPanelActive : ''}`} id="container">
         <div className={`${styles.formContainer} ${styles.signUpContainer}`}>
           <form onSubmit={handleRegisterSubmit}>
-            <h1 style={{paddingTop: '200px'}}>Đăng ký</h1>
+            <h1 style={{paddingTop: '175px'}}>Đăng ký</h1>
             <div className={styles.socialContainer}>
               <a href="#" className={styles.social}><i className="fab fa-facebook-f"></i></a>
               <a href="#" className={styles.social}><i className="fab fa-google-plus-g"></i></a>
@@ -90,8 +100,7 @@ function Login() {
             <input type="email" name="email" placeholder="Email" value={registerData.email} onChange={handleRegisterChange} />
             <input type="password" name="password" placeholder="Mật khẩu" value={registerData.password} onChange={handleRegisterChange} />
             <input type="password" name="retypePassword" placeholder="Nhập lại mật khẩu" value={registerData.retypePassword} onChange={handleRegisterChange} />
-            <input type="date" name="birthday" value={registerData.birthday} onChange={handleRegisterChange} />
-            <input type="text" name="phone" placeholder="Số điện thoại" value={registerData.phone} onChange={handleRegisterChange} />
+            <input type="text" name="phone" placeholder="Số điện thoại" value={registerData.phone} onChange={handleRegisterChange}/>
             <button type="submit" style={{marginTop: '20px', marginBottom: '10px'}}>Đăng ký</button>
           </form>
         </div>

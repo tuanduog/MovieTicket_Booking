@@ -1,14 +1,12 @@
 package com.booking.booking_ticket.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.booking.booking_ticket.dto.request.ShowTimeRequestDTO;
 import com.booking.booking_ticket.dto.response.ShowtimeResponse;
 import com.booking.booking_ticket.repository.MoviesRepository;
 import com.booking.booking_ticket.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.booking.booking_ticket.dto.RoomDTO;
@@ -30,39 +28,35 @@ public class ShowTimeService {
     private final RoomRepository roomRepository;
 
     public List<ShowTimeDTO> getByMovieId(int movieId) {
-    List<Show_time> entities = showTimeRepository.findByMovie_MovieId(movieId);
+        List<Show_time> entities = showTimeRepository.findByMovie_MovieId(movieId);
 
-    return entities.stream().map(show -> {
-        Rooms room = show.getRoom();
-        Theaters theater = room.getTheater(); // ⚠ Nếu lazy, cần gọi đủ để nó load
-        
-        TheaterDTO theaterDTO = new TheaterDTO(
-            theater.getTheaterId(),
-            theater.getTheaterName(),
-            theater.getTheaterLocation()
-        );
+        return entities.stream().map(show -> {
+            Rooms room = show.getRoom();
+            Theaters theater = room.getTheater(); // ⚠ Nếu lazy, cần gọi đủ để nó load
 
-        
-        RoomDTO roomDTO = new RoomDTO(
-            room.getRoomId(),
-            room.getRoomName(),
-            theaterDTO
-        );
+            TheaterDTO theaterDTO = new TheaterDTO(
+                    theater.getTheaterId(),
+                    theater.getTheaterName(),
+                    theater.getTheaterLocation());
 
-        return new ShowTimeDTO(
-            show.getShowTimeId(),
-            show.getStartTime(),
-            roomDTO
-        );
-    }).toList();
-}
-    public List<ShowtimeResponse> getShowTime(){
+            RoomDTO roomDTO = new RoomDTO(
+                    room.getRoomId(),
+                    room.getRoomName(),
+                    theaterDTO);
+
+            return new ShowTimeDTO(
+                    show.getShowTimeId(),
+                    show.getStartTime(),
+                    roomDTO);
+        }).toList();
+    }
+
+    public List<ShowtimeResponse> getShowTime() {
 
         return showTimeRepository.findAllShowtimes();
-}
+    }
 
-    public int addShowtime(ShowTimeRequestDTO showTimeRequestDTO)
-    {
+    public int addShowtime(ShowTimeRequestDTO showTimeRequestDTO) {
         Show_time show_time = Show_time.builder()
                 .startTime(showTimeRequestDTO.getStartTime())
                 .movie(moviesRepository.findById(showTimeRequestDTO.getMovieId()).get())
@@ -74,8 +68,7 @@ public class ShowTimeService {
         return show_time.getShowTimeId();
     }
 
-    public int editShowtime(int id,ShowTimeRequestDTO showTimeRequestDTO)
-    {
+    public int editShowtime(int id, ShowTimeRequestDTO showTimeRequestDTO) {
         Show_time show_time = showTimeRepository.findById(id).get();
         show_time.setStartTime(showTimeRequestDTO.getStartTime());
         show_time.setRoom(roomRepository.findById(showTimeRequestDTO.getRoomId()).get());
@@ -83,6 +76,7 @@ public class ShowTimeService {
         showTimeRepository.save(show_time);
         return show_time.getShowTimeId();
     }
+
     public int deleteMovie(int id) {
         showTimeRepository.deleteById(id);
         return id;

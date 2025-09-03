@@ -204,6 +204,7 @@ function Movies () {
                                         theaterLocation: selectedObj.theaterLocation
                                     }));
                                     setShowChoseLocation(false);
+                                    window.location.reload();
                                 }
 
                             }}>
@@ -406,7 +407,11 @@ function Movies () {
                                                 <strong>Thể loại:</strong> {movie.genre}
                                             </p>
                                             <p className={`mb-2 ${styles.ellipsis}`} style={{ fontSize: '14px' }}>
-                                                <strong>Ngày khởi chiếu:</strong> {new Date(movie.releaseDate).toLocaleDateString('vi-VN')}
+                                                <strong>Ngày khởi chiếu:</strong> {new Date(movie.releaseDate).toLocaleDateString('vi-VN', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric'
+                                                })}
                                             </p>
                                             <button className="btn btn-primary btn-sm w-100 rounded" onClick={() => handleOpenModal(movie)}>
                                                 Đặt vé

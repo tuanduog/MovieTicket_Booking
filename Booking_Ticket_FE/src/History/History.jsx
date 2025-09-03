@@ -125,7 +125,11 @@ function History() {
                                     <p className="mb-1"><strong>Ghế:</strong> {booking.chair}</p>
                                 </div>
                                 <div className="col-6 mb-2">
-                                    <p className="mb-1"><strong>Suất chiếu:</strong> {booking.startTime} - {new Date(booking.date).toLocaleDateString('vi-VN')}</p>
+                                    <p className="mb-1"><strong>Suất chiếu:</strong> {booking.startTime} - {new Date(booking.date).toLocaleDateString('vi-VN', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric'
+                                    })}</p>
                                     <p className="mb-1"><strong>Combo:</strong> {booking.combo || "Không có"}</p>
                                     <p className="mb-1"><strong>Giá vé:</strong> {booking.totalPrice.toLocaleString('vi-VN')}đ</p>
                                 </div>

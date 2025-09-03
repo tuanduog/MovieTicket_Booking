@@ -16,7 +16,7 @@ function Header() {
 
     const [name, setName] = useState('');
     const [justLoggedOut, setJustLoggedOut] = useState(false);
-    const theaterSaved = JSON.parse(localStorage.getItem('theater') || '{}');
+    const [showChoseLocation, setShowChoseLocation] = useState(false);
 
     const handleLogin = (type) => {
         navigate("/Login", { state: { type } });
@@ -47,6 +47,15 @@ function Header() {
         }
     };
 
+    const handleLoc = () => {
+        const theaterSaved = JSON.parse(localStorage.getItem("theater") || null);
+        if(theaterSaved){
+            navigate("/Theater");
+        } else {
+            setShowChoseLocation(true);
+        }
+    }
+
     const handleLocations = async () => {
         try {
             const res = await axios.get('http://localhost:8099/theaters/getLocations', {
@@ -64,6 +73,17 @@ function Header() {
             console.error("Fetch locations failed:", err);
         }
     };
+
+    useEffect(() => {
+        const theaterSaved = JSON.parse(localStorage.getItem("theater") || '{}');
+        if(theaterSaved.theaterLocation){
+            setSelectedLocation(theaterSaved.theaterLocation);
+        }
+        if(theaterSaved.theaterId){
+            setselectedTheater(theaterSaved.theaterId);
+            handleTheater(theaterSaved.theaterLocation);
+        }
+    },[location.pathname]);
 
     const handleAuth = async () => {
         try {
@@ -117,7 +137,7 @@ function Header() {
             setMembership(false);
             setUser(null);
             setJustLoggedOut(true);
-
+            localStorage.removeItem('theater');
             navigate('/');
             setTimeout(() => {
                 handleAuth();
@@ -126,8 +146,8 @@ function Header() {
             console.error("Logout failed", err);
         }
     };
-    const [selectedLocation, setSelectedLocation] = useState(theaterSaved.theaterLocation); // địa điểm đã chọn
-    const [selectedTheater, setselectedTheater] = useState(theaterSaved.theaterId); // thông tin các rạp
+    const [selectedLocation, setSelectedLocation] = useState(""); // địa điểm đã chọn
+    const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
     useEffect(() => {
         if (!justLoggedOut) {
             handleAuth();
@@ -150,6 +170,72 @@ function Header() {
 
     return (
         <div>
+            {showChoseLocation && (
+                <div className="overlay">
+                    <div className="popup">
+                        {/* Nút đóng */}
+                        <button className="closeBtn" onClick={() => setShowChoseLocation(false)}>
+                        &times;
+                        </button>
+
+                        {/* Nội dung */}
+                        <div className="content">
+                        <div className="formRow" style={{ marginBottom: '35px', marginLeft: '20px', marginRight: '20px' }}>
+                            <div className="formGroup">
+                            <label>Tỉnh/ Thành phố</label>
+                            <select
+                            style={{ fontSize: '14px'}}
+                            value={selectedLocation}
+                            onChange={e => {
+                                const loc = e.target.value;
+                                setSelectedLocation(loc);
+                                handleTheater(loc);
+                            }}
+                            >
+                                <option value="">Chọn Tỉnh/ Thành phố</option>
+                                {Array.isArray(locations) &&
+                                    locations.map((loc, idx) => (
+                                    <option key={idx} value={loc}>
+                                        {loc}
+                                    </option>
+                                    ))}
+                            </select>
+                            </div>
+
+                            <div className="formGroup">
+                            <label>Tên rạp</label>
+                            <select style={{ fontSize: '14px' }}
+                            value={selectedTheater}
+                            onChange={e => {
+                                const selectedValue = e.target.value;
+                                setselectedTheater(selectedValue);
+
+                                const selectedObj = theater.find(t => t.theaterId.toString() === selectedValue);
+                                if(selectedObj){
+                                    localStorage.setItem('theater', JSON.stringify({
+                                        theaterId: selectedObj.theaterId,
+                                        theaterName: selectedObj.theaterName,
+                                        theaterLocation: selectedObj.theaterLocation
+                                    }));
+                                    setShowChoseLocation(false);
+                                    window.location.reload();
+                                }
+
+                            }}>
+                                <option value="">Chọn rạp</option>
+                                {Array.isArray(theater) &&
+                                theater.map((theaterItem, idx) => (
+                                    <option key={idx} value={theaterItem.theaterId}>
+                                    {theaterItem.theaterName}
+                                    </option>
+                                ))}
+                            </select>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Topbar */}
             <div className="topblack">
                 <div className="d-flex justify-content-end align-items-center text-white pe-4" style={{ height: '40px', fontSize: '14px' }}>
@@ -191,68 +277,70 @@ function Header() {
                         <span className="navbar-toggler-icon"></span>
                     </button>
 
- <div className="d-flex align-items-center ms-4 me-4">
-  {/* Dropdown chọn location - Ẩn nếu đã chọn rạp */}
-  {!selectedTheater && (
-    <select
-      className="form-select"
-      style={{ width: '150px', height: '38px', border: '1px solid black', fontSize: '15px', cursor: 'pointer' }}
-      value={selectedLocation}
-      onChange={e => {
-        const loc = e.target.value;
-        setSelectedLocation(loc);
-        setselectedTheater(""); // Reset rạp đã chọn
-        handleTheater(loc);
-      }}
-    >
-      <option value="">Chọn địa điểm</option>
-      {Array.isArray(locations) &&
-        locations.map((loc, idx) => (
-          <option key={idx} value={loc}>
-            {loc}
-          </option>
-        ))}
-    </select>
-  )}
+            <div className="d-flex align-items-center ms-4 me-4">
+            {/* Dropdown chọn location - Ẩn nếu đã chọn rạp */}
+            {!selectedTheater && (
+                <div className='me-2'>
+                    <select
+                    className="form-select"
+                    style={{ width: '150px', height: '38px', border: '1px solid black', fontSize: '15px', cursor: 'pointer' }}
+                    value={selectedLocation}
+                    onChange={e => {
+                        const loc = e.target.value;
+                        setSelectedLocation(loc);
+                        setselectedTheater(""); // Reset rạp đã chọn
+                        handleTheater(loc);
+                    }}
+                    >
+                    <option value="">Chọn địa điểm</option>
+                    {Array.isArray(locations) &&
+                        locations.map((loc, idx) => (
+                        <option key={idx} value={loc}>
+                            {loc}
+                        </option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
-  {/* Dropdown chọn rạp */}
-  {theater.length > 0 && (
-    <div className="ms-3">
-      <select
-        className="form-select"
-        style={{ width: '180px', height: '38px', border: '1px solid black', fontSize: '15px', cursor: 'pointer' }}
-        value={selectedTheater}
-        onChange={e => {
-            const selectedValue = e.target.value;
-            setselectedTheater(selectedValue);
-
-            const selectedObj = theater.find(t => t.theaterId.toString() === selectedValue);
-            if(selectedObj){
-                localStorage.setItem('theater', JSON.stringify({
-                    theaterId: selectedObj.theaterId,
-                    theaterName: selectedObj.theaterName,
-                    theaterLocation: selectedObj.theaterLocation
-                }))
-            }
-            }
-        }
-      >
-        <option value="">Chọn rạp</option>
-        {Array.isArray(theater) &&
-          theater.map((theaterItem, idx) => (
-            <option key={idx} value={theaterItem.theaterId}>
-              {theaterItem.theaterName}
-            </option>
-          ))}
-      </select>
-    </div>
-  )}
-</div>
+            {/* Dropdown chọn rạp */}
+            {theater.length > 0 && (
+                <div>
+                <select
+                    className="form-select"
+                    style={{ width: '180px', height: '38px', border: '1px solid black', fontSize: '15px', cursor: 'pointer' }}
+                    value={selectedTheater}
+                    onChange={e => {
+                        const selectedValue = e.target.value;
+                        setselectedTheater(selectedValue);
+                        
+                        const selectedObj = theater.find(t => t.theaterId.toString() === selectedValue);
+                        if(selectedObj){
+                            localStorage.setItem('theater', JSON.stringify({
+                                theaterId: selectedObj.theaterId,
+                                theaterName: selectedObj.theaterName,
+                                theaterLocation: selectedObj.theaterLocation
+                            }))
+                        }
+                        }
+                    }
+                >
+                    <option value="">Chọn rạp</option>
+                    {Array.isArray(theater) &&
+                    theater.map((theaterItem, idx) => (
+                        <option key={idx} value={theaterItem.theaterId}>
+                        {theaterItem.theaterName}
+                        </option>
+                    ))}
+                </select>
+                </div>
+            )}
+            </div>
                     <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
                         <div className="navbar-nav">
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/')}>Trang chủ</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Movies')}>Phim</span>
-                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Theater')}>Rạp</span>
+                            <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleLoc}>Rạp</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Ranking')}>Xếp hạng phim</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleNavigate('/Member')}>Hội viên</span>
                             <span className="nav-link active" style={{ cursor: 'pointer' }} onClick={handleHistory}>Lịch sử đặt vé</span>

@@ -2,8 +2,7 @@ import { Dropdown } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ProfileDropdown({ handleSignOut }) {
-
-    console.log(JSON.parse(localStorage.getItem('user')));
+  console.log(JSON.parse(localStorage.getItem('user')));
   return (
     <Dropdown align="end">
       <Dropdown.Toggle variant="link" className="nav-link nav-profile d-flex align-items-center pe-0">

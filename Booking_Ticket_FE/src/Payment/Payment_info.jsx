@@ -11,6 +11,7 @@ import pic3 from '../assets/betacombo.png';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GiConsoleController } from "react-icons/gi";
+import { toast } from "react-toastify";
 
 function PaymentInfo() {
   const userInfo = JSON.parse(sessionStorage.getItem('user'));
@@ -118,11 +119,11 @@ const handleVoucher = () => {
       if (payUrl) {
         window.location.href = payUrl;
       } else {
-        alert("Không lấy được link thanh toán!");
+        toast.error("Không lấy được link thanh toán!");
       }
     } catch (error) {
       console.error("Tạo đơn thanh toán thất bại:", error);
-      alert("Tạo đơn thanh toán thất bại!");
+      toast.error("Tạo đơn thanh toán thất bại!");
     }
   };
   useEffect(() => {
