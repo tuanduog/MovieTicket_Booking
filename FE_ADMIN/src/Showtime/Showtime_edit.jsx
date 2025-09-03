@@ -30,6 +30,8 @@
     }
   }, [showtime]);
 
+
+
   const [room, setRoom]  = useState([]);
 
   const [alertMsg, setAlertMsg] = useState('');
@@ -108,20 +110,60 @@
       .catch(err => console.error(err));
   }, []);
 
+//Hiện các suất chiếu trong phòng hiện tại
+    const [showtimeInCurRooms, setshowtimeInCurRooms] = useState([]);
+    useEffect(() => {
+  if (selectedRoom) {
+    axios.get('http://localhost:8099/auth/get-showtime-ByRoomId', {
+      withCredentials: true,
+      params: {
+        roomId: selectedRoom,
+      },
+    })
+    .then(res => setshowtimeInCurRooms(res.data.data))
+    .catch(err => console.error(err));
+  } else {
+    setshowtimeInCurRooms([]);
+  }
+}, [selectedRoom]);
 
+
+const toastRef = useRef(null);
+
+useEffect(() => {
+  if (alertMsg && toastRef.current) {
+    const toast = window.bootstrap.Toast.getOrCreateInstance(toastRef.current);
+    toast.show();
+  }
+}, [alertMsg]);
       return (
     <main id="main" className="main">
-  {alertMsg && (
-    <div className={`alert alert-${alertType} alert-dismissible fade show`} role="alert">
-      {alertMsg}
-      <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+ <div
+      className={`toast align-items-center text-bg-${alertType || 'primary'} border-0 position-fixed top-0 end-0 m-3`}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      ref={toastRef}
+      data-bs-delay="3000"
+      style={{ zIndex: 9999, minWidth: '250px' }}
+    >
+      <div className="d-flex">
+        <div className="toast-body">
+          {alertMsg}
+        </div>
+        <button
+          type="button"
+          className="btn-close btn-close-white me-2 m-auto"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
     </div>
-  )}
           <div className="col-lg-12">
 
             <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Thêm suất chiếu mới</h5>
+                <h5 className="card-title">Cập nhật suất chiếu</h5>
 
               
                   <form onSubmit={handleSubmit}>
@@ -162,6 +204,32 @@
                 </option>
               ))}
             </select>
+            {showtimeInCurRooms.length > 0 && (
+  <div className="mt-2">
+    <strong>Giờ chiếu đã có trong phòng:</strong>
+    <div className="d-flex flex-wrap gap-2 mt-1">
+      {showtimeInCurRooms.map((showtime) => (
+        <button
+          key={showtime.showtimeId}
+          type="button"
+          className="btn btn-primary rounded-pill px-4 text-black"
+          style={{
+            backgroundColor: '#FFCCFF'	,
+            border: 'none',
+            minWidth: '80px',
+            height: '38px',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+            cursor: 'default'
+          }}
+          disabled
+        >
+          {showtime.startTime}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
           </div>
         )}
         <div className="row mb-3 mt-3">
@@ -180,6 +248,11 @@
         </option>
       ))}
     </select>
+    {selectedMovie !== null && (  
+  <div className="mt-2">
+    <strong>Thời lượng phim:{movies.find(m => m.movieId === Number(selectedMovie))?.duration}</strong>
+  </div>
+)}
     </div>
   </div>
                   </div>

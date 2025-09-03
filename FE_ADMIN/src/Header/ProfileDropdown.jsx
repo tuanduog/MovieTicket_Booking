@@ -6,14 +6,14 @@ function ProfileDropdown({ handleSignOut }) {
   return (
     <Dropdown align="end">
       <Dropdown.Toggle variant="link" className="nav-link nav-profile d-flex align-items-center pe-0">
-        <img src="assets/img/profile-img.jpg" alt="Profile" className="rounded-circle" />
+      <i class="bi bi-person-circle fs-4"></i>
         <span className="d-none d-md-block dropdown-toggle ps-2">{JSON.parse(localStorage.getItem('user')).user.data.username}</span>
       </Dropdown.Toggle>
 
       <Dropdown.Menu className="dropdown-menu-arrow profile">
         <Dropdown.Header>
-          <h6>Kevin Anderson</h6>
-          <span>Web Designer</span>
+          <h6>{JSON.parse(localStorage.getItem('user')).user.data.username}</h6>
+          <span>Mananger</span>
         </Dropdown.Header>
         <Dropdown.Divider />
 

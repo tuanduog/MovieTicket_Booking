@@ -76,14 +76,13 @@ function Login() {
                 <div className="card-body">
 
                   <div className="pt-4 pb-2">
-                    <h5 className="card-title text-center pb-0 fs-4">Login to Your Account</h5>
-                    <p className="text-center small">Enter your username & password to login</p>
+                    <h5 className="card-title text-center pb-0 fs-4">Đăng nhập</h5>
                   </div>
 
                   <form className="row g-3 needs-validation" noValidate onSubmit={handleLoginSubmit}>
 
                     <div className="col-12">
-                      <label htmlFor="yourUsername" className="form-label">Username</label>
+                      <label htmlFor="yourUsername" className="form-label">Tài khoản</label>
                       <div className="input-group has-validation">
                         <span className="input-group-text" id="inputGroupPrepend">@</span>
                         <input type="text" name="username" className="form-control" id="yourUsername" required onChange={handleLoginChange} value={loginData.username}/>
@@ -92,7 +91,7 @@ function Login() {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="yourPassword" className="form-label">Password</label>
+                      <label htmlFor="yourPassword" className="form-label">Mật khẩu</label>
                       <input type="password" name="password" className="form-control" id="yourPassword" required onChange={handleLoginChange} value={loginData.password}/>
                       <div className="invalid-feedback">Please enter your password!</div>
                     </div>
@@ -104,7 +103,7 @@ function Login() {
                       </div>
                     </div>
                     <div className="col-12">
-                      <button className="btn btn-primary w-100" type="submit">Login</button>
+                      <button className="btn btn-primary w-100" type="submit">Đăng nhập</button>
                     </div>
           
                   </form>

@@ -36,9 +36,13 @@ const [user, setUser] = React.useState(null);
  useEffect(() => {
   const checkAuth = async () => {
     try {
-      const res = await axios.get('http://localhost:8099/auth/introspect', {
+      const res = await axios.get('http://localhost:8099/auth/introspect', 
+
+      {
         withCredentials: true,
-      });
+      }
+
+    );
 
       if (res.data.status !== 200) {
         navigate('/Login');
