@@ -76,5 +76,16 @@ public class ShowTimeController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         }
     }
+    @GetMapping("/get-showtime-ByRoomId")
+    public ResponseData<?> getShowtimes(@RequestParam int roomId) {
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(),"User found!",showTimeService.getShowtimeByRoomId(roomId));
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error : {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
 
 }

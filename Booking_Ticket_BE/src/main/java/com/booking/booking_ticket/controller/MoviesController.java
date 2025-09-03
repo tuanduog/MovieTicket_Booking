@@ -3,6 +3,7 @@ package com.booking.booking_ticket.controller;
 
 import com.booking.booking_ticket.dto.request.MovieRequestDTO;
 import com.booking.booking_ticket.dto.response.IntrospectiveResponse;
+import com.booking.booking_ticket.dto.response.MoviesWithRevenuesResponseDTO;
 import com.booking.booking_ticket.dto.response.ResponseData;
 import com.booking.booking_ticket.dto.response.ResponseError;
 import com.booking.booking_ticket.entity.Movies;
@@ -60,6 +61,25 @@ public class MoviesController {
         catch (Exception e)
         {
             log.error("there is an error of introspect: {}",e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+
+
+    }
+
+    @GetMapping("/getTopMovies")
+    public ResponseData<?> getTopMovies()
+    {
+        try{
+            List<MoviesWithRevenuesResponseDTO> result = moviesService.getTopMovies();
+            if(!result.isEmpty())
+                return new ResponseData<>(HttpStatus.OK.value(),"Có movies",result);
+            else
+                return new ResponseError(HttpStatus.BAD_REQUEST.value(), "movies null");
+        }
+        catch (Exception e)
+        {
+            log.error("there is an error of movies controller: {}",e.getMessage());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         }
 

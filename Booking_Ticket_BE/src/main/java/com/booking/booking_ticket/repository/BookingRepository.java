@@ -95,5 +95,7 @@ public interface BookingRepository extends JpaRepository<Booking,Integer> {
             "b.bookingId, b.chair, b.totalPrice, b.combo, b.date, b.user.userId, b.showTime.showTimeId) " +
             "FROM Booking b WHERE b.showTime.showTimeId = :showTimeId")
             List<BookingSimpleDTO> findBookingSimpleDTOByShowTimeId(@Param("showTimeId") Integer showTimeId);
+
+
 }
 
