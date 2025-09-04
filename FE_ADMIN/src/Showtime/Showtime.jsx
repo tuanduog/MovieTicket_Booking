@@ -201,7 +201,7 @@ const columns = [
       <h1>Quản lý lịch chiếu</h1>
       <nav>
         <ol className="breadcrumb">
-          <li className="breadcrumb-item"><a href="/">Home</a></li>
+          <li className="breadcrumb-item"><a href="/">Trang chủ</a></li>
           <li className="breadcrumb-item active">Quản lý lịch chiếu</li>
         </ol>
       </nav>

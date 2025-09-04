@@ -25,6 +25,7 @@ import Showtime_edit from "./Showtime/Showtime_edit";
 import Theater_add from "./Theater/Theater_add";
 import Theater_edit from "./Theater/Theater_edit";
 import UserProfile from "./UserProfile/UserProfile";
+
 function AppContent() {
   const location = useLocation();
 

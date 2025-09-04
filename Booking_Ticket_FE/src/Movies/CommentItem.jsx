@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import './CommentItem.css';
 
 function CommentItem ({ cmt, handleCmt, messSub, setMessSub, messWtag, setMesWtag}) {
     const [showSubInput, setShowSubInput] = useState(false);
@@ -7,6 +8,9 @@ function CommentItem ({ cmt, handleCmt, messSub, setMessSub, messWtag, setMesWta
     const [showReply, setShowReply] = useState(false);
     const [userName, setUserName] = useState("");
     const [id, setId] = useState("");
+    const [likeCount, setLikeCount] = useState(2);
+    const [dislikeCount, setDislikeCount] = useState(1);
+    const [reaction, setReaction] = useState(null);
 
     const oldDate = new Date(cmt.createdAt);
     
@@ -71,6 +75,27 @@ function CommentItem ({ cmt, handleCmt, messSub, setMessSub, messWtag, setMesWta
         return <>{content}</>;
     };
 
+    const handleLike = () => {
+    if (reaction === "like") {
+        setReaction(null);
+        setLikeCount(likeCount - 1);
+    } else {
+        if (reaction === "dislike") setDislikeCount(dislikeCount - 1);
+        setReaction("like");
+        setLikeCount(likeCount + 1);
+    }
+};
+
+const handleDislike = () => {
+    if (reaction === "dislike") {
+        setReaction(null);
+        setDislikeCount(dislikeCount - 1);
+    } else {
+        if (reaction === "like") setLikeCount(likeCount - 1);
+        setReaction("dislike");
+        setDislikeCount(dislikeCount + 1);
+    }
+};
 
     return (
         <div className="mt-4">
@@ -97,8 +122,10 @@ function CommentItem ({ cmt, handleCmt, messSub, setMessSub, messWtag, setMesWta
                                 </p>
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div className="d-flex align-items-center">
-                                        <a href="" className="link-muted me-2" style={{textDecoration: 'none', fontSize: '14px'}}><i className="fa-regular fa-s fa-thumbs-up" ></i>132</a>
-                                        <a href="" className="link-muted ps-2" style={{textDecoration: 'none', fontSize: '14px'}}><i className="fa-regular fa-thumbs-down"></i>15</a>
+                                        <a className="link-muted me-2" style={{textDecoration: 'none', fontSize: '14px', color: reaction === "like" ? "#0d6efd" : ""}} 
+                                        ><i className="fa-regular fa-s fa-thumbs-up cl" onClick={() => handleLike(cmt.commentId)}></i>{likeCount}</a>
+                                        <a className="link-muted ps-2" style={{textDecoration: 'none', fontSize: '14px', color: reaction === "dislike" ? "#0d6efd" : ""}}
+                                        ><i className="fa-regular fa-thumbs-down cl" onClick={() => handleDislike(cmt.commentId)}></i>{dislikeCount}</a>
                                     </div>
                                     <a className='rep' style={{paddingRight: '7px'}} onClick={handleSubInput}><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
                                 </div>
@@ -165,8 +192,10 @@ function CommentItem ({ cmt, handleCmt, messSub, setMessSub, messWtag, setMesWta
                                                     </p>
                                                     <div className="d-flex justify-content-between align-items-center">
                                                     <div className="d-flex align-items-center">
-                                                        <a href="" className="link-muted me-2" style={{textDecoration: 'none', fontSize: '14px'}}><i className="fa-regular fa-thumbs-up"></i>132</a>
-                                                        <a href="" className="link-muted ps-2" style={{textDecoration: 'none', fontSize: '14px'}}><i className="fa-regular fa-thumbs-down"></i>15</a>
+                                                        <a className="link-muted me-2" style={{textDecoration: 'none', fontSize: '14px'}}>
+                                                            <i className="fa-regular fa-thumbs-up cl"></i>5</a>
+                                                        <a className="link-muted ps-2" style={{textDecoration: 'none', fontSize: '14px'}}>
+                                                            <i className="fa-regular fa-thumbs-down cl"></i>3</a>
                                                     </div>
                                                     <a className='rep' style={{paddingRight: '7px'}} onClick={() => handleSubInput1(child.userName)}><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
                                                     </div>

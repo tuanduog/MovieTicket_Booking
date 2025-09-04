@@ -389,11 +389,11 @@ useEffect(() => {
           <main id="main" className="main">
 
     <div className="pagetitle">
-      <h1>Dashboard</h1>
+      <h1>Tổng quan</h1>
       <nav>
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><a href="/">Trang chủ</a></li>
-          <li className="breadcrumb-item active">Dashboard</li>
+          <li className="breadcrumb-item active">Tổng quan</li>
         </ol>
       </nav>
     </div>
@@ -555,7 +555,7 @@ useEffect(() => {
                 </div>
 
                 <div className="card-body pb-0">
-                  <h5 className="card-title">Top Selling <span>| Today</span></h5>
+                  <h5 className="card-title">Top doanh thu phim <span>| Tất cả</span></h5>
 
                  
                    <DataTable

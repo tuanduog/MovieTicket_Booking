@@ -41,7 +41,7 @@ function Member () {
       <h1>Quản lý thông tin khách hàng</h1>
       <nav>
         <ol className="breadcrumb">
-          <li className="breadcrumb-item"><a href="/">Home</a></li>
+          <li className="breadcrumb-item"><a href="/">Trang chủ</a></li>
           <li className="breadcrumb-item active">Quản lý thông tin khách hàng</li>
         </ol>
       </nav>

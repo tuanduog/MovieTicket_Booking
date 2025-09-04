@@ -177,7 +177,7 @@ const filteredTheater = Array.isArray(theater)
       <h1>Quản lý rạp chiếu</h1>
       <nav>
         <ol className="breadcrumb">
-          <li className="breadcrumb-item"><a href="/">Home</a></li>
+          <li className="breadcrumb-item"><a href="/">Trang chủ</a></li>
           <li className="breadcrumb-item active">Quản lý rạp chiếu</li>
         </ol>
       </nav>
