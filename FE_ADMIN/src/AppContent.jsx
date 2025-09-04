@@ -44,8 +44,11 @@ const [user, setUser] = React.useState(null);
       }
 
     );
+    const checkAuthorized = await axios.get('http://localhost:8099/auth/introspect', {
+      withCredentials: true,
+    });
 
-      if (res.data.status !== 200) {
+      if (res.data.status !== 200 || checkAuthorized.data.data.role !== 'Manager') {
         navigate('/Login');
         return;
       }
