@@ -41,13 +41,25 @@ function Login() {
     const res = await axios.post('http://localhost:8099/auth/login', loginData, {
       withCredentials: true
     });        if (res.data.status === 200) {
+      const checkauth = await axios.get('http://localhost:8099/auth/introspect',
+      {
+        withCredentials: true,
+      }
+
+      );
+            if(checkauth.data.data.userRole === 'manager'){
               navigate('/');
               console.log("Login successful"); 
               alert("Đăng nhập thành công");
-            } else {
+      }else{
+              alert("Đăng nhập không thành công, vui lòng kiểm tra lại tài khoản hoặc mật khẩu.");
+      }
+             
+            }
+            else{
               alert("Đăng nhập không thành công, vui lòng kiểm tra lại tài khoản hoặc mật khẩu.");
 
-        }
+            } 
       console.log(res.data);
     } catch (err) {
       console.error(err);
@@ -99,7 +111,7 @@ function Login() {
                     <div className="col-12">
                       <div className="form-check">
                         <input className="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe"/>
-                        <label className="form-check-label" htmlFor="rememberMe">Remember me</label>
+                        <label className="form-check-label" htmlFor="rememberMe">Nhớ tôi</label>
                       </div>
                     </div>
                     <div className="col-12">
