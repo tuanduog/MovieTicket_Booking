@@ -132,9 +132,16 @@ public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEE
 
     Date expirationTime = jwt.getJWTClaimsSet().getExpirationTime();
     boolean isExpired = expirationTime.before(new Date());
+    UserRole r = UserRole.CUSTOMER;
+    if(jwt.getJWTClaimsSet().getClaim("scope").equals("Customer"))
+        r = UserRole.CUSTOMER;
+    else{
+        r = jwt.getJWTClaimsSet().getClaim("scope").equals("Manager")? UserRole.MANAGER:UserRole.ADMINISTRATOR;
+    }
 
     return IntrospectiveResponse.builder()
             .isValid(verified && !isExpired)
+            .userRole( r)
             .userId(((Number) jwt.getJWTClaimsSet().getClaim("user_id")).intValue())
             .username(jwt.getJWTClaimsSet().getSubject())
             .email((String) jwt.getJWTClaimsSet().getClaim("email"))

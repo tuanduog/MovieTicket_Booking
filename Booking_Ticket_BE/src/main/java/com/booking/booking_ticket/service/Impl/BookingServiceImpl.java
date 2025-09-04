@@ -6,6 +6,7 @@ import com.booking.booking_ticket.repository.BookingRepository;
 import com.booking.booking_ticket.service.BookingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

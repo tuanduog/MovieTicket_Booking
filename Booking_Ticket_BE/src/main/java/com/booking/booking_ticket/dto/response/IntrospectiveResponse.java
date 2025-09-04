@@ -1,5 +1,6 @@
 package com.booking.booking_ticket.dto.response;
 
+import com.booking.booking_ticket.utils.UserRole;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,4 +19,6 @@ public class IntrospectiveResponse {
     private String phoneNumber;
 
     private String membership;
+
+    private UserRole userRole;
 }

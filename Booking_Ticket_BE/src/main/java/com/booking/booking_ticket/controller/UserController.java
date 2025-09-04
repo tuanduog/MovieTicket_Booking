@@ -72,5 +72,16 @@ public class UserController {
             .body("Failed to getuser membership: " + e.getMessage());
         }
     }
+    @GetMapping("/getAllUser")
+    public ResponseEntity<?> getUsers() {
+        try {
+            List<Users> mem = userService.getAllUser();
+            return ResponseEntity.ok(mem);
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to getusers : " + e.getMessage());
+        }
+    }
+
     
 }
