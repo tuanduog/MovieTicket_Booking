@@ -1,11 +1,5 @@
 package com.booking.booking_ticket.dto.response;
 
-import com.booking.booking_ticket.entity.Movies;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -1,5 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import styles from '../Auth/Login.module.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import style from './Filter.module.css';
@@ -8,70 +7,69 @@ import { useLocation } from 'react-router-dom';
 
 
 function Filter() {
-       const [nowShowing, setNowShowing] = useState(true);
     const [movies, setMovies] = useState([]);
     const [genres, setGenres] = useState([]);
     const [selectedGenre, setSelectedGenre] = useState('');
     const navigate = useNavigate();
 
     const location = useLocation();
-// ...existing code...
-const [searchName, setSearchName] = useState('');
-const [languages, setLanguages] = useState([]);
-const [selectedLanguage, setSelectedLanguage] = useState('');
-useEffect(() => {
-    if (location.state?.name) {
-        setSearchName(location.state.name);
-    }
-}, [location.state?.name]);
-// Lấy danh sách ngôn ngữ (giả sử API trả về { status: 200, languages: [...] })
-// useEffect(() => {
-//     axios.get('http://localhost:8099/movies/getLanguages')
-//         .then(res => {
-//             if (res.data.status === 200) {
-//                 setLanguages(res.data.languages || []);
-//             } else {
-//                 setLanguages([]);
-//             }
-//         })
-//         .catch(() => setLanguages([]));
-// }, []);
-useEffect(() => {
-    axios.get('http://localhost:8099/movies/getGenres')
-        .then(res => {
-            if (res.data.status === 200) {
-                setGenres(res.data.data || []);
-            } else {
-                setGenres([]);
-            }
-        })
-        .catch(() => setGenres([]));
-}, []);
+    // ...existing code...
+    const [searchName, setSearchName] = useState('');
+    const [languages, setLanguages] = useState([]);
+    const [selectedLanguage, setSelectedLanguage] = useState('');
+    useEffect(() => {
+        if (location.state?.name) {
+            setSearchName(location.state.name);
+        }
+    }, [location.state?.name]);
+    // Lấy danh sách ngôn ngữ (giả sử API trả về { status: 200, languages: [...] })
+    // useEffect(() => {
+    //     axios.get('http://localhost:8099/movies/getLanguages')
+    //         .then(res => {
+    //             if (res.data.status === 200) {
+    //                 setLanguages(res.data.languages || []);
+    //             } else {
+    //                 setLanguages([]);
+    //             }
+    //         })
+    //         .catch(() => setLanguages([]));
+    // }, []);
+    useEffect(() => {
+        axios.get('http://localhost:8099/movies/getGenres')
+            .then(res => {
+                if (res.data.status === 200) {
+                    setGenres(res.data.data || []);
+                } else {
+                    setGenres([]);
+                }
+            })
+            .catch(() => setGenres([]));
+    }, []);
 
-    const handleMovieDetails = (id) => {
-        navigate("/Movie_detail", { state: { id }});
-    }
+        const handleMovieDetails = (id) => {
+            navigate("/Movie_detail", { state: { id }});
+        }
 
-// Xử lý lọc phim khi thay đổi form
-useEffect(() => {
-    let url = 'http://localhost:8099/movies/get-products-multiple-searching-col?pageNo=0&pageSize=10';
-    if (selectedGenre) url += `&search=genre:${encodeURIComponent(selectedGenre)}`;
-    if (searchName) url += `&search=movieName:${encodeURIComponent(searchName)}`;
-    // if (selectedLanguage) url += `language=${encodeURIComponent(selectedLanguage)}&`;
+    // Xử lý lọc phim khi thay đổi form
+    useEffect(() => {
+        let url = 'http://localhost:8099/movies/get-products-multiple-searching-col?pageNo=0&pageSize=10';
+        if (selectedGenre) url += `&search=genre:${encodeURIComponent(selectedGenre)}`;
+        if (searchName) url += `&search=movieName:${encodeURIComponent(searchName)}`;
+        // if (selectedLanguage) url += `language=${encodeURIComponent(selectedLanguage)}&`;
 
-    axios.get(url)
-        .then(res => {
-            if (res.data.status === 200) {
-                setMovies(res.data.data.items || []);
-                console.log("Movies fetched successfully:", res.data.items);
-            } else {
-                setMovies([]);
-            }
-        })
-        .catch(() => setMovies([]));
-}, [selectedGenre, searchName]);
+        axios.get(url)
+            .then(res => {
+                if (res.data.status === 200) {
+                    setMovies(res.data.data.items || []);
+                    console.log("Movies fetched successfully:", res.data.items);
+                } else {
+                    setMovies([]);
+                }
+            })
+            .catch(() => setMovies([]));
+    }, [selectedGenre, searchName]);
 
-// ...existing code...
+    // ...existing code...
 return (
     <div>
         <div className="container mt-5">
@@ -167,7 +165,7 @@ return (
     ))
   ) : (
     <div className="col-12 text-center">
-      <p style={{margin:"150px"}}>Không có phim nào phù hợp.</p>
+      <p style={{margin:"140px", fontSize: '25px'}}>Không có phim nào phù hợp.</p>
     </div>
   )}
 </div>

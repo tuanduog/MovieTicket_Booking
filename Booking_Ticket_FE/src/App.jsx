@@ -17,6 +17,7 @@ import History from "./History/History";
 import Payment from "./Payment/Payment";
 import UserInfo from "./UserInfo/User_info";
 import Test from "./test";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (  
@@ -39,6 +40,17 @@ function App() {
         <Route path="/Profile" element={<UserInfo/>}></Route>
         <Route path="/test" element={<Test/>}></Route>
       </Routes>
+      <ToastContainer
+        autoClose={2000}
+        draggable={false}
+        position="top-right"
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnHover
+        style={{right: '0'}}
+      />
       <Footer/>
     </BrowserRouter>
   );

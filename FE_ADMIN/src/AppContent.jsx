@@ -47,7 +47,7 @@ const [user, setUser] = React.useState(null);
       withCredentials: true,
     });
 
-      if (res.data.status !== 200 || checkAuthorized.data.data.userRole !== 'manager') {
+      if (res.data.status !== 200 || checkAuthorized.data.data.role !== 'Manager') {
         navigate('/Login');
         return;
       }

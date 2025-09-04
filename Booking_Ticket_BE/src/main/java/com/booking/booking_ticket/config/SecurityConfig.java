@@ -32,46 +32,47 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     protected String SECRET_KEY;
 
-    public static final  String[] PUBLIC_ENDPOINTS = {"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**"
-            ,"/auth/token", "/auth/login", "/auth/introspect", "/auth/register",  "/auth/logout", "/product/get-product", "/discount/get-discount", 
-            "/movies/**","/movie/getAll-movies", "/wsocket", "/wsocket/**", "/topic/**", "/app/**", "/sockjs/**", "/theaters/**", "/movie/get-movie/**", 
-            "/auth/get-showtime/**", "/api/files/upload/image" ,"/booking/**", "/reviews/get-Top5Movies" };
-
+    public static final String[] PUBLIC_ENDPOINTS = { "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
+            "/swagger-ui.html", "/webjars/**", "/auth/token", "/auth/login", "/auth/introspect", "/auth/register",
+            "/auth/logout", "/product/get-product", "/discount/get-discount",
+            "/movies/**", "/movie/getAll-movies", "/wsocket/**", "/topic/**", "/app/**", "/sockjs/**", "/theaters/**",
+            "/movie/get-movie/**",
+            "/auth/get-showtime/**", "/api/files/upload/image", "/booking/**", "/reviews/get-Top5Movies",
+            "/comments/getAll-Comments/**" };
 
     @Bean
-    public JwtCookieFilter jwtCookieFilter(){
+    public JwtCookieFilter jwtCookieFilter() {
         return new JwtCookieFilter(jwtDecoder(), jwtAuthenticationConverter());
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtCookieFilter jwtCookieFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtCookieFilter jwtCookieFilter)
+            throws Exception {
         httpSecurity
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(request -> request
-                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                .anyRequest().authenticated()
-            )
-            .csrf(AbstractHttpConfigurer::disable)
-            .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class)
-            .oauth2ResourceServer(config -> config
-                .jwt(jwtConfigurer -> jwtConfigurer
-                    .decoder(jwtDecoder())
-                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
-            )
-        );
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .anyRequest().authenticated())
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.disable()))
+                .addFilterBefore(jwtCookieFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2ResourceServer(config -> config
+                        .jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         return httpSecurity.build();
     }
 
-
     @Bean
-    JwtDecoder jwtDecoder()
-    {
-        SecretKeySpec spec = new SecretKeySpec(SECRET_KEY.getBytes(),"HS512");
-        return  NimbusJwtDecoder.withSecretKey(spec)
+    JwtDecoder jwtDecoder() {
+        SecretKeySpec spec = new SecretKeySpec(SECRET_KEY.getBytes(), "HS512");
+        return NimbusJwtDecoder.withSecretKey(spec)
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();
     }
+
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
@@ -80,6 +81,7 @@ public class SecurityConfig {
         jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
         return jwtConverter;
     }
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

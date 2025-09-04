@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
+import { toast } from "react-toastify";
 
 function Booking () {
     const navigate = useNavigate();
@@ -14,7 +15,7 @@ function Booking () {
     const user = JSON.parse(sessionStorage.getItem("user")) || {};
     const savedTheater = JSON.parse(localStorage.getItem("theater"));
     const bookingInfo = JSON.parse(localStorage.getItem('bookingInfo'));
-    const [othersSelecting, setOthersSelecting] = useState([]);
+    const [othersSelecting, setOthersSelecting] = useState({});
     const d = new Date();
     const y = d.getFullYear();
     const savedDate = bookingInfo.date + "/" + y;
@@ -26,6 +27,7 @@ function Booking () {
     });
     const [bookeds, setBookeds] = useState([]);
     const client = useRef(null); // giữ client ko biến mất khi re-render
+    const allowSelect = Object.values(othersSelecting).flat();
     // phim, 
 
     const seatPrices = {
@@ -109,44 +111,73 @@ function Booking () {
     };
 
     useEffect(() => {
-        if(client.current) return;
-        client.current = new Client({
-            brokerURL: "ws://localhost:8099/wsocket",
-            debug: (str) => console.log("STOMP:", str),
-            reconnectDelay: 5000,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
-        });
-        client.current.activate();
-        return () => client.current.deactivate();
-    },[]);
+    if (!time?.showTimeId || !movieInfo.movieId) return;
 
-    useEffect(() => {
-        if (!time?.showTimeId || !movieInfo.movieId) return;
-        if (!client.current) return;
+    if (client.current) {
+        client.current.deactivate();
+    }
 
-        client.current.onConnect = () => {
+    client.current = new Client({
+        brokerURL: "ws://localhost:8099/wsocket",
+        debug: (str) => console.log("STOMP:", str),
+        reconnectDelay: 5000,
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+        onConnect: () => {
             console.log("Connected to WS!");
             client.current.subscribe(
                 `/topic/seats/${movieInfo.movieId}/${time.showTimeId}/${formattedDate}`,
                 (message) => {
                     const seatSelecting = JSON.parse(message.body);
                     console.log("Seat selecting:", seatSelecting);
-
-                    const otherSeats = seatSelecting.userId === user.userId
-                        ? []
-                        : seatSelecting.seats.split(',').map(s => s.trim());
-
-                    setOthersSelecting(otherSeats);
+                    const [userId, seats] = Object.entries(seatSelecting)[0];
+                    const seatList = seats ? seats.split(',').map(s => s.trim()) : [];
+                    setOthersSelecting(prev => ({
+                        ...prev,
+                        [userId]: userId === String(user.userId) ? [] : seatList
+                    }));
                 }
             );
-        };
-
-        if (!client.current.active) client.current.activate();
-
-        return () => {
-            if (client.current) client.current.deactivate();
         }
+    });
+
+    client.current.activate();
+
+    return () => {
+        if (client.current) {
+            client.current.deactivate();
+        }
+    };
+    }, [movieInfo.movieId, time.showTimeId, formattedDate]);
+
+
+    useEffect(() => {
+        if (!time?.showTimeId || !movieInfo.movieId) return;
+        if (!client.current) return;
+
+        axios.get(`http://localhost:8099/booking/seats-locking/${movieInfo.movieId}/${time.showTimeId}/${formattedDate}`, 
+            { withCredentials: true })
+            .then(response => {
+                const data = response.data || {};
+                console.log("Ghế đang bị giữ:", data);
+                // Lấy ghế mình đang giữ
+                const mySeats = data[String(user.userId)]
+                ? data[String(user.userId)].split(',').map(s => s.trim()) : [];
+
+                // Lấy ghế người khác giữ
+                const filtered = Object.fromEntries(
+                    Object.entries(data).filter(([uid]) => uid !== String(user.userId))
+                );
+                const normalized = Object.fromEntries(
+                    Object.entries(filtered).map(([uid, seats]) => [uid, seats.split(',').map(s => s.trim())])
+                );
+                setOthersSelecting(normalized);
+                setSelectedSeat(mySeats);
+            })
+            .catch(error => {
+                console.error("Không lấy được ghế đang bị giữ", error);
+            });
+        
     }, [movieInfo.movieId, time.showTimeId, formattedDate]); // chạy lại khi movieId, showTimeId hoặc formattedDate thay đổi
 
 
@@ -157,12 +188,17 @@ function Booking () {
             if (bookeds.some(booking => booking.chair?.split(', ').includes(seatNumber))) {
                 return prev;
             }
+            const allOtherSeats = Object.values(othersSelecting).flat();
+            if(allOtherSeats.includes(seatNumber)){
+                toast.warning("Ghế này đang được người khác chọn trước rồi, vui lòng chọn ghế khác.");
+                return prev;
+            }
             if (isSelected) {
                 newSeats = prev.filter(seat => seat !== seatNumber); // chọn rồi => bỏ khỏi mảng
             } else {
                 if (prev.length >= 8) {
                     setTimeout(() => {
-                        alert("Bạn chỉ được chọn tối đa 8 ghế.");
+                        toast.warning("Bạn chỉ được chọn tối đa 8 ghế.");
                     }, 0);
                     return prev;
                 }
@@ -178,9 +214,12 @@ function Booking () {
                 showTimeId: time.showTimeId,
                 userId: user.userId,
                 seats: newSeats.join(', '), // ghế đang chọn
+                created_at: new Date().toISOString()
             }
             
-            client.current.publish({ destination: "/app/seat-selecting", body: JSON.stringify(seatInfo)});
+            if(client.current && client.current.connected) {
+                client.current.publish({ destination: "/app/seat-selecting", body: JSON.stringify(seatInfo)});
+            }
 
             return newSeats;
         });
@@ -199,7 +238,7 @@ function Booking () {
         });
         window.scrollTo(0, 0);
         } else {
-            alert("Vui lòng chọn ít nhất 1 ghế");
+            toast.warning("Vui lòng chọn ít nhất 1 ghế");
         }
     };
 
@@ -231,7 +270,7 @@ function Booking () {
                                                 isSold ? 'sold' :
                                                 selectedSeat.includes(seatNumber) // ghế mình chọn -> màu xanh dương
                                                 ? 'selected'
-                                                : othersSelecting.includes(seatNumber) // ghế người khác chọn -> màu xanh lá
+                                                : allowSelect.includes(seatNumber) // ghế người khác chọn -> màu xanh nhajt
                                                 ? 'selecting'
                                                 : ''}`}
                                             onClick={() => handleSeatSelection(seatNumber)}

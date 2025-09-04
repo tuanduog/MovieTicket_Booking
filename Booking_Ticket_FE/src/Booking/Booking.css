@@ -37,6 +37,10 @@
   background-color: #999;
 }
 
+.seat.normal:hover {
+  background-color: #999;
+}
+
 .seat.selected {
   background-color: #0d6efd;
   color: #fff;
@@ -63,6 +67,16 @@
 
 .seat.vip.sold {
   background-color: #dd1a1d;
+  color: #fff;
+}
+
+.seat.vip.selecting {
+  background-color: hsl(212, 95%, 70%);
+  color: #fff;
+}
+
+.seat.couple.selecting {
+  background-color: hsl(212, 95%, 70%);
   color: #fff;
 }
 

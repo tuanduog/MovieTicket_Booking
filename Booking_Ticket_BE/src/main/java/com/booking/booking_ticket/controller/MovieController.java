@@ -16,12 +16,12 @@ public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    @GetMapping("/getAll-movies")
+    @GetMapping(value = "/getAll-movies", produces = "application/json")
     public ResponseEntity<?> getAllMovies() {
         List<Movies> mv = movieService.getAllMovies();
         return ResponseEntity.ok(mv);
     }
-    
+
     @GetMapping("/get-movie/{id}")
     public ResponseEntity<?> getMovie(@PathVariable int id) {
         Movies mv = movieService.getMovieById(id);

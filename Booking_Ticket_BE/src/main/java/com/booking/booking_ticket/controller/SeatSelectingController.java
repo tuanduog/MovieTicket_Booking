@@ -1,5 +1,6 @@
 package com.booking.booking_ticket.controller;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,12 @@ public class SeatSelectingController {
     @MessageMapping("/seat-selecting")
     public SeatSelectingDTO handleSeatSelecting(SeatSelectingDTO seatSelectingDTO) {
         String redisKey = "seatLock:" + seatSelectingDTO.getMovieId() + ":" + seatSelectingDTO.getShowTimeId() + ":" + seatSelectingDTO.getDate();
-        String seatValue = seatSelectingDTO.getUserId() + ":" + seatSelectingDTO.getSeats();
-        redisTemplate.opsForValue().set(redisKey, seatValue, 10, TimeUnit.MINUTES);
+        redisTemplate.opsForHash().put(redisKey, seatSelectingDTO.getUserId().toString(), seatSelectingDTO.getSeats());
+        redisTemplate.expire(redisKey, 10, TimeUnit.MINUTES);
 
-        String topic = "/topic/seats/" + seatSelectingDTO.getMovieId() + "/" + seatSelectingDTO.getShowTimeId() + "/" + seatSelectingDTO.getDate();
-        simpMessagingTemplate.convertAndSend(topic, seatSelectingDTO);
+        Map<Object, Object> lockedSeats = redisTemplate.opsForHash().entries(redisKey);
+        simpMessagingTemplate.convertAndSend("/topic/seats/" + seatSelectingDTO.getMovieId() + "/" + seatSelectingDTO.getShowTimeId()
+                + "/" + seatSelectingDTO.getDate(), lockedSeats);
         return seatSelectingDTO;
     }
 

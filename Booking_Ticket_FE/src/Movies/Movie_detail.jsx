@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import '../Movies/Movie_detail.css';
@@ -6,6 +6,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import axios from 'axios';
+import { Client } from "@stomp/stompjs";
+import CommentItem from './CommentItem';
 
 function Movie_detail() {
     const [showModal, setShowModal] = useState(false);
@@ -27,6 +29,14 @@ function Movie_detail() {
     const [selectedTheater, setselectedTheater] = useState(""); // thông tin các rạp
     const[theater, setTheater] = useState([]);
     const[locations, setLocation] = useState([]);
+    
+    const hasScroll = useRef(false);
+    const [message, setMessage] = useState("");
+    const [messSub, setMessSub] = useState("");
+    const [messWtag, setMesWtag] = useState("");
+    const [dataCmt, setDataCmt] = useState([]);
+    const [dataCmtAfterBuild, setDataCmtAfterBuild] = useState([]);
+    const client = useRef(null);
     // const trailerUrl = "https://www.youtube.com/watch?v=BGS4l3xEc-0";
     // const embedUrl = trailerUrl.replace("watch?v=", "embed/"); // đổei sang link nhúng
     const handleCloseModal = () => {
@@ -175,6 +185,7 @@ function Movie_detail() {
             console.log("Chưa đăng nhập");
         }
     }
+
     useEffect(() => {
         fetchReview();
     },[]);
@@ -184,15 +195,119 @@ function Movie_detail() {
 
             const res = await axios.get(`http://localhost:8099/movie/get-movie/${id}`);
             setMovieInfo(res.data);
-            console.log(res.data.trailerUrl);
+            console.log(res.data);
         } catch (error){
             console.error("Lỗi khi lấy thông tin phim:", error);
         }
     }
     useEffect(() => {
-        window.scrollTo(0, 0);
         fetchMovie();
+        if(!hasScroll.current){
+            window.scrollTo(0, 0);
+            hasScroll.current = true;
+        }
     },[]);
+
+    
+    const BuildCommentTree = (comments) => {
+        const map = {};
+        const roots = [];
+        comments.forEach(cmt => {
+            map[cmt.commentId] = {...cmt, children: []}
+        });
+
+        comments.forEach(cmt => {
+            if (cmt.parentId === 0) {
+            roots.push(map[cmt.commentId]); // comment gốc
+            } else if (map[cmt.parentId]) {
+            map[cmt.parentId].children.push(map[cmt.commentId]);
+            }
+        });
+        return roots;
+    }
+
+    useEffect(() => {
+        const movieId = location.state?.id;
+        const fetchCmt = async () => {
+            const res = await axios.get(`http://localhost:8099/comments/getAll-Comments/${movieId}`);
+            console.log("all cmt:",res.data);
+            setDataCmtAfterBuild(res.data);
+            const tree = BuildCommentTree(res.data);
+            console.log("part cmt:", tree );
+            setDataCmt(tree);
+        }
+
+        fetchCmt();
+    },[]);
+
+    useEffect(() => {
+        if(client.current){
+            client.current.deactivate();
+        }
+
+        const movieId = location.state?.id;
+
+        client.current = new Client({
+            brokerURL: "ws://localhost:8099/wsocket",
+            debug: (str) => console.log("STOMP:", str),
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: () => {
+                console.log("Connected to WS!");
+                client.current.subscribe(
+                    `/topic/comment/${movieId}`,
+                    (message) => {
+                        const res = JSON.parse(message.body);
+                        console.log(res);
+                        setDataCmtAfterBuild((prev) => {
+                            const updated = [...prev, res];
+                            const tree = BuildCommentTree(updated);
+                            setDataCmt(tree);
+                            return updated;
+                        })
+                    }
+                )
+            }
+        });
+
+        client.current.activate();
+
+    },[]);
+
+    const handleCmt = (level, parentId) => {
+        const userStr = sessionStorage.getItem('user');
+        if(!userStr){
+            navigate("/Login");
+            return;
+        }
+        const user = JSON.parse(userStr);
+        const movieId = location.state?.id;
+        let content = null;
+        if(level === 0){
+            content = message;
+        }
+        if(level === 1){
+            content = messSub;
+        }
+        if(level === 2){
+            content = messWtag;
+        }
+        const mess = {
+            content: content,
+            level: level,
+            parentId: parentId,
+            userId: user.userId,
+            movieId: movieId,
+            userName: user.username
+        }
+        if(client.current){
+            client.current.publish({ destination: "/app/push-cmt", body: JSON.stringify(mess)});
+            setMessSub("");
+            setMesWtag("");
+            setMessage("");
+        }
+    }
     
     return (
         <div className="container mt-5">
@@ -244,6 +359,7 @@ function Movie_detail() {
                                         theaterLocation: selectedObj.theaterLocation
                                     }));
                                     setShowChoseLocation(false);
+                                    window.location.reload();
                                 }
 
                             }}>
@@ -310,7 +426,7 @@ function Movie_detail() {
                             </div>
                         ))}
                         </div>
-
+    
 
                         <h6 className="text-uppercase fw-bold mb-3 text-muted text-center">2D Phụ Đề</h6>
 
@@ -388,7 +504,11 @@ function Movie_detail() {
                     <h2 className="mb-3">Tên phim: {movieInfo.movieName}</h2>
                     <p><strong>Thể loại:</strong> {movieInfo.genre}</p>
                     <p><strong>Thời lượng:</strong> {movieInfo.duration}</p>
-                    <p><strong>Khởi chiếu:</strong> {new Date(movieInfo.releaseDate).toLocaleDateString('vi-VN')}</p>
+                    <p><strong>Khởi chiếu:</strong> {new Date(movieInfo.releaseDate).toLocaleDateString('vi-VN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    })}</p>
                     <p><strong>Đạo diễn:</strong> {movieInfo.director}</p>
 
                     <div>
@@ -438,113 +558,37 @@ function Movie_detail() {
                     </div>
                 </div>
             </div>
+            
             <div className="mt-5 p-4 rounded shadow" style={{ backgroundColor: '#f8f9fa' }}>
-                <h4 className="mb-3">Bình luận</h4>
-                <div className="mt-4">
-                    <div className="row d-flex justify-content-center ps-5 pe-5">
-                        <div className="col-12">
-                            <div className="card">
-                            <div className="card-body p-4">
+                <h3 className="mb-3">Bình luận</h3>
+                
+                {dataCmt.map((cmt => (
+                    <CommentItem
+                        key={cmt.commentId}
+                        cmt={cmt}
+                        handleCmt={handleCmt}
+                        messSub={messSub}
+                        setMessSub={setMessSub}
+                        messWtag={messWtag}
+                        setMesWtag={setMesWtag}
+                    ></CommentItem>
+                )))}
 
-                                <div className="row">
-                                <div className="col">
-                                    <div className="d-flex flex-start">
-                                    <img className="rounded-circle shadow-1-strong me-3"
-                                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(10).webp" alt="avatar" width="65"
-                                        height="65" />
-                                    <div className="flex-grow-1 flex-shrink-1">
-                                        <div>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <p className="mb-1">
-                                            Bình gold <span className="small">- 2 giờ trước</span>
-                                            </p>
-                                        </div>
-                                        <p className="small mb-0">
-                                            Phim này thật sự rất hay
-                                        </p>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <div className="d-flex align-items-center">
-                                                <a href="" className="link-muted me-2"><i className="fa-regular fa-s fa-thumbs-up"></i>132</a>
-                                                <a href="" className="link-muted ps-2"><i className="fa-regular fa-thumbs-down"></i>15</a>
-                                            </div>
-                                            <a href=""><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
-                                        </div>
-                                        </div>
-
-                                        <div className="d-flex flex-start mt-4">
-                                        <a className="me-3" href="#">
-                                            <img className="rounded-circle shadow-1-strong"
-                                            src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(11).webp" alt="avatar"
-                                            width="65" height="65" />
-                                        </a>
-                                        <div className="flex-grow-1 flex-shrink-1">
-                                            <div>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <p className="mb-1">
-                                                Hiếu thứ hai <span className="small">- 3 giớ trước</span>
-                                                </p>
-                                            </div>
-                                            <p className="small mb-0">
-                                                Phim thể hiện được cho câu nói "Trình là gì?" 
-                                            </p>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                            <div className="d-flex align-items-center">
-                                                <a href="" className="link-muted me-2"><i className="fa-regular fa-thumbs-up"></i>132</a>
-                                                <a href="" className="link-muted ps-2"><i className="fa-regular fa-thumbs-down"></i>15</a>
-                                            </div>
-                                            <a href=""><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
-                                            </div>
-                                            </div>
-                                        </div>
-                                        </div>
-
-                                        <div className="d-flex flex-start mt-4">
-                                        <a className="me-3" href="#">
-                                            <img className="rounded-circle shadow-1-strong"
-                                            src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(32).webp" alt="avatar"
-                                            width="65" height="65" />
-                                        </a>
-                                        <div className="flex-grow-1 flex-shrink-1">
-                                            <div>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <p className="mb-1">
-                                                Trịnh Trần Phương Tuấn (Meo meo) <span className="small">- 4 giớ trước</span>
-                                                </p>
-                                            </div>
-                                            <p className="small mb-0">
-                                                Phim này làm tôi rất cảm động, thấm đãm tình phụ tử, dù trong hoàn cảnh ngàn cân treo sợi
-                                                tóc vẫn lo cho con, ko bỏ rơi con
-                                            </p>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                            <div className="d-flex align-items-center">
-                                                <a href="" className="link-muted me-2"><i className="fa-regular fa-thumbs-up"></i>132</a>
-                                                <a href="" className="link-muted ps-2"><i className="fa-regular fa-thumbs-down"></i>15</a>
-                                            </div>
-                                            <a href=""><i className="fas fa-reply fa-xs"></i><span className="small"> Phản hồi</span></a>
-                                            </div>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <hr className='mt-4 ms-5 me-5'></hr>
                 <form className='mt-4 ps-5 pe-5'>
                     <div className="mb-3">
                         <textarea
-                            className="form-control"
+                            className="form-control ps-3 pt-2"
+                            // style={{ height: '110px', resize: 'none' }}
                             rows="3"
                             placeholder="Viết bình luận của bạn..."
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
                         ></textarea>
                     </div>
                     <div className='d-flex justify-content-end'>
-                        <button type="submit" className="btn btn-primary">Gửi bình luận</button>
+                        <button type="button" className="btn btn-primary" onClick={() => handleCmt(0)}>
+                        <i className="fas fa-paper-plane me-1" style={{fontSize: '14px'}}></i> Gửi bình luận</button>
                     </div>
                 </form>
             </div>

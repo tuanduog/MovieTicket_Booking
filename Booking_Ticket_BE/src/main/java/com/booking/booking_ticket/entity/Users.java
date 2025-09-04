@@ -19,25 +19,24 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Users {
-
 
     @Id
     @Column(name = "user_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
-    @Column(name = "username", length = 255,nullable = false)
+    @Column(name = "username", length = 255, nullable = false)
     private String username;
 
-    @Column(name = "password", length = 255,nullable = false)
+    @Column(name = "password", length = 255, nullable = false)
     private String password;
 
-    @Column(name = "email", length = 255,nullable = false)
+    @Column(name = "email", length = 255, nullable = false)
     private String email;
 
-    @Column(name = "phone_number", length = 50,nullable = false)
+    @Column(name = "phone_number", length = 50, nullable = false)
     private String phone;
 
     @Column(name = "gender", length = 255, nullable = false)
@@ -49,7 +48,7 @@ public class Users {
     @Column(name = "nationality", length = 255, nullable = false)
     private String nationality;
 
-    @Column(name = "membership", length = 50,nullable = false)
+    @Column(name = "membership", length = 50, nullable = false)
     private String membership;
 
     @Column(name = "start_date", nullable = false)
@@ -58,7 +57,7 @@ public class Users {
     @Column(name = "expired", nullable = false)
     private Integer expired;
 
-    @Column(name = "role", length = 50,nullable = false)
+    @Column(name = "role", length = 50, nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
@@ -68,7 +67,7 @@ public class Users {
 
     // @OneToMany(mappedBy = "user")
     // @ToString.Exclude
-    // private Set<Comments> setComments  = new HashSet();
+    // private Set<Comments> setComments = new HashSet();
 
     // @OneToMany(mappedBy = "user")
     // @ToString.Exclude

@@ -20,5 +20,5 @@ public class IntrospectiveResponse {
 
     private String membership;
 
-    private UserRole userRole;
+    private String role;
 }
