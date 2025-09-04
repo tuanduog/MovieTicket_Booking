@@ -1,6 +1,7 @@
 package com.booking.booking_ticket.service.Impl;
 
 import com.booking.booking_ticket.dto.request.MovieRequestDTO;
+import com.booking.booking_ticket.dto.response.MoviesWithRevenuesResponseDTO;
 import com.booking.booking_ticket.dto.response.PageResponse;
 import com.booking.booking_ticket.entity.Movies;
 import com.booking.booking_ticket.repository.MoviesRepository;
@@ -81,6 +82,11 @@ public class MoviesServiceImpl implements MoviesService {
     public int deleteMovie(int id) {
         moviesRepository.deleteById(id);
         return id;
+    }
+
+    @Override
+    public List<MoviesWithRevenuesResponseDTO> getTopMovies() {
+        return moviesRepository.topMovies();
     }
 
 

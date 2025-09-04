@@ -15,9 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.booking.booking_ticket.service.AuthService;
+import com.booking.booking_ticket.service.Impl.AuthServiceImpl;
 
 import java.time.Duration;
 
@@ -29,6 +31,8 @@ import java.time.Duration;
 public class AuthController {
 
     private final AuthService authService;
+
+    private final AuthServiceImpl authServiceImpl;
 
     @PostMapping("/login")
     public ResponseData<AuthResponse> login(@RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response) {
@@ -53,14 +57,37 @@ public class AuthController {
         }
     }
 
+    // @GetMapping("/introspect")
+    // public ResponseData<IntrospectiveResponse> isValid(HttpServletRequest
+    // request) {
+    // try {
+    // var result = authService.introspect(request);
+    // if (result.getIsValid())
+    // return new ResponseData<>(HttpStatus.OK.value(), "Token valid", result);
+    // else
+    // return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Token Invalid");
+    // } catch (Exception e) {
+    // log.error("there is an error of introspect: {}", e.getMessage());
+    // return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    // }
+    // }
+
     @GetMapping("/introspect")
-    public ResponseData<IntrospectiveResponse> isValid(HttpServletRequest request) {
+    public ResponseData<IntrospectiveResponse> verify(HttpServletRequest request) {
         try {
-            var result = authService.introspect(request);
-            if (result.getIsValid())
-                return new ResponseData<>(HttpStatus.OK.value(), "Token valid", result);
-            else
-                return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Token Invalid");
+            IntrospectiveResponse result = authServiceImpl.introspect(request);
+            if (result.getIsValid()) {
+                // Token hợp lệ → trả thông tin user + role
+                return new ResponseData<>(
+                        HttpStatus.OK.value(),
+                        "Token valid",
+                        result);
+            } else {
+                // Token không hợp lệ
+                return new ResponseError(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "Token invalid or expired");
+            }
         } catch (Exception e) {
             log.error("there is an error of introspect: {}", e.getMessage());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());

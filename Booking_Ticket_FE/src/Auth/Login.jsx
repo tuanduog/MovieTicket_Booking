@@ -31,15 +31,20 @@ function Login() {
     try {
     const res = await axios.post('http://localhost:8099/auth/login', loginData, {
       withCredentials: true
-    });        if (res.data.status === 200) {
-              navigate('/');
-              console.log("Login successful"); 
-              toast.success("Đăng nhập thành công")
-              sessionStorage.setItem('state', 'Login successful') // 1
-            } else {
-              toast.error("Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!");
-
-        }
+    });       if (res.data.status === 200) {
+                const verify = await axios.get("http://localhost:8099/auth/introspect", {
+                  withCredentials: true
+                })
+                if(verify.data.data.role === "Customer"){
+                  toast.success("Đăng nhập thành công");
+                  navigate('/');
+                } else {
+                  toast.error("Đăng nhập thất bại");
+                }
+                sessionStorage.setItem('state', 'Login successful') // 1
+              } else {
+                toast.error("Vui lòng kiểm tra lại tài khoản hoặc mật khẩu!");
+              }
       console.log(res.data);
     } catch (err) {
       console.error(err);

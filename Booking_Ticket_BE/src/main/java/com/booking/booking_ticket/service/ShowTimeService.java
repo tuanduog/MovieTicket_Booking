@@ -81,4 +81,8 @@ public class ShowTimeService {
         showTimeRepository.deleteById(id);
         return id;
     }
+    public List<ShowtimeResponse> getShowtimeByRoomId(int id){
+        return showTimeRepository.findShow_timeByRooms(id);
+    }
+
 }

@@ -13,7 +13,6 @@ import '../assets/vendor/remixicon/remixicon.css';
 import '../assets/vendor/simple-datatables/style.css';
 import '../assets/css/style.css';
 
-
 import '../assets/vendor/apexcharts/apexcharts.min.js';
 import '../assets/vendor/echarts/echarts.min.js';
 import '../assets/vendor/chart.js/chart.umd.js';
@@ -41,11 +40,16 @@ function Login() {
     const res = await axios.post('http://localhost:8099/auth/login', loginData, {
       withCredentials: true
     });        if (res.data.status === 200) {
-              navigate('/');
-              console.log("Login successful"); 
-              alert("Đăng nhập thành công");
-            } else {
-              alert("Đăng nhập không thành công, vui lòng kiểm tra lại tài khoản hoặc mật khẩu.");
+                  const verify = await axios.get("http://localhost:8099/auth/introspect", {
+                    withCredentials: true
+                  })
+                  if(verify.data.data.role !== "Manager"){
+                    alert("Bạn không có quyền truy cập trang này");
+                  } else {
+                    navigate("/");
+                  }
+              } else {
+                alert("Đăng nhập không thành công, vui lòng kiểm tra lại tài khoản hoặc mật khẩu.");
 
         }
       console.log(res.data);
@@ -99,7 +103,7 @@ function Login() {
                     <div className="col-12">
                       <div className="form-check">
                         <input className="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe"/>
-                        <label className="form-check-label" htmlFor="rememberMe">Remember me</label>
+                        <label className="form-check-label" htmlFor="rememberMe">Nhớ tài khoản</label>
                       </div>
                     </div>
                     <div className="col-12">

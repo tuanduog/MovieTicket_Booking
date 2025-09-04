@@ -18,4 +18,6 @@ public class IntrospectiveResponse {
     private String phoneNumber;
 
     private String membership;
+
+    private String role;
 }

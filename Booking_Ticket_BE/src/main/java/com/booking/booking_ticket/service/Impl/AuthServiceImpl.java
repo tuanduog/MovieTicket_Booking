@@ -1,6 +1,5 @@
 package com.booking.booking_ticket.service.Impl;
 
-
 import com.booking.booking_ticket.dto.request.AuthRequestDTO;
 import com.booking.booking_ticket.dto.request.RegisterRequestDTO;
 import com.booking.booking_ticket.entity.InvalidToken;
@@ -41,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private  final InvalidTokenRepsitory invalidTokenRepsitory;
+    private final InvalidTokenRepsitory invalidTokenRepsitory;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
@@ -51,8 +50,7 @@ public class AuthServiceImpl implements AuthService {
         var account = usersRepository.findByUsername(authRequestDTO.getUsername()).orElseThrow();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean isAuth = passwordEncoder.matches(authRequestDTO.getPassword(), account.getPassword());
-        if(!isAuth)
-        {
+        if (!isAuth) {
             log.error("unauthenticated !");
             return AuthResponse.builder()
                     .token(null)
@@ -68,19 +66,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String generateToken(Users account) {
-        JWSHeader  jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         String role;
-        if(account.getUserRole() == UserRole.CUSTOMER)
+        if (account.getUserRole() == UserRole.CUSTOMER)
             role = "Customer";
         else
             role = account.getUserRole() == UserRole.MANAGER ? "Manager" : "Administrator";
 
-
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .claim("scope",role)
-                .claim("user_id", account.getUserId())     
-                .claim("email", account.getEmail())           
-                .claim("phone_number", account.getPhone()) 
+                .claim("scope", role)
+                .claim("user_id", account.getUserId())
+                .claim("email", account.getEmail())
+                .claim("phone_number", account.getPhone())
                 .claim("membership", account.getMembership())
                 .subject(account.getUsername())
                 .issuer("BetaCineplex.com")
@@ -90,59 +87,58 @@ public class AuthServiceImpl implements AuthService {
 
         Payload payload = new Payload(claimsSet.toJSONObject());
 
-        JWSObject jwsObject  = new JWSObject(jwsHeader,payload);
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
 
         try {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
             return jwsObject.serialize();
-        }catch (Exception e)
-        {
-            log.error("Cannot create token error: {}",e.getMessage());
+        } catch (Exception e) {
+            log.error("Cannot create token error: {}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
     @Override
-public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEException, ParseException {
-    String token = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
-            .filter(c -> "jwt".equals(c.getName()))
-            .map(Cookie::getValue)
-            .findFirst()
-            .orElse(null);
+    public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEException, ParseException {
+        String token = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+                .filter(c -> "jwt".equals(c.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
 
-    if (token == null)
-        return IntrospectiveResponse.builder().isValid(false).build();
+        if (token == null)
+            return IntrospectiveResponse.builder().isValid(false).build();
 
-    // Kiểm tra token có trong danh sách bị vô hiệu
-    Optional<InvalidToken> optionalInvalid = invalidTokenRepsitory.findById(token);
-    boolean isBlacklisted = false;
+        // Kiểm tra token có trong danh sách bị vô hiệu
+        Optional<InvalidToken> optionalInvalid = invalidTokenRepsitory.findById(token);
+        boolean isBlacklisted = false;
 
-    if (optionalInvalid.isPresent()) {
-        SignedJWT parsedJwt = SignedJWT.parse(token);
-        Date expiration = parsedJwt.getJWTClaimsSet().getExpirationTime();
-        isBlacklisted = expiration.toInstant().equals(optionalInvalid.get().getExpired_at());
+        if (optionalInvalid.isPresent()) {
+            SignedJWT parsedJwt = SignedJWT.parse(token);
+            Date expiration = parsedJwt.getJWTClaimsSet().getExpirationTime();
+            isBlacklisted = expiration.toInstant().equals(optionalInvalid.get().getExpired_at());
+        }
+
+        if (isBlacklisted)
+            return IntrospectiveResponse.builder().isValid(false).build();
+
+        SignedJWT jwt = SignedJWT.parse(token);
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+        boolean verified = jwt.verify(verifier);
+
+        Date expirationTime = jwt.getJWTClaimsSet().getExpirationTime();
+        boolean isExpired = expirationTime.before(new Date());
+
+        return IntrospectiveResponse.builder()
+                .isValid(verified && !isExpired)
+                .userId(((Number) jwt.getJWTClaimsSet().getClaim("user_id")).intValue())
+                .username(jwt.getJWTClaimsSet().getSubject())
+                .email((String) jwt.getJWTClaimsSet().getClaim("email"))
+                .phoneNumber((String) jwt.getJWTClaimsSet().getClaim("phone_number"))
+                .membership((String) jwt.getJWTClaimsSet().getClaim("membership"))
+                .role((String) jwt.getJWTClaimsSet().getClaim("scope"))
+                .build();
     }
-
-    if (isBlacklisted)
-        return IntrospectiveResponse.builder().isValid(false).build();
-
-    SignedJWT jwt = SignedJWT.parse(token);
-    JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
-    boolean verified = jwt.verify(verifier);
-
-    Date expirationTime = jwt.getJWTClaimsSet().getExpirationTime();
-    boolean isExpired = expirationTime.before(new Date());
-
-    return IntrospectiveResponse.builder()
-            .isValid(verified && !isExpired)
-            .userId(((Number) jwt.getJWTClaimsSet().getClaim("user_id")).intValue())
-            .username(jwt.getJWTClaimsSet().getSubject())
-            .email((String) jwt.getJWTClaimsSet().getClaim("email"))
-            .phoneNumber((String) jwt.getJWTClaimsSet().getClaim("phone_number"))
-            .membership((String) jwt.getJWTClaimsSet().getClaim("membership"))
-            .build();
-}
-
 
     @Override
     public long registerCustomer(RegisterRequestDTO registerRequestDTO) {
@@ -173,20 +169,20 @@ public IntrospectiveResponse introspect(HttpServletRequest request) throws JOSEE
             System.out.println(token);
             SignedJWT jwt = SignedJWT.parse(token);
             System.out.println(token);
-//            var signToken = verifyToken(request.getToken(), true);
-//            //Lấy body
-//            String jit = signToken.getJWTClaimsSet().getJWTID();
-//
-//            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+            // var signToken = verifyToken(request.getToken(), true);
+            // //Lấy body
+            // String jit = signToken.getJWTClaimsSet().getJWTID();
+            //
+            // Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
 
-//            log.info("DATETIME: {}", expiryTime.toInstant());
+            // log.info("DATETIME: {}", expiryTime.toInstant());
 
             invalidTokenRepsitory.save(InvalidToken.builder()
                     .token_id(token)
                     .expired_at(jwt.getJWTClaimsSet().getExpirationTime().toInstant())
                     .build());
             return true;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;

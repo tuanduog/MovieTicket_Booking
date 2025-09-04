@@ -392,7 +392,7 @@ useEffect(() => {
       <h1>Dashboard</h1>
       <nav>
         <ol className="breadcrumb">
-          <li className="breadcrumb-item"><a href="/">Home</a></li>
+          <li className="breadcrumb-item"><a href="/">Trang chủ</a></li>
           <li className="breadcrumb-item active">Dashboard</li>
         </ol>
       </nav>
@@ -421,7 +421,7 @@ useEffect(() => {
 
 
                 <div className="card-body">
-                  <h5 className="card-title">Doanh thu <span>| {cardFilter}</span></h5>
+                  <h5 className="card-title">Doanh thu <span>| {cardFilter ? 'năm' : ''}</span></h5>
 
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center fw-bold">
@@ -429,7 +429,7 @@ useEffect(() => {
                     </div>
                     <div className="ps-3">
                       <h6>{revenue}</h6>
-                      <span className="text-success small pt-1 fw-bold">8%</span> <span className="text-muted small pt-2 ps-1">increase</span>
+                      <span className="text-success small pt-1 fw-bold">8%</span> <span className="text-muted small pt-2 ps-1">tăng</span>
 
                     </div>
                   </div>
@@ -457,7 +457,7 @@ useEffect(() => {
                 </div>
 
                 <div className="card-body">
-                  <h5 className="card-title">Số Khách hàng <span>| {cardFilter}</span></h5>
+                  <h5 className="card-title">Số Khách hàng <span>| {cardFilter ? 'năm' : ''}</span></h5>
 
                   <div className="d-flex align-items-center">
                     <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
@@ -465,7 +465,7 @@ useEffect(() => {
                     </div>
                     <div className="ps-3">
                       <h6>{amountBooking}</h6>
-                      <span className="text-danger small pt-1 fw-bold">12%</span> <span className="text-muted small pt-2 ps-1">decrease</span>
+                      <span className="text-danger small pt-1 fw-bold">12%</span> <span className="text-muted small pt-2 ps-1">giảm</span>
 
                     </div>
                   </div>

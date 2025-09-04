@@ -214,6 +214,7 @@ function Booking () {
                 showTimeId: time.showTimeId,
                 userId: user.userId,
                 seats: newSeats.join(', '), // ghế đang chọn
+                created_at: new Date().toISOString()
             }
             
             if(client.current && client.current.connected) {
